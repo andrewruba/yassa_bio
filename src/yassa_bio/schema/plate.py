@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Literal, List, Optional
 from pydantic import BaseModel, Field
-from yassa_bio.config.well import Well
-from yassa_bio.config.standard import StandardSeries
+from yassa_bio.schema.well import Well
+from yassa_bio.schema.standard import StandardSeries
 
 
 class Plate(BaseModel):

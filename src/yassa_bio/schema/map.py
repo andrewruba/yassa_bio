@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List
 from pydantic import BaseModel, Field
-from yassa_bio.config.plate import Plate
+from yassa_bio.schema.plate import Plate
 
 
 class DataMap(BaseModel):
