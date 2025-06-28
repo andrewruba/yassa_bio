@@ -1,9 +1,9 @@
 [project]
 name = "yassa-bio"
 version = "0.1.0"
-description = ""
+description = "Open-source engine for ELISA & other ligand-binding assay analysis, validation and QC."
 authors = [
-    {name = "Your Name",email = "you@example.com"}
+    {name = "Andrew Ruba",email = "ruba.andrew@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
