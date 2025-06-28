@@ -15,13 +15,6 @@ class FileRef(BaseModel):
             "If None, filename is used as the key."
         ),
     )
-    sheet_index: int = Field(
-        0,
-        description=(
-            "0-based sheet index when the file is a multi-sheet XLS/X. "
-            "For CSV/TXT leave as 0."
-        ),
-    )
     delim: Optional[str] = Field(
         None,
         description=(

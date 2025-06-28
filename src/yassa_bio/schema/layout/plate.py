@@ -12,6 +12,13 @@ class Plate(BaseModel):
         ...,
         description="Stable identifier: barcode, run name, or UUID.",
     )
+    sheet_index: int = Field(
+        0,
+        description=(
+            "0-based sheet index when the raw file is a multi-sheet XLS/X. "
+            "For CSV/TXT leave as 0."
+        ),
+    )
     plate_format: Literal[96, 384, 1536] = Field(
         96,
         description="Well count of the plate (default 96).",
