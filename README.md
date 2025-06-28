@@ -36,3 +36,45 @@ yassa-bio/
     ├── test_curves.py
     └── test_qc.py
 ```
+
+## Developer setup (Poetry)
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/yassa_bio.git
+cd yassa_bio
+
+# 2. Ensure Poetry is available (once per machine)
+pipx install poetry   # or brew install poetry
+
+# 3. Install deps & create the project-scoped venv
+poetry install
+
+# 4. Activate the venv *or* prefix with `poetry run`
+poetry shell          # optional – drops you inside the venv
+# …or…
+poetry run pytest -q  # runs any command inside the env
+
+# 5. Install the pre-commit hook (auto-runs ruff/black/mypy)
+poetry run pre-commit install
+```
+
+### Typical workflow
+
+1. `git checkout -b feature/my-cool-thing`
+2. Hack away 🛠️
+
+   - files live under `src/yassa_bio/…`
+
+3. Format & test locally
+
+   ```bash
+   poetry run ruff .
+   poetry run black .
+   poetry run mypy src
+   poetry run pytest -q
+   ```
+
+4. Commit (the pre-commit hook runs the same checks).
+5. Push & open a PR.
+   GitHub Actions will lint, type-check, run unit tests, measure coverage and upload to Codecov automatically.

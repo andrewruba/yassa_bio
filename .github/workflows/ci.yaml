@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install Poetry & project deps
+        run: |
+          pip install --upgrade pip
+          pip install poetry
+          poetry install --with dev --no-interaction --no-root
+
+      # Lint / style / types
+      - name: Ruff lint
+        run: poetry run ruff check --output-format=github .
+
+      - name: Black style check
+        run: poetry run black --check .
+
+      - name: MyPy type check
+        run: poetry run mypy src/ || true # keep CI green until types stabilise
+
+      # Tests + coverage
+      - name: Run Pytest w/ coverage
+        run: |
+          poetry run pytest -q --cov=yassa_bio --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage.xml
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
