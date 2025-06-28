@@ -3,7 +3,21 @@ from pydantic import BaseModel, Field
 
 
 class StandardSeries(BaseModel):
-    start_conc: float = Field(..., description="C₀ (highest standard) in `units`.")
-    dilution_factor: float = Field(..., description="d > 1 (e.g. 2 for 1:2).")
-    num_levels: int = Field(..., description="Total standards prepared (≥ 2).")
-    units: str = "ng/mL"
+    """Nominal concentrations for a serially diluted standard curve."""
+
+    start_conc: float = Field(
+        ...,
+        description="Top standard concentration (C₀) in `units`.",
+    )
+    dilution_factor: float = Field(
+        ...,
+        description="Constant fold-dilution factor (e.g. 2 for 1:2).",
+    )
+    num_levels: int = Field(
+        ...,
+        description="Total number of standards prepared (≥ 2).",
+    )
+    units: str = Field(
+        "ng/mL",
+        description="Concentration units for the series.",
+    )
