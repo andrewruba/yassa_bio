@@ -7,9 +7,13 @@ from datetime import datetime
 class FileRef(BaseModel):
     """Pointer to a raw plate-reader export on disk, S3, GCS, etc."""
 
-    filename: str = Field(
-        ...,
-        description="Exact file name as uploaded; used as a lookup key.",
+    filepath: Optional[str] = Field(
+        None,
+        description=(
+            "Full path to the file on disk or cloud storage. "
+            "Used as the lookup key. "
+            "If None, filename is used as the key."
+        ),
     )
     sheet_index: int = Field(
         0,
