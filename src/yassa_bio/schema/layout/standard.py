@@ -15,6 +15,7 @@ class StandardSeries(BaseModel):
     )
     num_levels: int = Field(
         ...,
+        ge=2,
         description="Total number of standards prepared (≥ 2).",
     )
     concentration_units: str = Field(

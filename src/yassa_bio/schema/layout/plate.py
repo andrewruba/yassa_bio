@@ -14,6 +14,7 @@ class Plate(BaseModel):
     )
     sheet_index: int = Field(
         0,
+        ge=0,
         description=(
             "0-based sheet index when the raw file is a multi-sheet XLS/X. "
             "For CSV/TXT leave as 0."
