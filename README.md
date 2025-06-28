@@ -1,10 +1,10 @@
 # yassa_bio
 **Enhanced repo description**
 
-> **yassa_bio** is an open-source bioanalytical pipeline. Starting with ELISA and other ligand-binding assays (LBA), it is designed to expand into a universal engine for plate-based and chromatographic assays. The library delivers regulatory-grade curve-fitting, quality-control, validation metrics and automated reporting that suit academic labs, CROs and regulated industry environments alike.
->
-> • **For academic & core labs:** easy-to-install Python package, clear APIs, Jupyter-ready helpers and rich PDF/HTML reports let you move from raw plate files to publishable figures in minutes.
-> • **For pharma, biotech & CROs:** built around ICH M10, U.S. FDA Bioanalytical Method Validation (BMV 2018) and USP ⟨1225⟩ guidance—so critical parameters (accuracy/precision, parallelism, dilution linearity, SST, carry-over, etc.) are automatically calculated and flagged.
+**yassa_bio** is an open-source bioanalytical pipeline. Starting with ELISA and other ligand-binding assays (LBA), it is designed to expand into a universal engine for plate-based and chromatographic assays. The library delivers regulatory-grade curve-fitting, quality-control, validation metrics and automated reporting that suit academic labs, CROs and regulated industry environments alike.
+
+• **For academic & core labs:** easy-to-install Python package, clear APIs, Jupyter-ready helpers and rich PDF/HTML reports let you move from raw plate files to publishable figures in minutes.
+• **For pharma, biotech & CROs:** built around ICH M10, U.S. FDA Bioanalytical Method Validation (BMV 2018) and USP ⟨1225⟩ guidance—so critical parameters (accuracy/precision, parallelism, dilution linearity, SST, carry-over, etc.) are automatically calculated and flagged.
 
 ---
 
