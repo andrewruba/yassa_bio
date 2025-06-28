@@ -1,5 +1,4 @@
 # yassa_bio
-**Enhanced repo description**
 
 **yassa_bio** is an open-source bioanalytical pipeline. Starting with ELISA and other ligand-binding assays (LBA), it is designed to expand into a universal engine for plate-based and chromatographic assays. The library delivers regulatory-grade curve-fitting, quality-control, validation metrics and automated reporting that suit academic labs, CROs and regulated industry environments alike.
 
