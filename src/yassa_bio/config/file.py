@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 
 class FileRef(BaseModel):
@@ -23,4 +24,16 @@ class FileRef(BaseModel):
             "Explicit delimiter override (',', ';', or '\\t'). "
             "If None the parser will auto-detect."
         ),
+    )
+    run_date: Optional[datetime] = Field(
+        None,
+        description="Acquisition date/time if known.",
+    )
+    instrument: Optional[str] = Field(
+        None,
+        description="e.g. 'SpectraMax iD5' or reader serial number.",
+    )
+    operator: Optional[str] = Field(
+        None,
+        description="Initials or user ID of analyst.",
     )

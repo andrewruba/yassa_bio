@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class StandardSeries(BaseModel):
     """Nominal concentrations for a serially diluted standard curve."""
 
-    start_conc: float = Field(
+    start_concentration: float = Field(
         ...,
         description="Top standard concentration (C₀) in `units`.",
     )
@@ -17,7 +17,8 @@ class StandardSeries(BaseModel):
         ...,
         description="Total number of standards prepared (≥ 2).",
     )
-    units: str = Field(
+    concentration_units: str = Field(
         "ng/mL",
         description="Concentration units for the series.",
+        examples=["ng/mL", "pg/mL", "mU/mL", "IU/mL"],
     )
