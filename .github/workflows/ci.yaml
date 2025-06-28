@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install poetry
-          poetry install --with dev --no-interaction --no-root
+          poetry install --with dev --no-interaction
 
       # Lint / style / types
       - name: Ruff lint
