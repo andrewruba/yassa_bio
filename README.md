@@ -5,6 +5,7 @@ The library delivers regulatory-grade curve-fitting, quality-control, validation
 
 ## Folder structure
 
+```
 yassa-bio/
 ├── pyproject.toml
 ├── LICENSE                 ← Apache-2.0 text
@@ -31,3 +32,4 @@ yassa-bio/
     ├── __init__.py
     ├── test_curves.py
     └── test_qc.py
+```
