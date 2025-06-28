@@ -15,13 +15,6 @@ class FileRef(BaseModel):
             "If None, filename is used as the key."
         ),
     )
-    delim: Optional[str] = Field(
-        None,
-        description=(
-            "Explicit delimiter override (',', ';', or '\\t'). "
-            "If None the parser will auto-detect."
-        ),
-    )
     run_date: Optional[datetime] = Field(
         None,
         description="Acquisition date/time if known.",
