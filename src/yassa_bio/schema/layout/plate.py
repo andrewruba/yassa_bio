@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Literal, List, Optional
+from typing import List, Optional
 from pydantic import Field
 
+from yassa_bio.schema.layout.enum import PlateFormat
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
 from yassa_bio.core.model import StrictModel
@@ -22,9 +23,9 @@ class Plate(StrictModel):
             "For CSV/TXT leave as 0."
         ),
     )
-    plate_format: Literal[96, 384, 1536] = Field(
-        96,
-        description="Well count of the plate (default 96).",
+    plate_format: PlateFormat = Field(
+        default=PlateFormat.FMT_96,
+        description="Well count of the plate.",
     )
     wells: List[Well]
     standards: Optional[StandardSeries] = Field(

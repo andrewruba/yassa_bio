@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from yassa_bio.schema.layout.map import DataMap
 from yassa_bio.schema.layout.plate import Plate
 from yassa_bio.schema.layout.well import Well
+from yassa_bio.schema.layout.enum import SampleType
 
 
 class TestDataMap:
@@ -11,7 +12,9 @@ class TestDataMap:
     def _make_plate(self, pid="P1"):
         return Plate(
             plate_id=pid,
-            wells=[Well(well="A1", file_row=0, file_col=0, sample_type="blank")],
+            wells=[
+                Well(well="A1", file_row=0, file_col=0, sample_type=SampleType.BLANK)
+            ],
         )
 
     def test_single_plate_ok(self):
@@ -39,7 +42,12 @@ class TestDataMap:
         bad_plate_dict = {
             "plate_id": "Bad",
             "wells": [
-                {"well": "ZZ0", "file_row": 0, "file_col": 0, "sample_type": "blank"}
+                {
+                    "well": "ZZ0",
+                    "file_row": 0,
+                    "file_col": 0,
+                    "sample_type": SampleType.BLANK,
+                }
             ],
         }
         with pytest.raises(ValidationError):

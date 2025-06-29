@@ -1,8 +1,9 @@
 from __future__ import annotations
 import re
-from typing import Optional, Literal
+from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
+from yassa_bio.schema.layout.enum import SampleType
 from yassa_bio.core.model import StrictModel
 
 
@@ -25,7 +26,7 @@ class Well(StrictModel):
         description="0-based absolute column index in the raw file.",
     )
 
-    sample_type: Literal["blank", "standard", "control", "sample", "spike"] = Field(
+    sample_type: SampleType = Field(
         ...,
         description="High-level role of this well in the assay.",
     )
