@@ -9,6 +9,7 @@ from yassa_bio.schema.analysis.enum import (
     LogBase,
     PotencyMethod,
 )
+from yassa_bio.core.typing import Fraction01
 
 
 class CurveFit(SchemaModel):
@@ -37,7 +38,7 @@ class CurveFit(SchemaModel):
 class PotencyOptions(SchemaModel):
     method: Optional[PotencyMethod] = None
     max_slope_ratio: PositiveFloat = 1.20
-    ci_level: PositiveFloat = 0.95
+    ci_level: PositiveFloat = Fraction01(0.95)
 
     @model_validator(mode="after")
     def _check_method_vs_curve(self):

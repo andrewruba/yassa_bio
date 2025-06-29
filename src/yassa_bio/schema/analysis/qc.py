@@ -1,19 +1,21 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List
 from pydantic import (
+    Field,
     PositiveFloat,
     model_validator,
 )
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.layout.enum import QcLevel
+from yassa_bio.core.typing import Percent, Fraction01
 
 
 class AnalyticalRange(SchemaModel):
-    lod: PositiveFloat
-    loq: Optional[PositiveFloat] = None
-    lower: PositiveFloat
-    upper: PositiveFloat
+    lod: PositiveFloat = Field(..., gt=0)
+    loq: PositiveFloat | None = Field(None, gt=0)
+    lower: PositiveFloat = Field(..., gt=0)
+    upper: PositiveFloat = Field(..., gt=0)
     units: str = "ng/mL"
 
     @model_validator(mode="after")
@@ -25,12 +27,15 @@ class AnalyticalRange(SchemaModel):
 
 
 class ReplicateCriteria(SchemaModel):
-    max_cv_percent: PositiveFloat = 10.0
+    max_cv_percent: PositiveFloat = Percent(10.0, lo=1, hi=50)
 
 
 class QcSpec(SchemaModel):
     level: QcLevel
-    tol_pct: tuple[PositiveFloat, PositiveFloat] = (80, 120)
+    tol_pct: tuple[PositiveFloat, PositiveFloat] = (
+        Percent(80, lo=0, hi=200),
+        Percent(120, lo=0, hi=200),
+    )
 
     @model_validator(mode="after")
     def _check_window(self):
@@ -41,9 +46,9 @@ class QcSpec(SchemaModel):
 
 
 class LinearityRules(SchemaModel):
-    r_squared_min: PositiveFloat = 0.98
-    per_level_acc_pct: PositiveFloat = 15.0
-    min_levels_pass: PositiveFloat = 0.75  # fraction (0‑1)
+    r_squared_min: PositiveFloat = Fraction01(0.98, description="0–1")
+    per_level_acc_pct: PositiveFloat = Percent(15.0, lo=5, hi=50)
+    min_levels_pass: PositiveFloat = Fraction01(0.75)
 
     @model_validator(mode="after")
     def _range_check(self):
@@ -53,10 +58,10 @@ class LinearityRules(SchemaModel):
 
 
 class DilutionLinearity(SchemaModel):
-    max_bias_pct: PositiveFloat = 20.0
-    max_cv_pct: PositiveFloat = 20.0
-    min_levels: int = 3
-    series_required: int = 3
+    max_bias_pct: PositiveFloat = Percent(20.0, lo=5, hi=50)
+    max_cv_pct: PositiveFloat = Percent(20.0, lo=5, hi=50)
+    min_levels: int = Field(3, ge=3, le=8)
+    series_required: int = Field(3, ge=1, le=10)
 
     @model_validator(mode="after")
     def _positive_ints(self):
@@ -68,12 +73,12 @@ class DilutionLinearity(SchemaModel):
 
 
 class HookEffectCheck(SchemaModel):
-    threshold_pct_of_undiluted: PositiveFloat = 80.0
+    threshold_pct_of_undiluted: PositiveFloat = Percent(80.0, lo=50, hi=100)
 
 
 class TotalErrorRule(SchemaModel):
-    overall_pct: PositiveFloat = 30.0
-    loq_pct: PositiveFloat = 40.0
+    overall_pct: PositiveFloat = Percent(30.0, lo=5, hi=100)
+    loq_pct: PositiveFloat = Percent(40.0, lo=5, hi=100)
 
 
 class QCSpec(SchemaModel):

@@ -1,16 +1,17 @@
 from __future__ import annotations
 from typing import Optional
-from pydantic import PositiveFloat, model_validator
+from pydantic import Field, PositiveFloat, model_validator
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.analysis.enum import OutlierRule
+from yassa_bio.core.typing import Fraction01
 
 
 class OutlierParams(SchemaModel):
     rule: Optional[OutlierRule] = None
-    z_threshold: PositiveFloat | None = 3.0
-    grubbs_alpha: PositiveFloat = 0.05
-    iqr_k: PositiveFloat = 1.5
+    z_threshold: PositiveFloat | None = Field(3.0, ge=2, le=10)
+    grubbs_alpha: PositiveFloat = Fraction01(0.05)
+    iqr_k: PositiveFloat = Field(1.5, gt=0, le=5)
 
     @model_validator(mode="after")
     def _rule_specific_params(self):
