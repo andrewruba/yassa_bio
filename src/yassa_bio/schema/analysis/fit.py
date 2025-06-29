@@ -12,20 +12,20 @@ from yassa_bio.schema.analysis.enum import (
 
 
 class CurveFit(StrictModel):
-    model: CurveModel = "4PL"
+    model: CurveModel = CurveModel.FOUR_PL
     weighting: Optional[Weighting] = None
     log_x: Optional[LogBase] = None
     log_y: Optional[LogBase] = None
 
     @field_validator("weighting")
     def _weighting_vs_model(cls, v, info: ValidationInfo):
-        if info.data.get("model") == "linear" and v is not None:
+        if info.data.get("model") == CurveModel.LINEAR and v is not None:
             raise ValueError("weighting has no effect when model == 'linear'")
         return v
 
     @model_validator(mode="after")
     def _log_rules(self):
-        if self.model == "linear":
+        if self.model == CurveModel.LINEAR:
             if self.log_y is not None:
                 raise ValueError("log_y must be None for linear model")
         else:
@@ -41,13 +41,20 @@ class PotencyOptions(StrictModel):
 
     @model_validator(mode="after")
     def _check_method_vs_curve(self):
-        curve_model: str = self.__pydantic_extra__["_curve_model"]
+        curve_model: CurveModel = self.__pydantic_extra__["_curve_model"]
         if self.method is None:
-            self.method = "parallel_line" if curve_model == "linear" else "ec50_ratio"
-        if self.method == "parallel_line" and curve_model != "linear":
+            self.method = (
+                PotencyMethod.PARALLEL_LINE
+                if curve_model is CurveModel.LINEAR
+                else PotencyMethod.EC50_RATIO
+            )
+        if (
+            self.method == PotencyMethod.PARALLEL_LINE
+            and curve_model != CurveModel.LINEAR
+        ):
             raise ValueError(
                 "parallel_line potency requires curve_fit.model == 'linear'"
             )
-        if self.method == "ec50_ratio" and curve_model == "linear":
+        if self.method == PotencyMethod.EC50_RATIO and curve_model == CurveModel.LINEAR:
             raise ValueError("ec50_ratio potency requires a non-linear curve model")
         return self

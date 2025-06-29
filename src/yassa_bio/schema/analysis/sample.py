@@ -16,11 +16,13 @@ class OutlierParams(StrictModel):
     def _rule_specific_params(self):
         if self.rule is None:
             return self
-        if self.rule == "zscore" and self.z_threshold is None:
+        if self.rule == OutlierRule.ZSCORE and self.z_threshold is None:
             raise ValueError("z_threshold required for zscore rule")
-        if self.rule in {"grubbs", "rosner"} and not (0 < self.grubbs_alpha < 1):
+        if self.rule in {OutlierRule.GRUBBS, OutlierRule.ROSNER} and not (
+            0 < self.grubbs_alpha < 1
+        ):
             raise ValueError("grubbs_alpha must be in (0,1)")
-        if self.rule == "iqr" and self.iqr_k <= 0:
+        if self.rule == OutlierRule.IQR and self.iqr_k <= 0:
             raise ValueError("iqr_k must be > 0")
         return self
 
