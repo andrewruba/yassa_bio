@@ -34,6 +34,12 @@ class ControlWindow(StrictModel):
     max_value: PositiveFloat
     units: str = "ng/mL"
 
+    @model_validator(mode="after")
+    def _min_lt_max(self):
+        if self.min_value >= self.max_value:
+            raise ValueError("min_value must be < max_value")
+        return self
+
 
 class SpikeRecovery(StrictModel):
     spike_id: str
@@ -47,12 +53,26 @@ class LinearityRules(StrictModel):
     per_level_acc_pct: PositiveFloat = 15.0
     min_levels_pass: PositiveFloat = 0.75  # fraction (0‑1)
 
+    @model_validator(mode="after")
+    def _range_check(self):
+        if not (0 < self.min_levels_pass <= 1):
+            raise ValueError("min_levels_pass must be in (0,1]")
+        return self
+
 
 class DilutionLinearity(StrictModel):
     max_bias_pct: PositiveFloat = 20.0
     max_cv_pct: PositiveFloat = 20.0
     min_levels: int = 3
     series_required: int = 3
+
+    @model_validator(mode="after")
+    def _positive_ints(self):
+        if self.min_levels < 3:
+            raise ValueError("min_levels must be ≥ 3")
+        if self.series_required < 1:
+            raise ValueError("series_required must be ≥ 1")
+        return self
 
 
 class HookEffectCheck(StrictModel):
