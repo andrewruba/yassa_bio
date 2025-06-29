@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 
-class FileRef(BaseModel):
+class PlateReaderFile(BaseModel):
     """Pointer to a raw plate-reader export on disk, S3, GCS, etc."""
 
     filepath: Optional[str] = Field(
