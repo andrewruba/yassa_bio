@@ -7,7 +7,7 @@ from yassa_bio.schema.analysis.enum import OutlierRule
 
 
 class OutlierParams(StrictModel):
-    rule: OutlierRule = "none"
+    rule: Optional[OutlierRule] = None
     z_threshold: PositiveFloat | None = 3.0
     grubbs_alpha: PositiveFloat = 0.05
     iqr_k: PositiveFloat = 1.5

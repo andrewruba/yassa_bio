@@ -24,7 +24,7 @@ class AnalyticalRange(StrictModel):
         return self
 
 
-class DuplicateCriteria(StrictModel):
+class ReplicateCriteria(StrictModel):
     max_cv_percent: PositiveFloat = 10.0
 
 
@@ -52,6 +52,7 @@ class DilutionLinearity(StrictModel):
     max_bias_pct: PositiveFloat = 20.0
     max_cv_pct: PositiveFloat = 20.0
     min_levels: int = 3
+    series_required: int = 3
 
 
 class HookEffectCheck(StrictModel):
@@ -64,7 +65,7 @@ class TotalErrorRule(StrictModel):
 
 
 class QCSpec(StrictModel):
-    duplicate_cv: DuplicateCriteria = DuplicateCriteria()
+    duplicate_cv: ReplicateCriteria = ReplicateCriteria()
     controls: List[ControlWindow] = []  # kit or in‑house QCs
     spikes: List[SpikeRecovery] = []
     standards_nominal: List[PositiveFloat] | None = None  # Std‑0 … Std‑N

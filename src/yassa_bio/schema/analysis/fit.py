@@ -13,13 +13,12 @@ from yassa_bio.schema.analysis.enum import (
 
 class CurveFit(StrictModel):
     model: CurveModel = "4PL"
-    weighting: Weighting = "1"
-    log_x: LogBase = "10"
-    log_y: LogBase = "none"
+    weighting: Optional[Weighting] = None
+    log_x: Optional[LogBase] = None
+    log_y: Optional[LogBase] = None
 
 
 class PotencyOptions(StrictModel):
-    method: PotencyMethod = "none"
-    reference_label: Optional[str] = None  # name of reference curve/sample
+    method: Optional[PotencyMethod] = None
     max_slope_ratio: PositiveFloat = 1.20  # used only if method != 'none'
     ci_level: PositiveFloat = 0.95
