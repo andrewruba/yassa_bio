@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Literal, List, Optional
 from pydantic import BaseModel, Field
+
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
 
