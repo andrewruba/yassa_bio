@@ -1,12 +1,13 @@
 from __future__ import annotations
 from typing import Literal, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
+from yassa_bio.core.models import StrictModel
 
 
-class Plate(BaseModel):
+class Plate(StrictModel):
     """One physical plate with its wells."""
 
     plate_id: str = Field(

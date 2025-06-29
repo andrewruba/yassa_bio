@@ -1,8 +1,10 @@
 from __future__ import annotations
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from yassa_bio.core.models import StrictModel
 
 
-class StandardSeries(BaseModel):
+class StandardSeries(StrictModel):
     """Nominal concentrations for a serially diluted standard curve."""
 
     start_concentration: float = Field(

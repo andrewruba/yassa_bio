@@ -1,11 +1,12 @@
 from __future__ import annotations
 import re
 from typing import Optional, Literal
+from pydantic import Field, model_validator, field_validator
 
-from pydantic import BaseModel, Field, model_validator, field_validator
+from yassa_bio.core.models import StrictModel
 
 
-class Well(BaseModel):
+class Well(StrictModel):
     """Map one physical well to its location in the raw data table."""
 
     well: str = Field(

@@ -1,11 +1,13 @@
 from __future__ import annotations
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from yassa_bio.core.models import StrictModel
 
 from yassa_bio.schema.layout.plate import Plate
 
 
-class DataMap(BaseModel):
+class DataMap(StrictModel):
     """Map of a tabular plate-reader export file to physical plates and wells."""
 
     plates: List[Plate] = Field(

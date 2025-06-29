@@ -1,10 +1,12 @@
 from __future__ import annotations
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import Field
 from datetime import datetime
 
+from yassa_bio.core.models import StrictModel
 
-class PlateReaderFile(BaseModel):
+
+class PlateReaderFile(StrictModel):
     """Pointer to a raw plate-reader export on disk, S3, GCS, etc."""
 
     filepath: Optional[str] = Field(
