@@ -189,6 +189,55 @@ class SpikeLevel(BaseModel):
     )
 
 
+class LinearityAcceptance(BaseModel):
+    """Standard-curve linearity & back-calc accuracy rules (ICH M10 §4.2.3)."""
+
+    r_squared_min: PositiveFloat = 0.98  # global curve fit
+    per_level_acc_pct: PositiveFloat = 15.0  # ±15 % (±25 % for LLOQ/ULOQ)
+    min_levels_pass: PositiveFloat = 0.75  # ≥75 % of levels must pass
+
+
+class DilutionLinearitySpec(BaseModel):
+    enabled: bool = False  # turn test on/off per study
+    max_bias_pct: PositiveFloat = 20.0  # accuracy after dilution
+    max_cv_pct: PositiveFloat = 20.0  # precision across dilutions
+    min_levels: int = 3  # ≥3 dilution levels required
+
+
+class HookEffectSpec(BaseModel):
+    enabled: bool = False
+    threshold_pct_of_undiluted: PositiveFloat = 80.0
+    """If undiluted signal < this % of first dilution → flag hook effect."""
+
+
+class TotalErrorSpec(BaseModel):
+    """ICH M10 allows Total Error ≤30 % (≤40 % at LLOQ/ULOQ)."""
+
+    enabled: bool = False
+    limit_overall_pct: PositiveFloat = 30.0
+    limit_loq_pct: PositiveFloat = 40.0
+
+
+class RobustnessFactor(BaseModel):
+    factor: str  # e.g. "Incubation Temp", "Wash Speed"
+    low: str  # human-readable low setting (e.g. "20 °C")
+    high: str  # high setting (e.g. "28 °C")
+    acceptance: str | None = None
+    """
+    Optional free-text criterion (“<10 % shift vs nominal”).
+    """
+
+
+class RobustnessMatrix(BaseModel):
+    """
+    Design of Experiments (DoE) for robustness: each entry is a factor varied
+    while others are nominal.  The pipeline can iterate & record pass/fail.
+    """
+
+    enabled: bool = False
+    factors: List[RobustnessFactor] = []
+
+
 class QCSpec(BaseModel):
     max_cv_percent: PositiveFloat = Field(
         20.0, description="Allowed %CV for replicate precision."
@@ -210,6 +259,12 @@ class QCSpec(BaseModel):
     limits: Optional[AnalyticalLimits] = None  # LOD / LOQ / range
     standards: Optional[StandardPanel] = None  # expected std curve
     spikes: List[SpikeLevel] = []
+
+    linearity: LinearityAcceptance = LinearityAcceptance()
+    dilution_linearity: DilutionLinearitySpec = DilutionLinearitySpec()
+    hook_effect: HookEffectSpec = HookEffectSpec()
+    total_error: TotalErrorSpec = TotalErrorSpec()
+    robustness: RobustnessMatrix = RobustnessMatrix()
 
 
 class GrubbsParams(BaseModel):
@@ -272,6 +327,23 @@ class Instrument(BaseModel):
     )
 
 
+class CalibrationSpec(BaseModel):
+    min_levels: int = 6
+    allow_anchor: bool = True
+    backcalc_acc_pct: PositiveFloat = 15.0  # LLOQ/ULOQ default 25
+
+
+class CarryoverSpec(BaseModel):
+    required: bool = False
+    blank_threshold_pct_lloq: PositiveFloat = 20.0
+
+
+class ValidationDesign(BaseModel):
+    runs: PositiveFloat = 6
+    days: PositiveFloat = 2
+    analysts: PositiveFloat = 2
+
+
 # ────────────────────── root schema ──────────────────────
 class ElisaAnalysisConfig(BaseModel):
     meta: Metadata
@@ -281,6 +353,9 @@ class ElisaAnalysisConfig(BaseModel):
     sample: SampleProcessing
     report: ReportOptions
     instrument: Optional[Instrument] = None
+    calibration: CalibrationSpec = CalibrationSpec()
+    carryover: CarryoverSpec = CarryoverSpec()
+    validation_plan: Optional[ValidationDesign] = None
 
     model_config = dict(
         title="ElisaAnalysisConfig",
