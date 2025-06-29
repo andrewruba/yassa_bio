@@ -7,7 +7,8 @@ from yassa_bio.core.model import SchemaModel
 class CalibrationCurve(SchemaModel):
     min_levels: int = 6
     allow_anchor: bool = True
-    backcalc_acc_pct: PositiveFloat = 15.0  # ±25 % for LLOQ/ULOQ handled in code
+    backcalc_acc_pct: PositiveFloat = 15.0
+    edge_acc_pct: PositiveFloat = 25.0
 
 
 class CarryoverCheck(SchemaModel):
