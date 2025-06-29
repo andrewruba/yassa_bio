@@ -13,3 +13,5 @@ class CalibrationCurve(SchemaModel):
 
 class CarryoverCheck(SchemaModel):
     blank_threshold_pct_lloq: PositiveFloat = 20.0
+    analyte_pct_of_lloq: PositiveFloat = 20.0
+    internal_std_pct_of_ref: PositiveFloat = 5.0
