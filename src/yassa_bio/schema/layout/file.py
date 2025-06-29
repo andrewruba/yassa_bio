@@ -3,10 +3,10 @@ from typing import Optional
 from pydantic import Field
 from datetime import datetime
 
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 
 
-class PlateReaderFile(StrictModel):
+class PlateReaderFile(SchemaModel):
     """Pointer to a raw plate-reader export on disk, S3, GCS, etc."""
 
     filepath: str = Field(

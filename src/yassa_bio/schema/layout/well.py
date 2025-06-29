@@ -4,10 +4,10 @@ from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
 from yassa_bio.schema.layout.enum import SampleType
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 
 
-class Well(StrictModel):
+class Well(SchemaModel):
     """Map one physical well to its location in the raw data table."""
 
     well: str = Field(

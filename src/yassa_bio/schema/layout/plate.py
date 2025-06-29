@@ -5,10 +5,10 @@ from pydantic import Field
 from yassa_bio.schema.layout.enum import PlateFormat
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 
 
-class Plate(StrictModel):
+class Plate(SchemaModel):
     """One physical plate with its wells."""
 
     plate_id: str = Field(

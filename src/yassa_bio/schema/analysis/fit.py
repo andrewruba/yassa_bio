@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from pydantic import PositiveFloat, field_validator, model_validator, ValidationInfo
 
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.analysis.enum import (
     CurveModel,
     Weighting,
@@ -11,7 +11,7 @@ from yassa_bio.schema.analysis.enum import (
 )
 
 
-class CurveFit(StrictModel):
+class CurveFit(SchemaModel):
     model: CurveModel = CurveModel.FOUR_PL
     weighting: Optional[Weighting] = None
     log_x: Optional[LogBase] = None
@@ -34,7 +34,7 @@ class CurveFit(StrictModel):
         return self
 
 
-class PotencyOptions(StrictModel):
+class PotencyOptions(SchemaModel):
     method: Optional[PotencyMethod] = None
     max_slope_ratio: PositiveFloat = 1.20
     ci_level: PositiveFloat = 0.95

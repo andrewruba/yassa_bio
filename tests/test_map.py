@@ -12,9 +12,7 @@ class TestDataMap:
     def _make_plate(self, pid="P1"):
         return Plate(
             plate_id=pid,
-            wells=[
-                Well(well="A1", file_row=0, file_col=0, sample_type=SampleType.BLANK)
-            ],
+            wells=[Well(well="A1", file_row=0, file_col=0, sample_type="blank")],
         )
 
     def test_single_plate_ok(self):

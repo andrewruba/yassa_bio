@@ -1,19 +1,19 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 
 
-class TestStrictModel:
+class TestSchemaModel:
 
-    class Demo(StrictModel):
+    class Demo(SchemaModel):
         x: int
         y: float = 1.5
 
     @pytest.mark.parametrize("bad_payload", [{"x": "5"}, {"x": 1, "y": "3.2"}])
-    def test_strict_typing_rejects_coercion(self, bad_payload):
-        with pytest.raises(ValidationError):
-            self.Demo(**bad_payload)
+    def test_accepts_coercion(self, bad_payload):
+        d = self.Demo(**bad_payload)
+        assert isinstance(d.x, int) and isinstance(d.y, float)
 
     def test_valid_payload_passes(self):
         d = self.Demo(x=3, y=2.5)

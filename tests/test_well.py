@@ -4,13 +4,12 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.layout.well import Well
-from yassa_bio.schema.layout.enum import SampleType
 
 
 class TestWell:
 
     def _base_kwargs(self, **overrides):
-        base = dict(well="A1", file_row=0, file_col=0, sample_type=SampleType.SAMPLE)
+        base = dict(well="A1", file_row=0, file_col=0, sample_type="sample")
         base.update(overrides)
         return base
 
@@ -30,7 +29,7 @@ class TestWell:
     def test_concentration_with_units_ok(self):
         w = Well(
             **self._base_kwargs(
-                sample_type=SampleType.STANDARD,
+                sample_type="standard",
                 concentration=5.5,
                 concentration_units="ng/mL",
             )

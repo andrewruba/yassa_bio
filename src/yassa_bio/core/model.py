@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 
-class StrictModel(BaseModel):
+class SchemaModel(BaseModel):
     model_config = {
         "extra": "forbid",
-        "strict": True,
+        "strict": False,
         "frozen": True,
     }

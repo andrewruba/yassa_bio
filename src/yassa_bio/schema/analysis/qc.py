@@ -5,10 +5,10 @@ from pydantic import (
     model_validator,
 )
 
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 
 
-class AnalyticalRange(StrictModel):
+class AnalyticalRange(SchemaModel):
     lod: PositiveFloat
     loq: Optional[PositiveFloat] = None
     lower: PositiveFloat
@@ -24,11 +24,11 @@ class AnalyticalRange(StrictModel):
         return self
 
 
-class ReplicateCriteria(StrictModel):
+class ReplicateCriteria(SchemaModel):
     max_cv_percent: PositiveFloat = 10.0
 
 
-class ControlWindow(StrictModel):
+class ControlWindow(SchemaModel):
     qc_id: str
     min_value: PositiveFloat
     max_value: PositiveFloat
@@ -41,14 +41,14 @@ class ControlWindow(StrictModel):
         return self
 
 
-class SpikeRecovery(StrictModel):
+class SpikeRecovery(SchemaModel):
     spike_id: str
     added_conc: PositiveFloat
     target_recovery_pct: tuple[PositiveFloat, PositiveFloat] = (80.0, 120.0)
     units: str = "ng/mL"
 
 
-class LinearityRules(StrictModel):
+class LinearityRules(SchemaModel):
     r_squared_min: PositiveFloat = 0.98
     per_level_acc_pct: PositiveFloat = 15.0
     min_levels_pass: PositiveFloat = 0.75  # fraction (0‑1)
@@ -60,7 +60,7 @@ class LinearityRules(StrictModel):
         return self
 
 
-class DilutionLinearity(StrictModel):
+class DilutionLinearity(SchemaModel):
     max_bias_pct: PositiveFloat = 20.0
     max_cv_pct: PositiveFloat = 20.0
     min_levels: int = 3
@@ -75,16 +75,16 @@ class DilutionLinearity(StrictModel):
         return self
 
 
-class HookEffectCheck(StrictModel):
+class HookEffectCheck(SchemaModel):
     threshold_pct_of_undiluted: PositiveFloat = 80.0
 
 
-class TotalErrorRule(StrictModel):
+class TotalErrorRule(SchemaModel):
     overall_pct: PositiveFloat = 30.0
     loq_pct: PositiveFloat = 40.0
 
 
-class QCSpec(StrictModel):
+class QCSpec(SchemaModel):
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
     controls: List[ControlWindow] = []  # kit or in‑house QCs
     spikes: List[SpikeRecovery] = []

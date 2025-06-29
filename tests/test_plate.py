@@ -4,14 +4,14 @@ from pydantic import ValidationError
 from yassa_bio.schema.layout.plate import Plate
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
-from yassa_bio.schema.layout.enum import PlateFormat, SampleType
+from yassa_bio.schema.layout.enum import PlateFormat
 
 
 class TestPlate:
 
     def _make_wells(self, n=2):
         return [
-            Well(well=f"A{i+1}", file_row=0, file_col=i, sample_type=SampleType.SAMPLE)
+            Well(well=f"A{i+1}", file_row=0, file_col=i, sample_type="sample")
             for i in range(n)
         ]
 
@@ -29,7 +29,7 @@ class TestPlate:
         p = Plate(
             plate_id="EZHNPY-25K",
             sheet_index=2,
-            plate_format=PlateFormat.FMT_384,
+            plate_format=384,
             wells=wells,
             standards=stds,
         )
@@ -44,7 +44,7 @@ class TestPlate:
         with pytest.raises(ValidationError):
             Plate(plate_id="P2", sheet_index=bad_index, wells=self._make_wells(1))
 
-    @pytest.mark.parametrize("bad_format", [24, 100, 640, "96"])
+    @pytest.mark.parametrize("bad_format", [24, 100, 640, "99"])
     def test_bad_plate_format_raises(self, bad_format):
         with pytest.raises(ValidationError):
             Plate(plate_id="P2", plate_format=bad_format, wells=self._make_wells(1))
@@ -66,7 +66,7 @@ class TestPlate:
             "well": "ZZ0",
             "file_row": 0,
             "file_col": 0,
-            "sample_type": SampleType.SAMPLE,
+            "sample_type": "sample",
         }
         with pytest.raises(ValidationError):
             Plate(plate_id="Bad", wells=[bad_well_dict])

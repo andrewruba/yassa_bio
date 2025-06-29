@@ -2,11 +2,11 @@ from __future__ import annotations
 from typing import Optional
 from pydantic import PositiveFloat, model_validator
 
-from yassa_bio.core.model import StrictModel
+from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.analysis.enum import OutlierRule
 
 
-class OutlierParams(StrictModel):
+class OutlierParams(SchemaModel):
     rule: Optional[OutlierRule] = None
     z_threshold: PositiveFloat | None = 3.0
     grubbs_alpha: PositiveFloat = 0.05
@@ -27,7 +27,7 @@ class OutlierParams(StrictModel):
         return self
 
 
-class SampleProcessing(StrictModel):
+class SampleProcessing(SchemaModel):
     blank_subtract: bool = True
     normalize_to_control: Optional[str] = None
     outliers: OutlierParams = OutlierParams()
