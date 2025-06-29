@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pydantic import Field
 
-from yassa_bio.core.models import StrictModel
+from yassa_bio.core.model import StrictModel
 
 
 class StandardSeries(StrictModel):

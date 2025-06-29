@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.core.models import StrictModel
+from yassa_bio.core.model import StrictModel
 
 
 class TestStrictModel:

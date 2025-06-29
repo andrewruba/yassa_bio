@@ -3,7 +3,7 @@ import re
 from typing import Optional, Literal
 from pydantic import Field, model_validator, field_validator
 
-from yassa_bio.core.models import StrictModel
+from yassa_bio.core.model import StrictModel
 
 
 class Well(StrictModel):

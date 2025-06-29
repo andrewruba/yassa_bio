@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import Field
 from datetime import datetime
 
-from yassa_bio.core.models import StrictModel
+from yassa_bio.core.model import StrictModel
 
 
 class PlateReaderFile(StrictModel):

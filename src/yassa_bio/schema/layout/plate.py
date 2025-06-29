@@ -4,7 +4,7 @@ from pydantic import Field
 
 from yassa_bio.schema.layout.well import Well
 from yassa_bio.schema.layout.standard import StandardSeries
-from yassa_bio.core.models import StrictModel
+from yassa_bio.core.model import StrictModel
 
 
 class Plate(StrictModel):
