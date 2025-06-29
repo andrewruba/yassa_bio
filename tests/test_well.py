@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.layout.well import Well
+from yassa_bio.schema.layout.enum import QcLevel
 
 
 class TestWell:
@@ -79,6 +80,21 @@ class TestWell:
     def test_concentration_without_units_raises(self):
         with pytest.raises(ValidationError):
             Well(**self._base_kwargs(concentration=7.5))
+
+    @pytest.mark.parametrize("non_qc_sample_type", ["standard", "sample", "blank"])
+    def test_qc_level_only_on_qc_wells(self, non_qc_sample_type):
+        with pytest.raises(ValidationError):
+            Well(**self._base_kwargs(sample_type=non_qc_sample_type, qc_level="low"))
+
+    @pytest.mark.parametrize("sample_type", ["control", "spike"])
+    def test_qc_level_allowed_on_control_and_spike(self, sample_type):
+        w = Well(
+            **self._base_kwargs(
+                sample_type=sample_type,
+                qc_level="high",
+            )
+        )
+        assert w.qc_level is QcLevel.HIGH
 
     def test_invalid_sample_type_raises(self):
         with pytest.raises(ValidationError):

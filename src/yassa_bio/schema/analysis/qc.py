@@ -6,6 +6,7 @@ from pydantic import (
 )
 
 from yassa_bio.core.model import SchemaModel
+from yassa_bio.schema.layout.enum import QcLevel
 
 
 class AnalyticalRange(SchemaModel):
@@ -15,7 +16,6 @@ class AnalyticalRange(SchemaModel):
     upper: PositiveFloat
     units: str = "ng/mL"
 
-    # cross‑field sanity
     @model_validator(mode="after")
     def _check_bounds(self):
         assert self.lower < self.upper, "lower must be < upper"
@@ -28,24 +28,16 @@ class ReplicateCriteria(SchemaModel):
     max_cv_percent: PositiveFloat = 10.0
 
 
-class ControlWindow(SchemaModel):
-    qc_id: str
-    min_value: PositiveFloat
-    max_value: PositiveFloat
-    units: str = "ng/mL"
+class QcSpec(SchemaModel):
+    level: QcLevel
+    tol_pct: tuple[PositiveFloat, PositiveFloat] = (80, 120)
 
     @model_validator(mode="after")
-    def _min_lt_max(self):
-        if self.min_value >= self.max_value:
-            raise ValueError("min_value must be < max_value")
+    def _check_window(self):
+        lo, hi = self.tol_pct
+        if lo >= hi:
+            raise ValueError("tol_pct lower bound must be < upper bound")
         return self
-
-
-class SpikeRecovery(SchemaModel):
-    spike_id: str
-    added_conc: PositiveFloat
-    target_recovery_pct: tuple[PositiveFloat, PositiveFloat] = (80.0, 120.0)
-    units: str = "ng/mL"
 
 
 class LinearityRules(SchemaModel):
@@ -86,8 +78,7 @@ class TotalErrorRule(SchemaModel):
 
 class QCSpec(SchemaModel):
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
-    controls: List[ControlWindow] = []  # kit or in‑house QCs
-    spikes: List[SpikeRecovery] = []
+    bands: List[QcSpec] = [QcSpec(level=QcLevel.ALL)]
     standards_nominal: List[PositiveFloat] | None = None  # Std‑0 … Std‑N
     linearity: LinearityRules = LinearityRules()
     dilution: DilutionLinearity = DilutionLinearity()

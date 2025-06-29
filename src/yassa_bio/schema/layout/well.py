@@ -3,7 +3,7 @@ import re
 from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
-from yassa_bio.schema.layout.enum import SampleType
+from yassa_bio.schema.layout.enum import SampleType, QcLevel
 from yassa_bio.core.model import SchemaModel
 
 
@@ -29,6 +29,13 @@ class Well(SchemaModel):
     sample_type: SampleType = Field(
         ...,
         description="High-level role of this well in the assay.",
+    )
+    qc_level: Optional[QcLevel] = Field(
+        None,
+        description=(
+            "QC band for CONTROL or SPIKE wells. "
+            "Leave blank when the assay has only one global tolerance band."
+        ),
     )
     replicate: Optional[int] = Field(
         None,
@@ -95,3 +102,12 @@ class Well(SchemaModel):
                 "(letters followed by a non-zero column number)"
             )
         return v
+
+    @model_validator(mode="after")
+    def _qc_level_allowed_for_type(self):
+        if (
+            self.sample_type not in {SampleType.CONTROL, SampleType.SPIKE}
+            and self.qc_level
+        ):
+            raise ValueError("qc_level only valid on CONTROL or SPIKE wells")
+        return self

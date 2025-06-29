@@ -13,3 +13,12 @@ class SampleType(StrEnum):
     CONTROL = "control"
     SAMPLE = "sample"
     SPIKE = "spike"
+
+
+class QcLevel(StrEnum):
+    LOW = "low"
+    MID = "mid"
+    HIGH = "high"
+    BLANK = "blank"
+    ALL = "all"
+    OTHER = "other"

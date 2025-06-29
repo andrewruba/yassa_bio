@@ -30,7 +30,6 @@ class LigandBindingAnalysisConfig(SchemaModel):
 
 
 # TODO:
-# - qc_id in ControlWindow is freetext, should we use a more structured approach to match? Currently, we have just "control". Could we add control_high, control_low, control_blank, etc.?
 # - add limits to certain fields, e.g. min_levels_pass in LinearityRules.
 # - add description fields to all models for clarity
 # - review regulatory requirements for ligand binding assays and ensure all necessary parameters are included and grouped in the way that makes sense according to those requirements.
