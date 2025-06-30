@@ -11,31 +11,19 @@ from yassa_bio.schema.layout.enum import QcLevel
 from yassa_bio.core.typing import Percent, Fraction01
 
 
-class AnalyticalRange(SchemaModel):
-    lod: PositiveFloat = Field(
-        ..., gt=0, description="Lower limit of detection for the assay."
+class DetectionRule(SchemaModel):
+    lod_snr: float = Field(
+        3.0,
+        description=(
+            "LOD threshold: signal must be at least this multiple of the standard deviation of blanks (SNR ≥ N)."
+        ),
     )
-    loq: PositiveFloat | None = Field(
-        None, gt=0, description="Lower limit of quantitation; must exceed LOD."
+    loq_snr: float = Field(
+        10.0,
+        description=(
+            "LOQ threshold: signal must be at least this multiple of the standard deviation of blanks (SNR ≥ N)."
+        ),
     )
-    lower: PositiveFloat = Field(
-        ..., gt=0, description="Lower bound of quantifiable range."
-    )
-    upper: PositiveFloat = Field(
-        ..., gt=0, description="Upper bound of quantifiable range."
-    )
-    units: str = Field(
-        ...,
-        description="Units used for all concentration values in this range (e.g. 'ng/mL').",
-        examples=["ng/mL", "pg/mL", "mU/mL", "IU/mL"],
-    )
-
-    @model_validator(mode="after")
-    def _check_bounds(self):
-        assert self.lower < self.upper, "lower must be < upper"
-        if self.loq:
-            assert self.lod < self.loq <= self.lower, "LOD < LOQ ≤ lower range"
-        return self
 
 
 class ReplicateCriteria(SchemaModel):
@@ -117,7 +105,4 @@ class QCSpec(SchemaModel):
     dilution: DilutionLinearity = DilutionLinearity()
     hook: HookEffectCheck = HookEffectCheck()
     total_error: TotalErrorRule = TotalErrorRule()
-    analytical_range: AnalyticalRange | None = Field(
-        None,
-        description="Overall dynamic range and quantitation thresholds of the assay.",
-    )
+    detection_rule: DetectionRule = DetectionRule()
