@@ -8,10 +8,25 @@ from yassa_bio.core.typing import Fraction01
 
 
 class OutlierParams(SchemaModel):
-    rule: Optional[OutlierRule] = None
-    z_threshold: PositiveFloat | None = Field(3.0, ge=2, le=10)
-    grubbs_alpha: PositiveFloat = Fraction01(0.05)
-    iqr_k: PositiveFloat = Field(1.5, gt=0, le=5)
+    rule: Optional[OutlierRule] = Field(
+        None,
+        description="Statistical test to apply for outlier detection (e.g., Grubbs, Rosner, IQR).",
+    )
+    z_threshold: PositiveFloat | None = Field(
+        3.0,
+        ge=2,
+        le=10,
+        description="Z-score threshold for identifying outliers (used if rule is zscore).",
+    )
+    grubbs_alpha: PositiveFloat = Fraction01(
+        0.05, description="Significance level (α) for Grubbs or Rosner outlier tests."
+    )
+    iqr_k: PositiveFloat = Field(
+        1.5,
+        gt=0,
+        le=5,
+        description="Multiplier for IQR method; defines cutoff from the interquartile range.",
+    )
 
     @model_validator(mode="after")
     def _rule_specific_params(self):
@@ -29,6 +44,15 @@ class OutlierParams(SchemaModel):
 
 
 class SampleProcessing(SchemaModel):
-    blank_subtract: bool = True
-    normalize_to_control: Optional[str] = None
-    outliers: OutlierParams = OutlierParams()
+    blank_subtract: bool = Field(
+        True,
+        description="If True, subtract blank well signal from all sample measurements.",
+    )
+    normalize_to_control: Optional[str] = Field(
+        None,
+        description="Sample ID of the reference control used to normalize other samples (if any).",
+    )
+    outliers: OutlierParams = Field(
+        default_factory=OutlierParams,
+        description="Outlier detection parameters applied to sample replicates.",
+    )

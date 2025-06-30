@@ -30,6 +30,7 @@ class LigandBindingAnalysisConfig(SchemaModel):
 
 
 # TODO:
-# - add limits to certain fields, e.g. min_levels_pass in LinearityRules.
-# - add description fields to all models for clarity
+# - standards_nominal is unclear in terms of its purpose and how it relates to the calibration curve
+# - analytical_range is unclear in terms of its purpose and how it relates to the calibration curve
+# - normalize_to_control is a free-form string, should be more structured
 # - review regulatory requirements for ligand binding assays and ensure all necessary parameters are included and grouped in the way that makes sense according to those requirements.

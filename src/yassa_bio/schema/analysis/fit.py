@@ -1,6 +1,12 @@
 from __future__ import annotations
 from typing import Optional
-from pydantic import PositiveFloat, field_validator, model_validator, ValidationInfo
+from pydantic import (
+    Field,
+    PositiveFloat,
+    field_validator,
+    model_validator,
+    ValidationInfo,
+)
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.analysis.enum import (
@@ -13,10 +19,21 @@ from yassa_bio.core.typing import Fraction01
 
 
 class CurveFit(SchemaModel):
-    model: CurveModel = CurveModel.FOUR_PL
-    weighting: Optional[Weighting] = None
-    log_x: Optional[LogBase] = None
-    log_y: Optional[LogBase] = None
+    model: CurveModel = Field(
+        CurveModel.FOUR_PL,
+        description="Mathematical model used to fit the standard curve (e.g., 4PL, 5PL, or linear).",
+    )
+    weighting: Optional[Weighting] = Field(
+        None,
+        description="Optional weighting scheme applied to curve fit residuals (e.g., 1/y).",
+    )
+    log_x: Optional[LogBase] = Field(
+        None, description="Log transformation applied to x-values prior to fitting."
+    )
+    log_y: Optional[LogBase] = Field(
+        None,
+        description="Log transformation applied to y-values prior to fitting (not used with linear model).",
+    )
 
     @field_validator("weighting")
     def _weighting_vs_model(cls, v, info: ValidationInfo):
@@ -36,9 +53,17 @@ class CurveFit(SchemaModel):
 
 
 class PotencyOptions(SchemaModel):
-    method: Optional[PotencyMethod] = None
-    max_slope_ratio: PositiveFloat = 1.20
-    ci_level: PositiveFloat = Fraction01(0.95)
+    method: Optional[PotencyMethod] = Field(
+        None,
+        description="Approach to compute relative potency (e.g., parallel-line or EC50 ratio).",
+    )
+    max_slope_ratio: PositiveFloat = Field(
+        1.20,
+        description="Maximum allowable ratio between slopes in parallel-line analysis.",
+    )
+    ci_level: PositiveFloat = Fraction01(
+        0.95, description="Confidence level for potency estimate (e.g., 0.95 = 95%)."
+    )
 
     @model_validator(mode="after")
     def _check_method_vs_curve(self):
