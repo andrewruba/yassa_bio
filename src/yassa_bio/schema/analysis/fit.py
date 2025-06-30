@@ -3,9 +3,7 @@ from typing import Optional
 from pydantic import (
     Field,
     PositiveFloat,
-    field_validator,
     model_validator,
-    ValidationInfo,
 )
 
 from yassa_bio.core.model import SchemaModel
@@ -32,24 +30,8 @@ class CurveFit(SchemaModel):
     )
     log_y: Optional[LogBase] = Field(
         None,
-        description="Log transformation applied to y-values prior to fitting (not used with linear model).",
+        description="Log transformation applied to y-values prior to fitting.",
     )
-
-    @field_validator("weighting")
-    def _weighting_vs_model(cls, v, info: ValidationInfo):
-        if info.data.get("model") == CurveModel.LINEAR and v is not None:
-            raise ValueError("weighting has no effect when model == 'linear'")
-        return v
-
-    @model_validator(mode="after")
-    def _log_rules(self):
-        if self.model == CurveModel.LINEAR:
-            if self.log_y is not None:
-                raise ValueError("log_y must be None for linear model")
-        else:
-            if self.log_x is None:
-                raise ValueError("log_x is required for 4PL / 5PL fits")
-        return self
 
 
 class PotencyOptions(SchemaModel):

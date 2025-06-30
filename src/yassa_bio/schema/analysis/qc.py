@@ -70,12 +70,6 @@ class LinearityRules(SchemaModel):
         0.75, description="Fraction of levels that must pass accuracy check."
     )
 
-    @model_validator(mode="after")
-    def _range_check(self):
-        if not (0 < self.min_levels_pass <= 1):
-            raise ValueError("min_levels_pass must be in (0,1]")
-        return self
-
 
 class DilutionLinearity(SchemaModel):
     max_bias_pct: PositiveFloat = Percent(
@@ -93,14 +87,6 @@ class DilutionLinearity(SchemaModel):
     series_required: int = Field(
         3, ge=1, le=10, description="Number of replicate dilution series required."
     )
-
-    @model_validator(mode="after")
-    def _positive_ints(self):
-        if self.min_levels < 3:
-            raise ValueError("min_levels must be ≥ 3")
-        if self.series_required < 1:
-            raise ValueError("series_required must be ≥ 1")
-        return self
 
 
 class HookEffectCheck(SchemaModel):
@@ -127,10 +113,6 @@ class TotalErrorRule(SchemaModel):
 class QCSpec(SchemaModel):
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
     bands: List[QcSpec] = [QcSpec(level=QcLevel.ALL)]
-    standards_nominal: List[PositiveFloat] | None = Field(
-        None,
-        description="Nominal values of standards; used for curve fitting and accuracy checks.",
-    )
     linearity: LinearityRules = LinearityRules()
     dilution: DilutionLinearity = DilutionLinearity()
     hook: HookEffectCheck = HookEffectCheck()
