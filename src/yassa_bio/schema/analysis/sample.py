@@ -48,9 +48,12 @@ class SampleProcessing(SchemaModel):
         True,
         description="If True, subtract blank well signal from all sample measurements.",
     )
-    normalize_to_control: Optional[str] = Field(
-        None,
-        description="Sample ID of the reference control used to normalize other samples (if any).",
+    normalize_to_control: bool = Field(
+        False,
+        description=(
+            "If True, normalize each sample signal to the control range. "
+            "Requires HIGH and LOW control wells to be defined."
+        ),
     )
     outliers: OutlierParams = Field(
         default_factory=OutlierParams,

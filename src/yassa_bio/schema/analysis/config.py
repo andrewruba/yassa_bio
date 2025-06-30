@@ -17,6 +17,5 @@ class LigandBindingAnalysisConfig(SchemaModel):
 
 
 # TODO:
-# - analytical_range is a data object not a config object, should be moved to a more appropriate place
-# - normalize_to_control is a free-form string, should be more structured
+# - analytical_range is maybe a data object not a config object, should be moved to a more appropriate place
 # - review regulatory requirements for ligand binding assays and ensure all necessary parameters are included and grouped in the way that makes sense according to those requirements.
