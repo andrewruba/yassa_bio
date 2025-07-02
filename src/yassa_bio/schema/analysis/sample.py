@@ -24,7 +24,7 @@ class OutlierParams(SchemaModel):
         ge=2,
         le=10,
         description=(
-            "Z-score threshold for identifying outliers " "(used if rule is zscore)."
+            "Z-score threshold for identifying outliers (used if rule is zscore)."
         ),
     )
     grubbs_alpha: PositiveFloat = Fraction01(
@@ -35,7 +35,7 @@ class OutlierParams(SchemaModel):
         gt=0,
         le=5,
         description=(
-            "Multiplier for IQR method; defines cutoff from the " "interquartile range."
+            "Multiplier for IQR method; defines cutoff from the interquartile range."
         ),
     )
 
