@@ -8,6 +8,10 @@ from yassa_bio.schema.analysis.sample import SampleProcessing
 
 
 class LigandBindingAnalysisConfig(SchemaModel):
+    """
+    Top-level configuration for ligand-binding analysis.
+    """
+
     curve_fit: CurveFit = CurveFit()
     potency: PotencyOptions = PotencyOptions()
     qc: QCSpec = QCSpec()

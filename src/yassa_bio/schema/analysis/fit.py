@@ -17,6 +17,10 @@ from yassa_bio.core.typing import Fraction01
 
 
 class CurveFit(SchemaModel):
+    """
+    Parameters defining the mathematical model used for fitting the calibration curve.
+    """
+
     model: CurveModel = Field(
         CurveModel.FOUR_PL,
         description="Mathematical model used to fit the standard curve (e.g., 4PL, 5PL, or linear).",
@@ -35,9 +39,17 @@ class CurveFit(SchemaModel):
 
 
 class PotencyOptions(SchemaModel):
+    """
+    Configuration for relative potency estimation.
+    """
+
     method: Optional[PotencyMethod] = Field(
         None,
         description="Approach to compute relative potency (e.g., parallel-line or EC50 ratio).",
+    )
+    min_slope_ratio: PositiveFloat = Field(
+        0.8,
+        description="Minimum allowable ratio between slopes in parallel-line analysis.",
     )
     max_slope_ratio: PositiveFloat = Field(
         1.20,

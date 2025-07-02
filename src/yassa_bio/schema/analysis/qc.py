@@ -12,6 +12,10 @@ from yassa_bio.core.typing import Percent, Fraction01
 
 
 class DetectionRule(SchemaModel):
+    """
+    Rules for deriving LOD and LOQ from blank well variability.
+    """
+
     lod_snr: float = Field(
         3.0,
         description=(
@@ -27,12 +31,20 @@ class DetectionRule(SchemaModel):
 
 
 class ReplicateCriteria(SchemaModel):
+    """
+    Constraint on the variability of replicate wells.
+    """
+
     max_cv_percent: PositiveFloat = Percent(
         10.0, lo=1, hi=50, description="Maximum allowed CV (%) across replicate wells."
     )
 
 
 class QcSpec(SchemaModel):
+    """
+    Defines a recovery tolerance window for a specific QC band.
+    """
+
     level: QcLevel = Field(..., description="QC band label this spec applies to.")
     tol_pct: tuple[PositiveFloat, PositiveFloat] = (
         Percent(80, lo=0, hi=200, description="Lower recovery limit (%)."),
@@ -48,6 +60,10 @@ class QcSpec(SchemaModel):
 
 
 class LinearityRules(SchemaModel):
+    """
+    Rules for validating the linearity of the calibration curve.
+    """
+
     r_squared_min: PositiveFloat = Fraction01(
         0.98, description="Minimum acceptable R² for the linearity fit."
     )
@@ -60,6 +76,10 @@ class LinearityRules(SchemaModel):
 
 
 class DilutionLinearity(SchemaModel):
+    """
+    Requirements for evaluating sample dilution performance.
+    """
+
     max_bias_pct: PositiveFloat = Percent(
         20.0, lo=5, hi=50, description="Maximum allowed bias (%) after dilution."
     )
@@ -78,6 +98,12 @@ class DilutionLinearity(SchemaModel):
 
 
 class HookEffectCheck(SchemaModel):
+    """
+    Checks for potential hook effect (signal suppression at high concentration).
+    Validates that the undiluted sample's signal meets a minimum percentage
+    of its own diluted versions to rule out nonlinear suppression.
+    """
+
     threshold_pct_of_undiluted: PositiveFloat = Percent(
         80.0,
         lo=50,
@@ -87,6 +113,11 @@ class HookEffectCheck(SchemaModel):
 
 
 class TotalErrorRule(SchemaModel):
+    """
+    Limits on combined bias and variability for quantifiable samples.
+    Used for evaluating overall performance and accuracy of the assay.
+    """
+
     overall_pct: PositiveFloat = Percent(
         30.0,
         lo=5,
@@ -99,6 +130,10 @@ class TotalErrorRule(SchemaModel):
 
 
 class QCSpec(SchemaModel):
+    """
+    Aggregate quality control specification for the assay.
+    """
+
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
     bands: List[QcSpec] = [QcSpec(level=QcLevel.ALL)]
     linearity: LinearityRules = LinearityRules()

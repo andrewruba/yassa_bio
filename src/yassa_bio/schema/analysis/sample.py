@@ -8,6 +8,10 @@ from yassa_bio.core.typing import Fraction01
 
 
 class OutlierParams(SchemaModel):
+    """
+    Settings for detecting outliers among replicate wells.
+    """
+
     rule: Optional[OutlierRule] = Field(
         None,
         description="Statistical test to apply for outlier detection (e.g., Grubbs, Rosner, IQR).",
@@ -44,6 +48,10 @@ class OutlierParams(SchemaModel):
 
 
 class SampleProcessing(SchemaModel):
+    """
+    Preprocessing rules applied to raw sample measurements.
+    """
+
     blank_subtract: bool = Field(
         True,
         description="If True, subtract blank well signal from all sample measurements.",

@@ -6,6 +6,10 @@ from yassa_bio.core.typing import Percent
 
 
 class CalibrationCurve(SchemaModel):
+    """
+    Defines structural and accuracy requirements for the calibration curve.
+    """
+
     min_levels: int = Field(
         6, ge=2, description="Minimum number of standards required to define the curve."
     )
@@ -23,6 +27,11 @@ class CalibrationCurve(SchemaModel):
 
 
 class CarryoverCheck(SchemaModel):
+    """
+    Criteria for evaluating blank wells following the highest standard.
+    Ensures minimal carryover of analyte or internal standard into blank wells.
+    """
+
     blank_threshold_pct_lloq: PositiveFloat = Percent(
         20.0, description="Maximum allowed blank signal as a percentage of LLOQ signal."
     )
