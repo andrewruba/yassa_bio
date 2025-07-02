@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+
 from pydantic import (
     Field,
     PositiveFloat,
@@ -7,8 +7,8 @@ from pydantic import (
 )
 
 from yassa_bio.core.model import SchemaModel
+from yassa_bio.core.typing import Fraction01, Percent
 from yassa_bio.schema.layout.enum import QcLevel
-from yassa_bio.core.typing import Percent, Fraction01
 
 
 class DetectionRule(SchemaModel):
@@ -19,13 +19,15 @@ class DetectionRule(SchemaModel):
     lod_snr: float = Field(
         3.0,
         description=(
-            "LOD threshold: signal must be at least this multiple of the standard deviation of blanks (SNR ≥ N)."
+            "LOD threshold: signal must be at least this multiple of the "
+            "standard deviation of blanks (SNR ≥ N)."
         ),
     )
     loq_snr: float = Field(
         10.0,
         description=(
-            "LOQ threshold: signal must be at least this multiple of the standard deviation of blanks (SNR ≥ N)."
+            "LOQ threshold: signal must be at least this multiple of the "
+            "standard deviation of blanks (SNR ≥ N)."
         ),
     )
 
@@ -135,7 +137,7 @@ class QCSpec(SchemaModel):
     """
 
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
-    bands: List[QcSpec] = [QcSpec(level=QcLevel.ALL)]
+    bands: list[QcSpec] = Field(default_factory=lambda: [QcSpec(level=QcLevel.ALL)])
     linearity: LinearityRules = LinearityRules()
     dilution: DilutionLinearity = DilutionLinearity()
     hook: HookEffectCheck = HookEffectCheck()

@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Optional
+
 from pydantic import Field, PositiveFloat, model_validator
 
 from yassa_bio.core.model import SchemaModel
-from yassa_bio.schema.analysis.enum import OutlierRule
 from yassa_bio.core.typing import Fraction01
+from yassa_bio.schema.analysis.enum import OutlierRule
 
 
 class OutlierParams(SchemaModel):
@@ -12,24 +12,31 @@ class OutlierParams(SchemaModel):
     Settings for detecting outliers among replicate wells.
     """
 
-    rule: Optional[OutlierRule] = Field(
+    rule: OutlierRule | None = Field(
         None,
-        description="Statistical test to apply for outlier detection (e.g., Grubbs, Rosner, IQR).",
+        description=(
+            "Statistical test to apply for outlier detection "
+            "(e.g., Grubbs, Rosner, IQR)."
+        ),
     )
     z_threshold: PositiveFloat | None = Field(
         3.0,
         ge=2,
         le=10,
-        description="Z-score threshold for identifying outliers (used if rule is zscore).",
+        description=(
+            "Z-score threshold for identifying outliers " "(used if rule is zscore)."
+        ),
     )
     grubbs_alpha: PositiveFloat = Fraction01(
-        0.05, description="Significance level (α) for Grubbs or Rosner outlier tests."
+        0.05, description="Significance level for Grubbs or Rosner outlier tests."
     )
     iqr_k: PositiveFloat = Field(
         1.5,
         gt=0,
         le=5,
-        description="Multiplier for IQR method; defines cutoff from the interquartile range.",
+        description=(
+            "Multiplier for IQR method; defines cutoff from the " "interquartile range."
+        ),
     )
 
     @model_validator(mode="after")
@@ -63,7 +70,4 @@ class SampleProcessing(SchemaModel):
             "Requires HIGH and LOW control wells to be defined."
         ),
     )
-    outliers: OutlierParams = Field(
-        default_factory=OutlierParams,
-        description="Outlier detection parameters applied to sample replicates.",
-    )
+    outliers: OutlierParams = OutlierParams()

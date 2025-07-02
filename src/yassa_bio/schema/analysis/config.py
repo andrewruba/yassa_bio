@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from pydantic import model_validator
 
 from yassa_bio.core.model import SchemaModel
@@ -24,7 +25,3 @@ class LigandBindingAnalysisConfig(SchemaModel):
     def _inject_curve_model_for_potency(self):
         self.potency.set_curve_model(self.curve_fit.model)
         return self
-
-
-# TODO:
-# - review regulatory requirements for ligand binding assays and ensure all necessary parameters are included and grouped in the way that makes sense according to those requirements.
