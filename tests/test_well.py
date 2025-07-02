@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.layout.well import Well
-from yassa_bio.schema.layout.enum import QcLevel
+from yassa_bio.schema.layout.enum import QCLevel
 
 
 class TestWell:
@@ -93,7 +93,7 @@ class TestWell:
                 qc_level="high",
             )
         )
-        assert w.qc_level is QcLevel.HIGH
+        assert w.qc_level is QCLevel.HIGH
 
     def test_invalid_sample_type_raises(self):
         with pytest.raises(ValidationError):

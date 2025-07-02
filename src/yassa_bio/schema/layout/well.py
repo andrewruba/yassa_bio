@@ -3,7 +3,7 @@ import re
 from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
-from yassa_bio.schema.layout.enum import SampleType, QcLevel
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.core.model import SchemaModel
 
 
@@ -30,7 +30,7 @@ class Well(SchemaModel):
         ...,
         description="High-level role of this well in the assay.",
     )
-    qc_level: Optional[QcLevel] = Field(
+    qc_level: Optional[QCLevel] = Field(
         None,
         description=(
             "QC band for CONTROL or SPIKE wells. "

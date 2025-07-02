@@ -8,7 +8,7 @@ from pydantic import (
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.typing import Fraction01, Percent
-from yassa_bio.schema.layout.enum import QcLevel
+from yassa_bio.schema.layout.enum import QCLevel
 
 
 class DetectionRule(SchemaModel):
@@ -42,22 +42,25 @@ class ReplicateCriteria(SchemaModel):
     )
 
 
-class QcSpec(SchemaModel):
+class QCBand(SchemaModel):
     """
     Defines a recovery tolerance window for a specific QC band.
     """
 
-    level: QcLevel = Field(..., description="QC band label this spec applies to.")
-    tol_pct: tuple[PositiveFloat, PositiveFloat] = (
-        Percent(80, lo=0, hi=200, description="Lower recovery limit (%)."),
-        Percent(120, lo=0, hi=200, description="Upper recovery limit (%)."),
+    level: QCLevel = Field(
+        QCLevel.ALL, description="QC band label this spec applies to."
+    )
+    min_tol_pct: PositiveFloat = Percent(
+        80, lo=0, hi=200, description="Lower recovery limit (%)."
+    )
+    max_tol_pct: PositiveFloat = Percent(
+        120, lo=0, hi=200, description="Upper recovery limit (%)."
     )
 
     @model_validator(mode="after")
     def _check_window(self):
-        lo, hi = self.tol_pct
-        if lo >= hi:
-            raise ValueError("tol_pct lower bound must be < upper bound")
+        if self.min_tol_pct >= self.max_tol_pct:
+            raise ValueError("min_tol_pct must be < max_tol_pct")
         return self
 
 
@@ -137,7 +140,7 @@ class QCSpec(SchemaModel):
     """
 
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
-    bands: list[QcSpec] = [QcSpec(level=QcLevel.ALL)]
+    bands: list[QCBand] = [QCBand()]
     linearity: LinearityRules = LinearityRules()
     dilution: DilutionLinearity = DilutionLinearity()
     hook: HookEffectCheck = HookEffectCheck()

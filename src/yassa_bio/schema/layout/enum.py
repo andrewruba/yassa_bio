@@ -15,7 +15,7 @@ class SampleType(StrEnum):
     SPIKE = "spike"
 
 
-class QcLevel(StrEnum):
+class QCLevel(StrEnum):
     LOW = "low"
     MID = "mid"
     HIGH = "high"
