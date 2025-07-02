@@ -6,7 +6,6 @@ from yassa_bio.schema.layout.file import PlateReaderFile
 
 
 class TestPlateReaderFile:
-
     def test_minimal_valid(self):
         prf = PlateReaderFile(filepath="plate.csv")
         assert prf.filepath == "plate.csv"

@@ -87,7 +87,7 @@ class Well(SchemaModel):
     def _units_required_if_concentration(self):
         if (self.concentration is not None) != (self.concentration_units is not None):
             raise ValueError(
-                "Both 'concentration' and 'concentration_units' must be provided together"
+                "'concentration' and 'concentration_units' must be provided together"
             )
         return self
 

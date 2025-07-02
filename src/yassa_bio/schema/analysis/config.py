@@ -25,3 +25,8 @@ class LigandBindingAnalysisConfig(SchemaModel):
     def _inject_curve_model_for_potency(self):
         self.potency.set_curve_model(self.curve_fit.model)
         return self
+
+
+# TODO:
+# - add example values for all fields that make sense, account for potential None values
+# - review regulatory docs

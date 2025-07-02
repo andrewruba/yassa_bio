@@ -5,7 +5,6 @@ from yassa_bio.core.typing import Percent, Fraction01
 
 
 class TestPercentAndFraction01:
-
     class Demo(BaseModel):
         pct: NonNegativeFloat = Percent(50)
         prob: NonNegativeFloat = Fraction01()

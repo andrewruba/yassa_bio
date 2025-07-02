@@ -5,7 +5,6 @@ from yassa_bio.core.model import SchemaModel
 
 
 class TestSchemaModel:
-
     class Demo(SchemaModel):
         x: int
         y: float = 1.5

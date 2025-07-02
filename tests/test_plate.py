@@ -8,10 +8,9 @@ from yassa_bio.schema.layout.enum import PlateFormat
 
 
 class TestPlate:
-
     def _make_wells(self, n=2):
         return [
-            Well(well=f"A{i+1}", file_row=0, file_col=i, sample_type="sample")
+            Well(well=f"A{i + 1}", file_row=0, file_col=i, sample_type="sample")
             for i in range(n)
         ]
 

@@ -15,7 +15,10 @@ class CalibrationCurve(SchemaModel):
     )
     allow_anchor: bool = Field(
         True,
-        description="Allow use of an additional anchor point to improve curve fitting at the low and high end.",
+        description=(
+            "Allow use of an additional anchor point to improve curve fitting "
+            "at the low and high end."
+        ),
     )
     backcalc_acc_pct: PositiveFloat = Percent(
         15.0,
@@ -37,9 +40,13 @@ class CarryoverCheck(SchemaModel):
     )
     analyte_pct_of_lloq: PositiveFloat = Percent(
         20.0,
-        description="Max analyte signal allowed in blanks following the highest standard (% of LLOQ).",
+        description=(
+            "Max analyte signal allowed in blanks as a percentage of LLOQ signal."
+        ),
     )
     internal_std_pct_of_ref: PositiveFloat = Percent(
         5.0,
-        description="Max internal standard signal allowed in blanks (% of reference IS signal).",
+        description=(
+            "Max internal standard signal allowed in blanks (% of reference IS signal)."
+        ),
     )

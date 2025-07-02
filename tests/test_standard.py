@@ -4,7 +4,6 @@ from yassa_bio.schema.layout.standard import StandardSeries
 
 
 class TestStandardSeries:
-
     def test_defaults_and_round_trip(self):
         s = StandardSeries(start_concentration=1000, dilution_factor=3.16, num_levels=8)
         assert s.start_concentration == 1000

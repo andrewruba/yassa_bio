@@ -23,14 +23,15 @@ class CurveFit(SchemaModel):
 
     model: CurveModel = Field(
         CurveModel.FOUR_PL,
-        description="Mathematical model used to fit the standard curve (e.g., 4PL, 5PL, or linear).",
+        description="Mathematical model used to fit the standard curve.",
     )
     weighting: Optional[Weighting] = Field(
         None,
-        description="Optional weighting scheme applied to curve fit residuals (e.g., 1/y).",
+        description="Optional weighting scheme applied to curve fit residuals.",
     )
     log_x: Optional[LogBase] = Field(
-        None, description="Log transformation applied to x-values prior to fitting."
+        None,
+        description="Log transformation applied to x-values prior to fitting.",
     )
     log_y: Optional[LogBase] = Field(
         None,
@@ -45,7 +46,9 @@ class PotencyOptions(SchemaModel):
 
     method: Optional[PotencyMethod] = Field(
         None,
-        description="Approach to compute relative potency (e.g., parallel-line or EC50 ratio).",
+        description=(
+            "Approach to compute relative potency (e.g., parallel-line or EC50 ratio)."
+        ),
     )
     min_slope_ratio: PositiveFloat = Field(
         0.80,
@@ -63,15 +66,15 @@ class PotencyOptions(SchemaModel):
         """
         Injects the curve model used by the outer config.
 
-        This is required for internal validation logic but is not part of the public schema,
-        since it is derived from the top-level configuration and should not be manually set.
+        This is required for internal validation logic but
+         is not part of the public schema.
         """
         object.__setattr__(self, "__curve_model", curve_model)
 
     @property
     def _curve_model(self) -> CurveModel | None:
         """
-        Accessor for the injected curve model. Not a Pydantic field — used only for cross-field logic.
+        Accessor for the injected curve model. Used only for cross-field logic.
         """
         return getattr(self, "__curve_model", None)
 

@@ -12,8 +12,7 @@ class PlateReaderFile(SchemaModel):
     filepath: str = Field(
         ...,
         description=(
-            "Full path to the file on disk or cloud storage. "
-            "Used as the lookup key. "
+            "Full path to the file on disk or cloud storage. Used as the lookup key."
         ),
     )
     run_date: Optional[datetime] = Field(

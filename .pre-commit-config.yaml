@@ -10,12 +10,7 @@ repos:
     hooks:
       - id: ruff-check
         args:
-          [
-            "--fix",
-            "--unsafe-fixes",
-            "--line-length=88",
-            "--select=E,F"
-          ]
+          [--fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy

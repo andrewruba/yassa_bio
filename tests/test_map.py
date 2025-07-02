@@ -8,7 +8,6 @@ from yassa_bio.schema.layout.enum import SampleType
 
 
 class TestDataMap:
-
     def _make_plate(self, pid="P1"):
         return Plate(
             plate_id=pid,

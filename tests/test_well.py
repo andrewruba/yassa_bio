@@ -8,7 +8,6 @@ from yassa_bio.schema.layout.enum import QcLevel
 
 
 class TestWell:
-
     def _base_kwargs(self, **overrides):
         base = dict(well="A1", file_row=0, file_col=0, sample_type="sample")
         base.update(overrides)

@@ -23,7 +23,9 @@ class AnalyticalRange(SchemaModel):
     )
     units: str = Field(
         ...,
-        description="Units used for all concentration values in this range (e.g. 'ng/mL').",
+        description=(
+            "Units used for all concentration values in this range (e.g. 'ng/mL')."
+        ),
         examples=["ng/mL", "pg/mL", "mU/mL", "IU/mL"],
     )
 
