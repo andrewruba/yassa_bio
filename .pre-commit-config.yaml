@@ -11,10 +11,12 @@ repos:
       - id: ruff-check
         args:
           [
-            "--fix"
+            "--fix",
+            "--unsafe-fixes",
+            "--line-length=88",
+            "--select=E,F,B,I,UP,C90,RUF,TID"
           ]
       - id: ruff-format
-        args: ["--line-length=88"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.1
