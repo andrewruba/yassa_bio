@@ -11,9 +11,7 @@ repos:
       - id: ruff-check
         args:
           [
-            "--fix",
-            "--unsafe-fixes",
-            "--select=E,F,B,I,UP,C90,RUF,TID"
+            "--fix"
           ]
       - id: ruff-format
         args: ["--line-length=88"]
