@@ -48,7 +48,7 @@ class PotencyOptions(SchemaModel):
         description="Approach to compute relative potency (e.g., parallel-line or EC50 ratio).",
     )
     min_slope_ratio: PositiveFloat = Field(
-        0.8,
+        0.80,
         description="Minimum allowable ratio between slopes in parallel-line analysis.",
     )
     max_slope_ratio: PositiveFloat = Field(
