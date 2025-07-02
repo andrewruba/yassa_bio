@@ -10,7 +10,6 @@ from yassa_bio.schema.analysis.enum import OutlierRule
 class OutlierParams(SchemaModel):
     """
     Settings for detecting outliers among replicate wells.
-    this is a long line to test the line length enforcement in the linter......................
     """
 
     rule: OutlierRule | None = Field(
