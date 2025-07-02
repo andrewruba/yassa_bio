@@ -28,5 +28,6 @@ class LigandBindingAnalysisConfig(SchemaModel):
 
 
 # TODO:
-# - add example values for all fields that make sense, account for potential None values
+# - add example values for all fields (data mapping and analysis config schema)
+#   that make sense,account for potential None values
 # - review regulatory docs
