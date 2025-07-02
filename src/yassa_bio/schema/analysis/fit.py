@@ -59,9 +59,29 @@ class PotencyOptions(SchemaModel):
         0.95, description="Confidence level for potency estimate (e.g., 0.95 = 95%)."
     )
 
+    def set_curve_model(self, curve_model: CurveModel):
+        """
+        Injects the curve model used by the outer config.
+
+        This is required for internal validation logic but is not part of the public schema,
+        since it is derived from the top-level configuration and should not be manually set.
+        """
+        object.__setattr__(self, "__curve_model", curve_model)
+
+    @property
+    def _curve_model(self) -> CurveModel | None:
+        """
+        Accessor for the injected curve model. Not a Pydantic field — used only for cross-field logic.
+        """
+        return getattr(self, "__curve_model", None)
+
     @model_validator(mode="after")
     def _check_method_vs_curve(self):
-        curve_model: CurveModel = self.__pydantic_extra__["_curve_model"]
+        curve_model = self._curve_model
+        if curve_model is None:
+            raise ValueError(
+                "curve_model must be injected before validating PotencyOptions"
+            )
         if self.method is None:
             self.method = (
                 PotencyMethod.PARALLEL_LINE

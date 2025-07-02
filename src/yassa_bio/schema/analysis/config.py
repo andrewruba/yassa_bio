@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import model_validator
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.schema.analysis.calibration import CalibrationCurve, CarryoverCheck
@@ -18,6 +19,11 @@ class LigandBindingAnalysisConfig(SchemaModel):
     sample: SampleProcessing = SampleProcessing()
     calibration: CalibrationCurve = CalibrationCurve()
     carryover: CarryoverCheck = CarryoverCheck()
+
+    @model_validator(mode="after")
+    def _inject_curve_model_for_potency(self):
+        self.potency.set_curve_model(self.curve_fit.model)
+        return self
 
 
 # TODO:
