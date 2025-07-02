@@ -137,7 +137,7 @@ class QCSpec(SchemaModel):
     """
 
     duplicate_cv: ReplicateCriteria = ReplicateCriteria()
-    bands: list[QcSpec] = Field(default_factory=lambda: [QcSpec(level=QcLevel.ALL)])
+    bands: list[QcSpec] = [QcSpec(level=QcLevel.ALL)]
     linearity: LinearityRules = LinearityRules()
     dilution: DilutionLinearity = DilutionLinearity()
     hook: HookEffectCheck = HookEffectCheck()
