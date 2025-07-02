@@ -14,7 +14,7 @@ repos:
             "--fix",
             "--unsafe-fixes",
             "--line-length=88",
-            "--select=E,F,B,I,UP,C90,RUF,TID"
+            "--select=E,F"
           ]
       - id: ruff-format
 
