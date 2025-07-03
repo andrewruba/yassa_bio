@@ -9,16 +9,17 @@ class PlateFormat(IntEnum):
 
 class SampleType(StrEnum):
     BLANK = "blank"
-    STANDARD = "standard"
-    CONTROL = "control"
+    CALIBRATION_STANDARD = "calibration_standard"
+    INTERNAL_STANDARD = "internal_standard"
+    ZERO_STANDARD = "zero_standard"
+    ANCHOR_STANDARD = "anchor_standard"
+    QUALITY_CONTROL = "quality_control"
     SAMPLE = "sample"
-    SPIKE = "spike"
 
 
 class QCLevel(StrEnum):
+    LLOQ = "lloq"
     LOW = "low"
     MID = "mid"
     HIGH = "high"
-    BLANK = "blank"
-    ALL = "all"
-    OTHER = "other"
+    ULOQ = "uloq"

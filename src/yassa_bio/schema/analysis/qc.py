@@ -48,7 +48,7 @@ class QCBand(SchemaModel):
     """
 
     level: QCLevel = Field(
-        QCLevel.ALL, description="QC band label this spec applies to."
+        QCLevel.MID, description="QC band label this spec applies to."
     )
     min_tol_pct: PositiveFloat = Percent(
         80, lo=0, hi=200, description="Lower recovery limit (%)."

@@ -33,7 +33,7 @@ class Well(SchemaModel):
     qc_level: Optional[QCLevel] = Field(
         None,
         description=(
-            "QC band for CONTROL or SPIKE wells. "
+            "QC band for QUALITY_CONTROL wells. "
             "Leave blank when the assay has only one global tolerance band."
         ),
     )
@@ -105,9 +105,6 @@ class Well(SchemaModel):
 
     @model_validator(mode="after")
     def _qc_level_allowed_for_type(self):
-        if (
-            self.sample_type not in {SampleType.CONTROL, SampleType.SPIKE}
-            and self.qc_level
-        ):
-            raise ValueError("qc_level only valid on CONTROL or SPIKE wells")
+        if self.sample_type not in {SampleType.QUALITY_CONTROL} and self.qc_level:
+            raise ValueError("qc_level only valid on QUALITY_CONTROL wells")
         return self

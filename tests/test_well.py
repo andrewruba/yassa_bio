@@ -29,7 +29,7 @@ class TestWell:
     def test_concentration_with_units_ok(self):
         w = Well(
             **self._base_kwargs(
-                sample_type="standard",
+                sample_type="calibration_standard",
                 concentration=5.5,
                 concentration_units="ng/mL",
             )
@@ -85,11 +85,10 @@ class TestWell:
         with pytest.raises(ValidationError):
             Well(**self._base_kwargs(sample_type=non_qc_sample_type, qc_level="low"))
 
-    @pytest.mark.parametrize("sample_type", ["control", "spike"])
-    def test_qc_level_allowed_on_control_and_spike(self, sample_type):
+    def test_qc_level_allowed_on_control(self):
         w = Well(
             **self._base_kwargs(
-                sample_type=sample_type,
+                sample_type="quality_control",
                 qc_level="high",
             )
         )

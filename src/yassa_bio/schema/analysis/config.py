@@ -34,5 +34,8 @@ class LigandBindingAnalysisConfig(SchemaModel):
 #   that make sense, account for potential None values.
 # - review regulatory docs
 # - can there be weighting for both x and y?
-# - Possible transformations may include log, square root, or reciprocal,
+# - possible transformations may include log, square root, or reciprocal,
 #   although other transformations are acceptable. Address this.
+# - mix of optional/None, value|None, defaults, and required fields.
+# - validator for min and max slope ratio.
+# - edge_acc_pct and others, how do denote uloq and lloq standards?
