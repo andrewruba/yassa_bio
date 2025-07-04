@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import Field, PositiveFloat, model_validator
+from pydantic import Field, PositiveFloat
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.typing import Fraction01
@@ -21,7 +21,7 @@ class OutlierParams(SchemaModel):
         ),
         examples=enum_examples(OutlierRule),
     )
-    z_threshold: PositiveFloat | None = Field(
+    z_threshold: PositiveFloat = Field(
         3.0,
         ge=2,
         le=10,
@@ -40,20 +40,6 @@ class OutlierParams(SchemaModel):
             "Multiplier for IQR method; defines cutoff from the interquartile range."
         ),
     )
-
-    @model_validator(mode="after")
-    def _rule_specific_params(self):
-        if self.rule is None:
-            return self
-        if self.rule == OutlierRule.ZSCORE and self.z_threshold is None:
-            raise ValueError("z_threshold required for zscore rule")
-        if self.rule in {OutlierRule.GRUBBS, OutlierRule.ROSNER} and not (
-            0 < self.grubbs_alpha < 1
-        ):
-            raise ValueError("grubbs_alpha must be in (0,1)")
-        if self.rule == OutlierRule.IQR and self.iqr_k <= 0:
-            raise ValueError("iqr_k must be > 0")
-        return self
 
 
 class Preprocessing(SchemaModel):
