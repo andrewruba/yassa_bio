@@ -5,6 +5,7 @@ from pydantic import Field, model_validator, field_validator
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.core.model import SchemaModel
+from yassa_bio.core.enum import enum_examples
 
 
 class Well(SchemaModel):
@@ -29,13 +30,23 @@ class Well(SchemaModel):
     sample_type: SampleType = Field(
         ...,
         description="High-level role of this well in the assay.",
+        examples=[sample_type.value for sample_type in SampleType],
+    )
+    interferent: Optional[str] = Field(
+        None,
+        description=(
+            "Name / ID of related, interfering molecule spiked into this well. "
+            "None = no interferent."
+        ),
+        examples=["glucose", "cholesterol", "bovine serum albumin"],
     )
     qc_level: Optional[QCLevel] = Field(
         None,
         description=(
-            "QC band for QUALITY_CONTROL wells. "
+            "QC band for quality control wells. "
             "Leave blank when the assay has only one global tolerance band."
         ),
+        examples=enum_examples(QCLevel),
     )
     replicate: Optional[int] = Field(
         None,

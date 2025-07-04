@@ -5,6 +5,7 @@ from pydantic import Field, PositiveFloat, model_validator
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.typing import Fraction01
 from yassa_bio.schema.analysis.enum import OutlierRule
+from yassa_bio.core.enum import enum_examples
 
 
 class OutlierParams(SchemaModel):
@@ -12,12 +13,13 @@ class OutlierParams(SchemaModel):
     Settings for detecting outliers among replicate wells.
     """
 
-    rule: OutlierRule | None = Field(
-        None,
+    rule: OutlierRule = Field(
+        OutlierRule.NONE,
         description=(
             "Statistical test to apply for outlier detection "
             "(e.g., Grubbs, Rosner, IQR)."
         ),
+        examples=enum_examples(OutlierRule),
     )
     z_threshold: PositiveFloat | None = Field(
         3.0,
@@ -54,9 +56,9 @@ class OutlierParams(SchemaModel):
         return self
 
 
-class SampleProcessing(SchemaModel):
+class Preprocessing(SchemaModel):
     """
-    Preprocessing rules applied to raw sample measurements.
+    Preprocessing rules applied to sample measurements.
     """
 
     blank_subtract: bool = Field(
@@ -66,8 +68,7 @@ class SampleProcessing(SchemaModel):
     normalize_to_control: bool = Field(
         False,
         description=(
-            "If True, normalize each sample signal to the control range. "
-            "Requires HIGH and LOW control wells to be defined."
+            "If True, normalize each sample signal to the calibration standard range."
         ),
     )
     outliers: OutlierParams = OutlierParams()

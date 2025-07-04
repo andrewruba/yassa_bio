@@ -97,3 +97,16 @@ class TestWell:
     def test_invalid_sample_type_raises(self):
         with pytest.raises(ValidationError):
             Well(**self._base_kwargs(sample_type="invalid"))
+
+    def test_default_interferent_none(self):
+        w = Well(**self._base_kwargs())
+        assert w.interferent is None
+
+    def test_interferent_string_allowed(self):
+        w = Well(**self._base_kwargs(interferent="c_peptide"))
+        assert w.interferent == "c_peptide"
+
+    @pytest.mark.parametrize("bad_val", [123, ["foo"], {"id": "bar"}])
+    def test_non_string_interferent_raises(self, bad_val):
+        with pytest.raises(ValidationError):
+            Well(**self._base_kwargs(interferent=bad_val))

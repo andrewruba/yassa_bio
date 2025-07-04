@@ -8,11 +8,6 @@ class CurveModel(StrEnum):
     LINEAR = "linear"
 
 
-class PotencyMethod(StrEnum):
-    PARALLEL_LINE = "parallel_line"
-    EC50_RATIO = "ec50_ratio"
-
-
 class Weighting(StrEnum):
     ONE = "1"
     ONE_OVER_X = "1/x"
@@ -21,13 +16,17 @@ class Weighting(StrEnum):
     ONE_OVER_Y2 = "1/y^2"
 
 
-class LogBase(StrEnum):
-    LN = "e"
-    LOG2 = "2"
-    LOG10 = "10"
+class Transformation(StrEnum):
+    IDENTITY = "identity"
+    LN = "ln"
+    LOG2 = "log2"
+    LOG10 = "log10"
+    SQRT = "sqrt"
+    RECIPROCAL = "reciprocal"
 
 
 class OutlierRule(StrEnum):
+    NONE = "none"
     GRUBBS = "grubbs"
     ROSNER = "rosner"
     IQR = "iqr"
