@@ -133,3 +133,35 @@ class TestWell:
                     carryover=True,
                 )
             )
+
+    def test_stability_condition_pair_ok(self):
+        w = Well(
+            **self._base_kwargs(
+                sample_type="quality_control",
+                qc_level="low",
+                stability_condition="freeze-thaw",
+                stability_condition_time="before",
+            )
+        )
+        assert w.stability_condition == "freeze-thaw"
+        assert w.stability_condition_time.value == "before"
+
+    def test_stability_condition_without_time_raises(self):
+        with pytest.raises(ValidationError):
+            Well(
+                **self._base_kwargs(
+                    sample_type="quality_control",
+                    qc_level="low",
+                    stability_condition="freeze-thaw",
+                )
+            )
+
+    def test_time_without_condition_raises(self):
+        with pytest.raises(ValidationError):
+            Well(
+                **self._base_kwargs(
+                    sample_type="quality_control",
+                    qc_level="low",
+                    stability_condition_time="after",
+                )
+            )
