@@ -3,7 +3,12 @@ import re
 from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
-from yassa_bio.schema.layout.enum import SampleType, QCLevel, StabilityConditionTime
+from yassa_bio.schema.layout.enum import (
+    SampleType,
+    QCLevel,
+    StabilityConditionTime,
+    RecoveryStage,
+)
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
 
@@ -27,6 +32,14 @@ class Well(SchemaModel):
         description="0-based absolute column index in the raw file.",
     )
 
+    sample_id: Optional[str] = Field(
+        None,
+        description=(
+            "Logical ID of the original study sample this well belongs to. "
+            "Use the same ID across all dilution levels to form a series."
+        ),
+        examples=["SUBJ_1234_VISIT1", "SERUM_A", "POOL42"],
+    )
     sample_type: SampleType = Field(
         ...,
         description="High-level role of this well in the assay.",
@@ -48,7 +61,10 @@ class Well(SchemaModel):
     )
     stability_condition: Optional[str] = Field(
         None,
-        description="Label of the stability experiment this QC aliquot belongs to.",
+        description=(
+            "Label of the stability experiment this QC aliquot belongs to. "
+            "Leave as none if well does not participate in stability test."
+        ),
         examples=["freeze-thaw", "long-term", "autosampler"],
     )
     stability_condition_time: Optional[StabilityConditionTime] = Field(
@@ -57,6 +73,14 @@ class Well(SchemaModel):
             "Indicates if the well is before or after condition has been applied."
         ),
         examples=enum_examples(StabilityConditionTime),
+    )
+    recovery_stage: Optional[RecoveryStage] = Field(
+        None,
+        description=(
+            "Marks wells used in extraction recovery experiments. "
+            "Leave as None if well does not participate in recovery test."
+        ),
+        examples=enum_examples(RecoveryStage),
     )
     qc_level: Optional[QCLevel] = Field(
         None,
@@ -153,4 +177,13 @@ class Well(SchemaModel):
             raise ValueError(
                 "stability_condition and stability_condition_time must be set together"
             )
+        return self
+
+    @model_validator(mode="after")
+    def _recovery_requires_qc_and_level(self):
+        if self.recovery_stage:
+            if self.sample_type is not SampleType.QUALITY_CONTROL:
+                raise ValueError("recovery_stage allowed only on QUALITY_CONTROL wells")
+            if self.qc_level is None:
+                raise ValueError("recovery_stage requires qc_level to be set")
         return self

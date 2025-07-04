@@ -5,7 +5,7 @@ from pydantic import (
 )
 from typing import List, Optional
 
-from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
 from yassa_bio.core.typing import Percent, Fraction01
 from yassa_bio.schema.layout.well import Well
 
@@ -16,6 +16,8 @@ class RequiredWellPattern(BaseModel):
     needs_interferent: bool = False
     carryover: bool = False
     needs_stability_condition: bool = False
+    needs_sample_id: bool = False
+    recovery_stage: Optional[RecoveryStage] = None
 
     def matches(self, well: Well) -> bool:
         if well.sample_type != self.sample_type:
@@ -33,13 +35,18 @@ class RequiredWellPattern(BaseModel):
         if self.needs_stability_condition != (well.stability_condition is not None):
             return False
 
+        if self.recovery_stage is not None and (
+            well.recovery_stage != self.recovery_stage
+        ):
+            return False
+
         return True
 
 
 class SpecificitySpec(BaseModel):
     """
     Acceptance criteria to ensure binding reagent binds to target analyte and
-     doesn't cross-react with structurally related, interferent molecules.
+    doesn't cross-react with structurally related, interferent molecules.
     """
 
     required_well_patterns: List[RequiredWellPattern] = Field(
@@ -73,7 +80,7 @@ class SpecificitySpec(BaseModel):
 class SelectivitySpec(BaseModel):
     """
     Acceptance criteria to ensure the detection and differentiation of the
-     analyte of interest in the presence of non-specific matrix components.
+    analyte of interest in the presence of non-specific matrix components.
     """
 
     required_well_patterns: List[RequiredWellPattern] = Field(
@@ -110,8 +117,8 @@ class SelectivitySpec(BaseModel):
 class CalibrationSpec(BaseModel):
     """
     Acceptance criteria that demonstrates the relationship between the
-     nominal analyte concentration and the response of the
-     analytical platform to the analyte.
+    nominal analyte concentration and the response of the
+    analytical platform to the analyte.
     """
 
     min_levels: int = Field(
@@ -229,7 +236,7 @@ class PrecisionSpec(BaseModel):
 class CarryoverSpec(BaseModel):
     """
     Acceptance criteria to determine if there is residual analyte from
-     a high sample affecting the next sample.
+    a high sample affecting the next sample.
     """
 
     required_well_patterns: List[RequiredWellPattern] = Field(
@@ -265,7 +272,7 @@ class CarryoverSpec(BaseModel):
 class DilutionLinearitySpec(BaseModel):
     """
     Acceptance criteria for validating accuracy when diluting samples
-     from above the calibration range.
+    from above the calibration range.
     """
 
     min_dilution_factors: int = Field(
@@ -314,8 +321,8 @@ class DilutionLinearitySpec(BaseModel):
 class StabilitySpec(BaseModel):
     """
     Acceptance criteria to determine that every step taken during
-     sample preparation, processing and analysis as well as the
-     storage conditions used do not affect the concentration of the analyte.
+    sample preparation, processing and analysis as well as the
+    storage conditions used do not affect the concentration of the analyte.
     """
 
     required_well_patterns: List[RequiredWellPattern] = Field(
@@ -350,19 +357,115 @@ class StabilitySpec(BaseModel):
     )
 
 
-# class ParallelismSpec(BaseModel):
-#     max_cv_pct: Percent = 30
-#     min_dilutions: int = 3
+class ParallelismSpec(BaseModel):
+    """
+    Acceptance criteria for detecting non–parallel behaviour between
+    the calibration curve and serially-diluted study samples.
+    """
+
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.SAMPLE,
+                needs_sample_id=True,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
+    min_dilutions: int = Field(
+        3,
+        ge=1,
+        description="Minimum number of distinct dilution factors to test.",
+    )
+    min_replicates_each: int = Field(
+        3,
+        ge=1,
+        description="Replicate wells for each point in every dilution series.",
+    )
+
+    cv_tol_pct: PositiveFloat = Percent(
+        30,
+        description=(
+            "Maximum allowed %CV among back-calculated concentrations "
+            "within a dilution series."
+        ),
+    )
+    pass_fraction: PositiveFloat = Fraction01(
+        1.0,
+        description="Fraction of dilution series that must meet the %CV limit.",
+    )
 
 
-# # ── Top-level acceptance container ────────────────────────────────────────────
-# class LBAValidationAcceptance(BaseModel):
-#     specificity: SpecificitySpec = SpecificitySpec()
-#     selectivity: SelectivitySpec = SelectivitySpec()
-#     calibration: CalibrationSpec = CalibrationSpec()
-#     accuracy: AccuracySpec = AccuracySpec()
-#     precision: PrecisionSpec = PrecisionSpec()
-#     carryover: CarryoverSpec = CarryoverSpec()
-#     dilution_linearity: DilutionLinearitySpec = DilutionLinearitySpec()
-#     stability: StabilitySpec = StabilitySpec()
-#     parallelism: ParallelismSpec = ParallelismSpec()
+class RecoverySpec(BaseModel):
+    """
+    Acceptance criteria for extraction recovery (efficiency and consistency).
+    """
+
+    required_well_patterns: list[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.LOW,
+                recovery_stage=RecoveryStage.BEFORE,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.MID,
+                recovery_stage=RecoveryStage.BEFORE,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.HIGH,
+                recovery_stage=RecoveryStage.BEFORE,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.LOW,
+                recovery_stage=RecoveryStage.AFTER,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.MID,
+                recovery_stage=RecoveryStage.AFTER,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.HIGH,
+                recovery_stage=RecoveryStage.AFTER,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
+    min_replicates_each: int = Field(
+        3,
+        ge=1,
+        description="Replicate wells for each (stage × QC level) combination.",
+    )
+
+    max_cv_pct_within_level: PositiveFloat = Percent(
+        15,
+        description="CV (%) of recovery at each QC level.",
+    )
+    min_recovery_pct_within_level: PositiveFloat = Percent(
+        80,
+        description="Mean recovery (%) of recovery at each QC level.",
+    )
+    max_diff_pct_between_levels: PositiveFloat = Percent(
+        15,
+        description=("Absolute % difference between mean recoveries at each QC level."),
+    )
+
+
+class LBAValidationAcceptanceCriteria(BaseModel):
+    specificity: SpecificitySpec = SpecificitySpec()
+    selectivity: SelectivitySpec = SelectivitySpec()
+    calibration: CalibrationSpec = CalibrationSpec()
+    accuracy: AccuracySpec = AccuracySpec()
+    precision: PrecisionSpec = PrecisionSpec()
+    carryover: CarryoverSpec = CarryoverSpec()
+    dilution_linearity: DilutionLinearitySpec = DilutionLinearitySpec()
+    stability: StabilitySpec = StabilitySpec()
+    parallelism: ParallelismSpec = ParallelismSpec()
+    recovery: RecoverySpec = RecoverySpec()

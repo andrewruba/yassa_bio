@@ -43,6 +43,15 @@ class TestWell:
         assert w.level_idx == 1
         assert w.dilution_factor == 2.0
 
+    def test_sample_id_round_trip(self):
+        w = Well(
+            **self._base_kwargs(
+                sample_type="sample",
+                sample_id="SUBJ42_DAY1",
+            )
+        )
+        assert w.sample_id == "SUBJ42_DAY1"
+
     @pytest.mark.parametrize("bad_id", ["1A", "AA0", "!!!", "A"])
     def test_bad_well_ids_raise(self, bad_id):
         with pytest.raises(ValidationError):
@@ -165,3 +174,34 @@ class TestWell:
                     stability_condition_time="after",
                 )
             )
+
+    @pytest.mark.parametrize(
+        "sample_type,qc_level,should_raise",
+        [
+            ("quality_control", "mid", False),
+            ("sample", None, True),
+            ("quality_control", None, True),
+        ],
+    )
+    def test_recovery_stage_rules(
+        self,
+        sample_type,
+        qc_level,
+        should_raise,
+    ):
+        kwargs = dict(
+            well="C1",
+            file_col=2,
+            sample_type=sample_type,
+            recovery_stage="before",
+        )
+        if qc_level:
+            kwargs["qc_level"] = qc_level
+
+        if should_raise:
+            with pytest.raises(ValidationError):
+                Well(**self._base_kwargs(**kwargs))
+        else:
+            w = Well(**self._base_kwargs(**kwargs))
+            assert w.recovery_stage.value == "before"
+            assert w.sample_type.value == "quality_control"
