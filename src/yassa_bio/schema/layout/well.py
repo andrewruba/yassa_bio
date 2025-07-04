@@ -122,6 +122,12 @@ class Well(SchemaModel):
 
     @model_validator(mode="after")
     def _qc_level_allowed_for_type(self):
-        if self.sample_type not in {SampleType.QUALITY_CONTROL} and self.qc_level:
+        if self.sample_type is not SampleType.QUALITY_CONTROL and self.qc_level:
             raise ValueError("qc_level only valid on QUALITY_CONTROL wells")
+        return self
+
+    @model_validator(mode="after")
+    def _carryover_only_on_blank(self):
+        if self.carryover and self.sample_type is not SampleType.BLANK:
+            raise ValueError("carryover flag is only valid on BLANK wells")
         return self

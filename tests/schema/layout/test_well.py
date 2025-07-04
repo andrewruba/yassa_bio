@@ -110,3 +110,26 @@ class TestWell:
     def test_non_string_interferent_raises(self, bad_val):
         with pytest.raises(ValidationError):
             Well(**self._base_kwargs(interferent=bad_val))
+
+    def test_carryover_allowed_on_blank(self):
+        w = Well(
+            **self._base_kwargs(
+                well="B1",
+                file_col=1,
+                sample_type="blank",
+                carryover=True,
+            )
+        )
+        assert w.carryover is True
+        assert w.sample_type.value == "blank"
+
+    def test_carryover_on_non_blank_raises(self):
+        with pytest.raises(ValidationError):
+            Well(
+                **self._base_kwargs(
+                    well="B2",
+                    file_col=1,
+                    sample_type="sample",
+                    carryover=True,
+                )
+            )
