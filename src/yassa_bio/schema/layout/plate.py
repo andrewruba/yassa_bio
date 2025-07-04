@@ -33,7 +33,9 @@ class Plate(SchemaModel):
     wells: List[Well]
     standards: Optional[StandardSeries] = Field(
         None,
-        description="If not supplied, concentrations must be on each Well.",
+        description=(
+            "If not supplied, concentrations must be on each calibration standard Well."
+        ),
     )
 
     @model_validator(mode="after")

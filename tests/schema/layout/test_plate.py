@@ -23,7 +23,10 @@ class TestPlate:
     def test_all_fields_round_trip(self):
         wells = self._make_wells(3)
         stds = StandardSeries(
-            start_concentration=1000, dilution_factor=3.16, num_levels=8
+            start_concentration=1000,
+            dilution_factor=3.16,
+            num_levels=8,
+            concentration_units="ng/mL",
         )
         p = Plate(
             plate_id="EZHNPY-25K",
@@ -89,7 +92,10 @@ class TestStandardConcentrationValidator:
     def test_series_map_allows_level_idx(self):
         """Calibration standards with level_idx inside series pass validation."""
         series = StandardSeries(
-            start_concentration=100, dilution_factor=2, num_levels=3
+            start_concentration=100,
+            dilution_factor=2,
+            num_levels=3,
+            concentration_units="ng/mL",
         )
         plate = Plate(
             plate_id="P-OK1",
@@ -122,7 +128,10 @@ class TestStandardConcentrationValidator:
     def test_level_idx_out_of_range_raises(self):
         """level_idx outside series.num_levels should fail."""
         series = StandardSeries(
-            start_concentration=100, dilution_factor=2, num_levels=2
+            start_concentration=100,
+            dilution_factor=2,
+            num_levels=2,
+            concentration_units="ng/mL",
         )
         with pytest.raises(ValidationError):
             Plate(

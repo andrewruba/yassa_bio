@@ -21,7 +21,7 @@ class StandardSeries(SchemaModel):
         description="Total number of standards prepared (≥ 2).",
     )
     concentration_units: str = Field(
-        "ng/mL",
+        ...,
         description="Concentration units for the series.",
         examples=["ng/mL", "pg/mL", "mU/mL", "IU/mL"],
     )
