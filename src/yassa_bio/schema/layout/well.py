@@ -40,6 +40,12 @@ class Well(SchemaModel):
         ),
         examples=["glucose", "cholesterol", "bovine serum albumin"],
     )
+    carryover: bool = Field(
+        False,
+        description=(
+            "Set True when this blank is intended for the post-ULOQ carry-over check."
+        ),
+    )
     qc_level: Optional[QCLevel] = Field(
         None,
         description=(

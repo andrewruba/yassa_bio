@@ -13,6 +13,7 @@ from yassa_bio.schema.layout.well import Well
 class RequiredWellPattern(BaseModel):
     sample_type: SampleType
     needs_interferent: bool = True
+    carryover: bool = False
     qc_level: Optional[QCLevel] = None
 
     def matches(self, well: Well) -> bool:
@@ -175,18 +176,80 @@ class AccuracySpec(BaseModel):
     )
 
 
-# class PrecisionSpec(BaseModel):
-#     core_cv_pct: Percent = Field(20, description="≤20 % CV, mid-range QCs")
-#     edge_cv_pct: Percent = Field(25, description="≤25 % CV at LLOQ / ULOQ")
-#     total_error_core: Percent = 30
-#     total_error_edges: Percent = 40
-#     reps_per_run: int = 3
-#     runs_required: int = 6
+class PrecisionSpec(BaseModel):
+    """
+    Acceptance criteria to determine the scatter in repeat measurements.
+    """
+
+    min_levels: int = Field(
+        5,
+        ge=3,
+        description=(
+            "Minimum number of calibration levels (LLOQ, ULOQ included). "
+            "Blank and anchor levels are not counted."
+        ),
+    )
+    min_replicates_per_level: int = Field(
+        3,
+        ge=1,
+        description=(
+            "Minimum replicate wells analysed at each calibration standard level."
+        ),
+    )
+
+    cv_tol_pct_mid: PositiveFloat = Percent(
+        20,
+        description="Precision CV limit (%) for LOW, MID, HIGH levels.",
+    )
+    cv_tol_pct_edge: PositiveFloat = Percent(
+        25,
+        description="Precision CV limit (%) at LLOQ and ULOQ.",
+    )
+    total_error_pct_mid: PositiveFloat = Percent(
+        30,
+        description="Total-error limit (%) for LOW, MID, HIGH levels.",
+    )
+    total_error_pct_edge: PositiveFloat = Percent(
+        40,
+        description="Total-error limit (%) at LLOQ and ULOQ.",
+    )
 
 
-# class CarryoverSpec(BaseModel):
-#     blank_pct_of_lloq: Percent = 100  # < LLOQ
-#     internal_std_pct_ref: Percent = 5  # optional; set None for LBA
+class CarryoverSpec(BaseModel):
+    """
+    Acceptance criteria to determine if there is residual analyte from
+     a high sample affecting the next sample.
+    """
+
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.BLANK,
+                needs_interferent=False,
+                carryover=True,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
+    min_blanks_after_uloq: int = Field(
+        0,
+        ge=0,
+        description=(
+            "Number of blank wells that must be placed immediately after the ULOQ."
+        ),
+    )
+    pass_fraction: PositiveFloat = Fraction01(
+        1.0,
+        description=(
+            "Fraction of those blanks that must meet the threshold. "
+            "Keep at 1.0 to require every blank to pass."
+        ),
+    )
+
+    blank_thresh_pct_lloq: PositiveFloat = Percent(
+        100, description="Blank signal must be < this % of LLOQ response."
+    )
 
 
 # class DilutionLinearitySpec(BaseModel):
@@ -216,7 +279,7 @@ class AccuracySpec(BaseModel):
 
 
 # # ── Top-level acceptance container ────────────────────────────────────────────
-# class LBAAcceptanceCriteria(BaseModel):
+# class LBAValidationAcceptance(BaseModel):
 #     specificity: SpecificitySpec = SpecificitySpec()
 #     selectivity: SelectivitySpec = SelectivitySpec()
 #     calibration: CalibrationSpec = CalibrationSpec()
