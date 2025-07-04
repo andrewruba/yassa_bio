@@ -73,7 +73,7 @@ class SpecificitySpec(BaseModel):
         25, description="Maximum allowed bias (±) at LLOQ & ULOQ with interferent."
     )
     blank_thresh_pct_lloq: PositiveFloat = Percent(
-        100, description="Blank + interferent must be < this % of LLOQ response."
+        20, description="Blank + interferent must be < this % of LLOQ response."
     )
 
 
@@ -104,7 +104,7 @@ class SelectivitySpec(BaseModel):
     )
 
     blank_thresh_pct_lloq: PositiveFloat = Percent(
-        100, description="Blank signal must be < this % of LLOQ response."
+        20, description="Blank signal must be < this % of LLOQ response."
     )
     acc_tol_pct_lloq: PositiveFloat = Percent(
         25, description="Allowed bias for LLOQ-spiked QC."
@@ -265,7 +265,7 @@ class CarryoverSpec(BaseModel):
     )
 
     blank_thresh_pct_lloq: PositiveFloat = Percent(
-        100, description="Blank signal must be < this % of LLOQ response."
+        20, description="Blank signal must be < this % of LLOQ response."
     )
 
 
@@ -447,10 +447,6 @@ class RecoverySpec(BaseModel):
     max_cv_pct_within_level: PositiveFloat = Percent(
         15,
         description="CV (%) of recovery at each QC level.",
-    )
-    min_recovery_pct_within_level: PositiveFloat = Percent(
-        80,
-        description="Mean recovery (%) of recovery at each QC level.",
     )
     max_diff_pct_between_levels: PositiveFloat = Percent(
         15,
