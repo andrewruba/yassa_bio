@@ -12,19 +12,27 @@ from yassa_bio.schema.layout.well import Well
 
 class RequiredWellPattern(BaseModel):
     sample_type: SampleType
-    needs_interferent: bool = True
-    carryover: bool = False
     qc_level: Optional[QCLevel] = None
+    needs_interferent: bool = False
+    carryover: bool = False
+    needs_stability_condition: bool = False
 
     def matches(self, well: Well) -> bool:
         if well.sample_type != self.sample_type:
             return False
+
         if self.qc_level is not None and well.qc_level != self.qc_level:
             return False
-        if self.needs_interferent and well.interferent is None:
+
+        if self.needs_interferent != (well.interferent is not None):
             return False
-        if not self.needs_interferent and well.interferent is not None:
+
+        if well.carryover != self.carryover:
             return False
+
+        if self.needs_stability_condition != (well.stability_condition is not None):
+            return False
+
         return True
 
 
@@ -38,14 +46,17 @@ class SpecificitySpec(BaseModel):
         [
             RequiredWellPattern(
                 sample_type=SampleType.BLANK,
+                needs_interferent=True,
             ),
             RequiredWellPattern(
                 sample_type=SampleType.QUALITY_CONTROL,
                 qc_level=QCLevel.LLOQ,
+                needs_interferent=True,
             ),
             RequiredWellPattern(
                 sample_type=SampleType.QUALITY_CONTROL,
                 qc_level=QCLevel.ULOQ,
+                needs_interferent=True,
             ),
         ],
         description="Minimal list of well patterns that must be present.",
@@ -225,7 +236,6 @@ class CarryoverSpec(BaseModel):
         [
             RequiredWellPattern(
                 sample_type=SampleType.BLANK,
-                needs_interferent=False,
                 carryover=True,
             ),
         ],
@@ -285,7 +295,7 @@ class DilutionLinearitySpec(BaseModel):
 
     bias_tol_pct: PositiveFloat = Percent(
         20,
-        description="Maximum |bias| (%) after correcting for the dilution factor.",
+        description="Maximum bias (%) after correcting for the dilution factor.",
     )
     cv_tol_pct: PositiveFloat = Percent(
         20,
@@ -301,17 +311,43 @@ class DilutionLinearitySpec(BaseModel):
     )
 
 
-# class StabilitySpec(BaseModel):
-#     qc_tolerance_pct: Percent = 20
-#     conditions_required: List[str] = [
-#         "autosampler",
-#         "bench_top",
-#         "extracted",
-#         "freeze_thaw",
-#         "long_term",
-#         "stock_solution",
-#     ]
-#     freeze_thaw_cycles: int = 3
+class StabilitySpec(BaseModel):
+    """
+    Acceptance criteria to determine that every step taken during
+     sample preparation, processing and analysis as well as the
+     storage conditions used do not affect the concentration of the analyte.
+    """
+
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.LOW,
+                needs_stability_condition=True,
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.HIGH,
+                needs_stability_condition=True,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
+    min_conditions: int = Field(
+        0,
+        ge=0,
+        description="Total distinct stability conditions that must be evaluated.",
+    )
+    pass_fraction: PositiveFloat = Fraction01(
+        1.0,
+        description="Fraction of QC aliquots that must meet limits in each condition.",
+    )
+
+    bias_tol_pct: PositiveFloat = Percent(
+        20,
+        description="Mean bias (± %) allowed at each QC level.",
+    )
 
 
 # class ParallelismSpec(BaseModel):

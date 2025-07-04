@@ -3,7 +3,7 @@ import re
 from typing import Optional
 from pydantic import Field, model_validator, field_validator
 
-from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.schema.layout.enum import SampleType, QCLevel, StabilityConditionTime
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
 
@@ -45,6 +45,18 @@ class Well(SchemaModel):
         description=(
             "Set True when this blank is intended for the post-ULOQ carry-over check."
         ),
+    )
+    stability_condition: Optional[str] = Field(
+        None,
+        description="Label of the stability experiment this QC aliquot belongs to.",
+        examples=["freeze-thaw", "long-term", "autosampler"],
+    )
+    stability_condition_time: Optional[StabilityConditionTime] = Field(
+        None,
+        description=(
+            "Indicates if the well is before or after condition has been applied."
+        ),
+        examples=enum_examples(StabilityConditionTime),
     )
     qc_level: Optional[QCLevel] = Field(
         None,
@@ -130,4 +142,15 @@ class Well(SchemaModel):
     def _carryover_only_on_blank(self):
         if self.carryover and self.sample_type is not SampleType.BLANK:
             raise ValueError("carryover flag is only valid on BLANK wells")
+        return self
+
+    @model_validator(mode="after")
+    def _time_requires_condition(self):
+        has_cond = self.stability_condition is not None
+        has_timept = self.stability_condition_time is not None
+
+        if has_cond ^ has_timept:
+            raise ValueError(
+                "stability_condition and stability_condition_time must be set together"
+            )
         return self
