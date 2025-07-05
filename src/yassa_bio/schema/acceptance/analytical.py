@@ -72,7 +72,7 @@ class AnalyticalQCSpec(BaseModel):
     )
     pass_fraction_each_level: PositiveFloat = Fraction01(
         0.50,
-        description="Fraction of wells at every QC level must pass.",
+        description="Fraction of wells at every QC level that must pass.",
     )
 
 
