@@ -465,8 +465,3 @@ class LBAValidationAcceptanceCriteria(BaseModel):
     stability: StabilitySpec = StabilitySpec()
     parallelism: ParallelismSpec = ParallelismSpec()
     recovery: RecoverySpec = RecoverySpec()
-
-
-# TODO:
-# 2) structure spec logic
-#   - search "Yes —formalizing the common skeleton pays off"
