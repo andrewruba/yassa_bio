@@ -15,7 +15,7 @@ class TestPlate:
         ]
 
     def test_minimal_plate_defaults(self):
-        p = Plate(plate_id="P1", wells=self._make_wells(1))
+        p = Plate(plate_id="P1", file_key="F1", wells=self._make_wells(1))
         assert p.plate_format == PlateFormat.FMT_96
         assert p.sheet_index == 0
         assert p.standards is None
@@ -30,6 +30,7 @@ class TestPlate:
         )
         p = Plate(
             plate_id="EZHNPY-25K",
+            file_key="RAW_02",
             sheet_index=2,
             plate_format=384,
             wells=wells,
@@ -44,24 +45,38 @@ class TestPlate:
     @pytest.mark.parametrize("bad_index", [-1, -5])
     def test_negative_sheet_index_raises(self, bad_index):
         with pytest.raises(ValidationError):
-            Plate(plate_id="P2", sheet_index=bad_index, wells=self._make_wells(1))
+            Plate(
+                plate_id="P2",
+                file_key="Fbad",
+                sheet_index=bad_index,
+                wells=self._make_wells(1),
+            )
 
     @pytest.mark.parametrize("bad_format", [100, 640, "99"])
     def test_bad_plate_format_raises(self, bad_format):
         with pytest.raises(ValidationError):
-            Plate(plate_id="P2", plate_format=bad_format, wells=self._make_wells(1))
+            Plate(
+                plate_id="P2",
+                file_key="Fbadfmt",
+                plate_format=bad_format,
+                wells=self._make_wells(1),
+            )
 
     def test_missing_plate_id_raises(self):
         with pytest.raises(ValidationError):
-            Plate(wells=self._make_wells(1))
+            Plate(file_key="F1", wells=self._make_wells(1))
+
+    def test_missing_file_key_raises(self):
+        with pytest.raises(ValidationError):
+            Plate(plate_id="P1", wells=self._make_wells(1))
 
     def test_wells_can_be_empty(self):
-        p = Plate(plate_id="EMPTY", wells=[])
+        p = Plate(plate_id="EMPTY", file_key="Fempty", wells=[])
         assert p.wells == []
 
     def test_non_well_object_in_wells_raises(self):
         with pytest.raises(ValidationError):
-            Plate(plate_id="Bad", wells=[123])
+            Plate(plate_id="Bad", file_key="Fbad", wells=[123])
 
     def test_invalid_nested_well_bubbles_up(self):
         bad_well_dict = {
@@ -71,7 +86,7 @@ class TestPlate:
             "sample_type": "sample",
         }
         with pytest.raises(ValidationError):
-            Plate(plate_id="Bad", wells=[bad_well_dict])
+            Plate(plate_id="Bad", file_key="Fbad2", wells=[bad_well_dict])
 
 
 class TestStandardConcentrationValidator:
@@ -99,6 +114,7 @@ class TestStandardConcentrationValidator:
         )
         plate = Plate(
             plate_id="P-OK1",
+            file_key="F-OK1",
             wells=[
                 self.cs_well(idx=1),
                 self.cs_well(idx=2),
@@ -113,6 +129,7 @@ class TestStandardConcentrationValidator:
         """Per-well concentration override is sufficient when no series present."""
         plate = Plate(
             plate_id="P-OK2",
+            file_key="F-OK2",
             wells=[self.cs_well(conc=25.0), self.sample_well()],
         )
         assert plate.wells[0].concentration == 25.0
@@ -122,6 +139,7 @@ class TestStandardConcentrationValidator:
         with pytest.raises(ValidationError):
             Plate(
                 plate_id="P-BAD1",
+                file_key="F-BAD1",
                 wells=[self.cs_well(), self.sample_well()],
             )
 
@@ -136,6 +154,7 @@ class TestStandardConcentrationValidator:
         with pytest.raises(ValidationError):
             Plate(
                 plate_id="P-BAD2",
+                file_key="F-BAD2",
                 standards=series,
                 wells=[self.cs_well(idx=3), self.sample_well()],
             )
@@ -150,4 +169,6 @@ class TestStandardConcentrationValidator:
             level_idx=1,
         )
         with pytest.raises(ValidationError):
-            Plate(plate_id="P-BAD3", wells=[bad_qc, self.sample_well()])
+            Plate(
+                plate_id="P-BAD3", file_key="F-BAD3", wells=[bad_qc, self.sample_well()]
+            )

@@ -13,6 +13,13 @@ from yassa_bio.utils.standard import series_concentration_map
 class Plate(SchemaModel):
     """One physical plate with its wells."""
 
+    file_key: str = Field(
+        ...,
+        description=(
+            "Key that links this plate back to its raw-data file. "
+            "Must match one of the keys in `Batch.files`."
+        ),
+    )
     plate_id: str = Field(
         ...,
         description="Stable identifier: barcode, run name, or UUID.",

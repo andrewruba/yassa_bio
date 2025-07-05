@@ -7,7 +7,10 @@ from yassa_bio.core.model import SchemaModel
 
 
 class PlateReaderFile(SchemaModel):
-    """Pointer to a raw plate-reader export on disk, S3, GCS, etc."""
+    """
+    Metadata for one *physical export file* coming off a plate reader.
+    A file may contain data for one or many plates.
+    """
 
     filepath: str = Field(
         ...,
