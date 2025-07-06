@@ -8,8 +8,11 @@ from yassa_bio.core.model import SchemaModel
 
 class PlateReaderFile(SchemaModel):
     """
-    Metadata for one *physical export file* coming off a plate reader.
-    A file may contain data for one or many plates.
+    One export file coming off a plate reader.
+
+    A *file* can hold data for one plate (common for csv / txt) or for many
+    plates (multi-sheet XLS/X, some instrument binaries).  Nothing here is
+    assay-specific – it’s purely where the raw numbers live.
     """
 
     filepath: str = Field(

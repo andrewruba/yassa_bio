@@ -13,7 +13,7 @@ from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
 
 
-class Well(SchemaModel):
+class WellTemplate(SchemaModel):
     """Map one physical well to its location in the raw data table."""
 
     well: str = Field(

@@ -2,28 +2,48 @@ from __future__ import annotations
 from typing import List, Optional
 from pydantic import Field, model_validator
 
+from yassa_bio.schema.layout.file import PlateReaderFile
 from yassa_bio.schema.layout.enum import PlateFormat, SampleType
-from yassa_bio.schema.layout.well import Well
+from yassa_bio.schema.layout.well import WellTemplate
 from yassa_bio.schema.layout.standard import StandardSeries
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
 from yassa_bio.utils.standard import series_concentration_map
 
 
-class Plate(SchemaModel):
-    """One physical plate with its wells."""
+class PlateData(SchemaModel):
+    """
+    One *run* of data for a single plate.
 
-    file_key: str = Field(
-        ...,
-        description=(
-            "Key that links this plate back to its raw-data file. "
-            "Must match one of the keys in `Batch.files`."
-        ),
+    Links:
+      • `source_file` – the PlateReaderFile that contains the raw signal values
+      • `layout`      – the PlateLayout that tells us what each well means
+
+    You can pass a PlateData directly into the analysis pipeline when all
+    calibration/QC rules are satisfied on that plate alone.
+    """
+
+    source_file: PlateReaderFile = Field(
+        ..., description="Raw reader-export that contains this plate’s numeric data."
     )
     plate_id: str = Field(
-        ...,
-        description="Stable identifier: barcode, run name, or UUID.",
+        ..., description="Barcode / run-name / UUID that uniquely identifies the plate."
     )
+    layout: PlateLayout = Field(
+        ..., description="Immutable map defining well roles and nominal values."
+    )
+
+
+class PlateLayout(SchemaModel):
+    """
+    Immutable *layout* of a physical plate.
+
+    * Describes where every well sits (row/col), its role (sample, QC, blank…),
+      and any static metadata such as nominal concentration.
+    * Re-used across many runs: today’s plate data and tomorrow’s can both be
+      mapped with the same PlateLayout object.
+    """
+
     sheet_index: int = Field(
         0,
         ge=0,
@@ -33,11 +53,11 @@ class Plate(SchemaModel):
         ),
     )
     plate_format: PlateFormat = Field(
-        default=PlateFormat.FMT_96,
+        PlateFormat.FMT_96,
         description="Well count of the plate.",
         examples=enum_examples(PlateFormat),
     )
-    wells: List[Well]
+    wells: List[WellTemplate]
     standards: Optional[StandardSeries] = Field(
         None,
         description=(
