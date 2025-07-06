@@ -22,10 +22,12 @@ class TestSchemaModel:
         with pytest.raises(ValidationError):
             self.Demo(x=1, z=99)
 
-    def test_instance_is_frozen(self):
+    def test_instance_is_not_frozen(self):
         d = self.Demo(x=4)
-        with pytest.raises(ValidationError):
-            d.x = 10
+
+        d.x = 10
+        assert d.x == 10
 
         d2 = d.model_copy(update={"y": 9.9})
-        assert d2.y == 9.9 and d.y == 1.5
+        assert d2.y == 9.9
+        assert d.y == 1.5

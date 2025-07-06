@@ -31,3 +31,16 @@ class OutlierRule(StrEnum):
     ROSNER = "rosner"
     IQR = "iqr"
     ZSCORE = "zscore"
+
+
+class BlankRule(StrEnum):
+    NONE = "none"
+    MEAN = "mean"
+    MEDIAN = "median"
+    MINIMUM = "min"
+
+
+class NormRule(StrEnum):
+    NONE = "none"
+    SPAN = "span"
+    MAX = "max"

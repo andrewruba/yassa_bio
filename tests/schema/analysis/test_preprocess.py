@@ -1,17 +1,24 @@
-from pydantic import ValidationError
-import pytest
+# tests/schema/analysis/test_preprocess.py
+from __future__ import annotations
 
-from yassa_bio.schema.analysis.preprocessing import (
+import pytest
+from pydantic import ValidationError
+
+from yassa_bio.schema.analysis.preprocess import (
     OutlierParams,
-    Preprocessing,
+    Preprocess,
 )
-from yassa_bio.schema.analysis.enum import OutlierRule
+from yassa_bio.schema.analysis.enum import (
+    OutlierRule,
+    BlankRule,
+    NormRule,
+)
 
 
 class TestOutlierParams:
     def test_default_ok(self):
         p = OutlierParams()
-        assert p.rule == OutlierRule.NONE
+        assert p.rule is OutlierRule.NONE
         assert p.z_threshold == 3.0
 
     def test_full_custom_param_set(self):
@@ -44,43 +51,43 @@ class TestOutlierParams:
             OutlierParams(rule=OutlierRule.IQR, iqr_k=bad_k)
 
 
-class TestPreprocessing:
+class TestPreprocess:
     def test_defaults_round_trip(self):
-        pp = Preprocessing()
-        assert pp.blank_subtract is True
-        assert pp.normalize_to_control is False
-        assert pp.outliers.rule == OutlierRule.NONE
+        pp = Preprocess()
+        assert pp.blank_rule is BlankRule.MEAN
+        assert pp.norm_rule is NormRule.NONE
+        assert pp.outliers.rule is OutlierRule.NONE
 
     def test_all_flags_non_default(self):
         custom_outliers = OutlierParams(
             rule=OutlierRule.GRUBBS,
             grubbs_alpha=0.01,
         )
-        pp = Preprocessing(
-            blank_subtract=False,
-            normalize_to_control=True,
+        pp = Preprocess(
+            blank_rule=BlankRule.NONE,
+            norm_rule=NormRule.SPAN,
             outliers=custom_outliers,
         )
 
-        assert pp.blank_subtract is False
-        assert pp.normalize_to_control is True
+        assert pp.blank_rule is BlankRule.NONE
+        assert pp.norm_rule is NormRule.SPAN
 
         assert pp.outliers.rule is OutlierRule.GRUBBS
         assert pp.outliers.grubbs_alpha == 0.01
 
         dumped = pp.model_dump(mode="json")
-        assert dumped["blank_subtract"] is False
-        assert dumped["normalize_to_control"] is True
+        assert dumped["blank_rule"] == "none"
+        assert dumped["norm_rule"] == "span"
         assert dumped["outliers"]["rule"] == "grubbs"
         assert dumped["outliers"]["grubbs_alpha"] == 0.01
 
     def test_custom_outlier_block(self):
         custom = OutlierParams(rule=OutlierRule.ZSCORE, z_threshold=4.0)
-        pp = Preprocessing(outliers=custom, normalize_to_control=True)
+        pp = Preprocess(outliers=custom, norm_rule=NormRule.SPAN)
         assert pp.outliers.z_threshold == 4.0
-        assert pp.normalize_to_control is True
+        assert pp.norm_rule is NormRule.SPAN
 
     def test_invalid_nested_outlier_bubbles_up(self):
         bad = {"rule": "zscore", "z_threshold": None}
         with pytest.raises(ValidationError):
-            Preprocessing(outliers=bad)
+            Preprocess(outliers=bad)

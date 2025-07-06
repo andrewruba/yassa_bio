@@ -5,5 +5,5 @@ class SchemaModel(BaseModel):
     model_config = {
         "extra": "forbid",
         "strict": False,
-        "frozen": True,
+        "frozen": False,
     }

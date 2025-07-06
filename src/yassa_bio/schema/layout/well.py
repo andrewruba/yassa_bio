@@ -100,11 +100,6 @@ class WellTemplate(SchemaModel):
         ge=1,
         description="Serial-dilution position (Std-1 → 1, Std-2 → 2, …).",
     )
-    dilution_factor: Optional[float] = Field(
-        None,
-        gt=1,
-        description="Fold change vs *preceding* level (e.g. 2.0 for a 1:2 dilution).",
-    )
     concentration: Optional[float] = Field(
         None,
         description="Absolute concentration override for this individual well.",
@@ -186,4 +181,22 @@ class WellTemplate(SchemaModel):
                 raise ValueError("recovery_stage allowed only on QUALITY_CONTROL wells")
             if self.qc_level is None:
                 raise ValueError("recovery_stage requires qc_level to be set")
+        return self
+
+    @model_validator(mode="after")
+    def _cal_std_must_resolve_conc(self):
+        is_std = self.sample_type is SampleType.CALIBRATION_STANDARD
+        has_lvl = self.level_idx is not None
+        has_conc = self.concentration is not None
+
+        if is_std:
+            if not (has_lvl or has_conc):
+                raise ValueError(
+                    "CALIBRATION_STANDARD requires concentration override or level_idx"
+                )
+        else:
+            if has_lvl:
+                raise ValueError(
+                    "level_idx is only valid on CALIBRATION_STANDARD wells"
+                )
         return self

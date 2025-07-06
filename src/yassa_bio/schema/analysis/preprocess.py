@@ -4,7 +4,7 @@ from pydantic import Field, PositiveFloat
 
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.typing import Fraction01
-from yassa_bio.schema.analysis.enum import OutlierRule
+from yassa_bio.schema.analysis.enum import OutlierRule, BlankRule, NormRule
 from yassa_bio.core.enum import enum_examples
 
 
@@ -42,19 +42,19 @@ class OutlierParams(SchemaModel):
     )
 
 
-class Preprocessing(SchemaModel):
+class Preprocess(SchemaModel):
     """
-    Preprocessing rules applied to sample measurements.
+    Preprocess rules applied to sample measurements.
     """
 
-    blank_subtract: bool = Field(
-        True,
-        description="If True, subtract blank well signal from all sample measurements.",
+    blank_rule: BlankRule = Field(
+        BlankRule.MEAN,
+        description="Subtract blank well signal from all sample measurements.",
+        examples=enum_examples(BlankRule),
     )
-    normalize_to_control: bool = Field(
-        False,
-        description=(
-            "If True, normalize each sample signal to the calibration standard range."
-        ),
+    norm_rule: NormRule = Field(
+        NormRule.NONE,
+        description="Normalize each sample signal to the calibration standard range.",
+        examples=enum_examples(NormRule),
     )
     outliers: OutlierParams = OutlierParams()

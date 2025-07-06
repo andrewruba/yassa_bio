@@ -2,13 +2,15 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.analysis.preprocessing import (
-    Preprocessing,
+from yassa_bio.schema.analysis.preprocess import (
+    Preprocess,
     OutlierParams,
 )
 from yassa_bio.schema.analysis.fit import CurveFit
 from yassa_bio.schema.analysis.enum import (
     OutlierRule,
+    BlankRule,
+    NormRule,
     CurveModel,
     Weighting,
     Transformation,
@@ -19,9 +21,9 @@ class TestLBAAnalysisConfig:
     def test_defaults_round_trip(self):
         cfg = LBAAnalysisConfig()
 
-        assert cfg.preprocessing.blank_subtract is True
-        assert cfg.preprocessing.normalize_to_control is False
-        assert cfg.preprocessing.outliers.rule is OutlierRule.NONE
+        assert cfg.preprocess.blank_rule == BlankRule.MEAN
+        assert cfg.preprocess.norm_rule == NormRule.NONE
+        assert cfg.preprocess.outliers.rule is OutlierRule.NONE
 
         assert cfg.curve_fit.model is CurveModel.FOUR_PL
         assert cfg.curve_fit.weighting is Weighting.ONE
@@ -29,9 +31,9 @@ class TestLBAAnalysisConfig:
         assert cfg.curve_fit.transformation_y is Transformation.IDENTITY
 
     def test_custom_nested_objects(self):
-        custom_pre = Preprocessing(
-            blank_subtract=False,
-            normalize_to_control=True,
+        custom_pre = Preprocess(
+            blank_rule=BlankRule.MEAN,
+            norm_rule=NormRule.NONE,
             outliers=OutlierParams(rule="iqr", iqr_k=2.5),
         )
         custom_fit = CurveFit(
@@ -41,15 +43,15 @@ class TestLBAAnalysisConfig:
             weighting="1/x",
         )
 
-        cfg = LBAAnalysisConfig(preprocessing=custom_pre, curve_fit=custom_fit)
+        cfg = LBAAnalysisConfig(preprocess=custom_pre, curve_fit=custom_fit)
 
-        assert cfg.preprocessing == custom_pre
+        assert cfg.preprocess == custom_pre
         assert cfg.curve_fit == custom_fit
 
-    def test_invalid_nested_preprocessing_raises(self):
+    def test_invalid_nested_preprocess_raises(self):
         bad_outliers = {"rule": "zscore", "z_threshold": None}
         with pytest.raises(ValidationError):
-            LBAAnalysisConfig(preprocessing={"outliers": bad_outliers})
+            LBAAnalysisConfig(preprocess={"outliers": bad_outliers})
 
     def test_invalid_nested_curvefit_raises(self):
         bad_fit = {"model": "7PL"}

@@ -94,7 +94,11 @@ class TestPlateData:
 
 class TestStandardConcentrationValidator:
     @staticmethod
-    def cs_well(idx: int | None = None, conc: float | None = None) -> Well:
+    def cs_well(
+        idx: int | None = None,
+        conc: float | None = None,
+        units: str | None = None,
+    ) -> Well:
         return Well(
             well=f"A{idx or 1}",
             file_row=0,
@@ -102,14 +106,20 @@ class TestStandardConcentrationValidator:
             sample_type=SampleType.CALIBRATION_STANDARD,
             level_idx=idx,
             concentration=conc,
-            concentration_units="ng/mL" if conc is not None else None,
+            concentration_units=units if conc is not None else None,
         )
 
     @staticmethod
-    def sample_well() -> Well:
-        return Well(well="B1", file_row=1, file_col=0, sample_type="sample")
+    def sample_well(**overrides) -> Well:
+        return Well(
+            well="B1",
+            file_row=1,
+            file_col=0,
+            sample_type=SampleType.SAMPLE,
+            **overrides,
+        )
 
-    def test_series_map_allows_level_idx(self):
+    def test_series_map_sets_missing_conc_fields(self):
         series = StandardSeries(
             start_concentration=100,
             dilution_factor=2,
@@ -125,17 +135,45 @@ class TestStandardConcentrationValidator:
             ],
             standards=series,
         )
-        assert layout.standards == series
+        expected = [100.0, 50.0, 25.0]
+        for w, e in zip(layout.wells[:3], expected):
+            assert w.concentration == pytest.approx(e)
+            assert w.concentration_units == "ng/mL"
 
     def test_override_concentration_without_series(self):
-        layout = PlateLayout(
-            wells=[self.cs_well(conc=25.0), self.sample_well()],
-        )
+        well = self.cs_well(conc=25.0, units="ng/mL")
+        layout = PlateLayout(wells=[well, self.sample_well()])
         assert layout.wells[0].concentration == 25.0
 
-    def test_missing_concentration_raises(self):
+    def test_override_concentration_with_series_is_preserved(self):
+        series = StandardSeries(
+            start_concentration=100,
+            dilution_factor=2,
+            num_levels=3,
+            concentration_units="ng/mL",
+        )
+        overriding_well = self.cs_well(conc=42.0, units="ng/mL")
+
+        layout = PlateLayout(
+            wells=[overriding_well, self.sample_well()],
+            standards=series,
+        )
+
+        assert layout.wells[0].concentration == pytest.approx(42.0)
+        assert layout.wells[0].concentration_units == "ng/mL"
+
+    def test_missing_concentration_and_level_raises(self):
         with pytest.raises(ValidationError):
-            PlateLayout(wells=[self.cs_well(), self.sample_well()])
+            PlateLayout(
+                wells=[
+                    Well(
+                        well="A1",
+                        file_row=0,
+                        file_col=0,
+                        sample_type=SampleType.CALIBRATION_STANDARD,
+                    )
+                ]
+            )
 
     def test_level_idx_out_of_range_raises(self):
         series = StandardSeries(
@@ -150,13 +188,13 @@ class TestStandardConcentrationValidator:
                 wells=[self.cs_well(idx=3), self.sample_well()],
             )
 
-    def test_non_standard_with_level_idx_without_conc_raises(self):
-        bad_qc = Well(
-            well="C1",
-            file_row=2,
-            file_col=0,
-            sample_type=SampleType.QUALITY_CONTROL,
-            level_idx=1,
-        )
+    def test_non_standard_with_level_idx_raises(self):
         with pytest.raises(ValidationError):
-            PlateLayout(wells=[bad_qc, self.sample_well()])
+            self.sample_well(level_idx=1)
+
+    def test_conflicting_concentration_and_units_raise(self):
+        with pytest.raises(ValidationError):
+            self.cs_well(conc=5.0, units=None)
+
+        with pytest.raises(ValidationError):
+            self.cs_well(conc=None, units="ng/mL")

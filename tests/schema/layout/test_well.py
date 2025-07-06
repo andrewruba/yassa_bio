@@ -37,11 +37,12 @@ class TestWellTemplate:
 
     def test_optional_numerics_ok(self):
         w = WellTemplate(
-            **self._base_kwargs(replicate=2, level_idx=1, dilution_factor=2.0)
+            **self._base_kwargs(
+                sample_type="calibration_standard", replicate=2, level_idx=1
+            )
         )
         assert w.replicate == 2
         assert w.level_idx == 1
-        assert w.dilution_factor == 2.0
 
     def test_sample_id_round_trip(self):
         w = WellTemplate(
@@ -70,12 +71,11 @@ class TestWellTemplate:
     @pytest.mark.parametrize("bad_level", [0, -3])
     def test_level_idx_must_be_ge_1(self, bad_level):
         with pytest.raises(ValidationError):
-            WellTemplate(**self._base_kwargs(level_idx=bad_level))
-
-    @pytest.mark.parametrize("bad_df", [1.0, 0.5, -2])
-    def test_dilution_factor_must_be_gt_1(self, bad_df):
-        with pytest.raises(ValidationError):
-            WellTemplate(**self._base_kwargs(dilution_factor=bad_df))
+            WellTemplate(
+                **self._base_kwargs(
+                    sample_type="calibration_standard", level_idx=bad_level
+                )
+            )
 
     def test_exclude_without_reason_raises(self):
         with pytest.raises(ValidationError):
@@ -207,3 +207,11 @@ class TestWellTemplate:
             w = WellTemplate(**self._base_kwargs(**kwargs))
             assert w.recovery_stage.value == "before"
             assert w.sample_type.value == "quality_control"
+
+    def test_std_without_level_or_conc_raises(self):
+        with pytest.raises(ValidationError):
+            WellTemplate(**self._base_kwargs(sample_type="calibration_standard"))
+
+    def test_nonstandard_with_level_idx_raises(self):
+        with pytest.raises(ValidationError):
+            WellTemplate(**self._base_kwargs(sample_type="sample", level_idx=1))

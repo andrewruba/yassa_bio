@@ -36,7 +36,7 @@ class PlateData(SchemaModel):
 
 class PlateLayout(SchemaModel):
     """
-    Immutable *layout* of a physical plate.
+    *Layout* of a physical plate.
 
     * Describes where every well sits (row/col), its role (sample, QC, blank…),
       and any static metadata such as nominal concentration.
@@ -66,26 +66,26 @@ class PlateLayout(SchemaModel):
     )
 
     @model_validator(mode="after")
-    def _check_standard_concentrations(self):
-        series_map = series_concentration_map(self.standards) if self.standards else {}
+    def _resolve_standard_concs(self):
+        if self.standards is None:
+            return self
 
-        errors = []
+        series_map = series_concentration_map(self.standards)
+
         for w in self.wells:
-            if w.sample_type is SampleType.CALIBRATION_STANDARD:
-                has_override = w.concentration is not None
-                has_series = series_map.get(w.level_idx or -1) is not None
-                if not (has_override or has_series):
-                    errors.append(
-                        f"{w.well}: calibration standard missing concentration "
-                        "(no StandardSeries match and no per-well override)"
-                    )
-            else:
-                if w.concentration is None and w.level_idx is not None:
-                    errors.append(
-                        f"{w.well}: level_idx set but this sample type "
-                        "is not a calibration standard"
-                    )
+            if w.sample_type is not SampleType.CALIBRATION_STANDARD:
+                continue
 
-        if errors:
-            raise ValueError(" ; ".join(errors))
+            if w.concentration is not None:
+                continue
+
+            if w.level_idx is None or w.level_idx not in series_map:
+                raise ValueError(
+                    f"{w.well}: level_idx missing or > num_levels="
+                    f"{self.standards.num_levels}"
+                )
+
+            w.concentration = series_map[w.level_idx]
+            w.concentration_units = self.standards.concentration_units
+
         return self
