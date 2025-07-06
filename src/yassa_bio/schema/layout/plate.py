@@ -30,7 +30,7 @@ class PlateData(SchemaModel):
         ..., description="Barcode / run-name / UUID that uniquely identifies the plate."
     )
     layout: PlateLayout = Field(
-        ..., description="Immutable map defining well roles and nominal values."
+        ..., description="Map defining well roles and nominal values."
     )
 
 
