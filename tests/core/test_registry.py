@@ -1,5 +1,4 @@
 from __future__ import annotations
-import importlib
 import pytest
 
 import yassa_bio.core.registry as _reg
@@ -7,10 +6,19 @@ import yassa_bio.core.registry as _reg
 
 class TestRegistry:
     @pytest.fixture(autouse=True)
-    def _fresh_registry(self):
-        importlib.reload(_reg)
-        yield
-        importlib.reload(_reg)
+    def isolate_registry(self):
+        """
+        Start every test with an empty registry, but put the original
+        entries (CSV/Excel readers, etc.) back when the test is done so
+        the global test suite is unaffected.
+        """
+        snapshot = _reg._registry.copy()
+        _reg._registry.clear()
+        try:
+            yield
+        finally:
+            _reg._registry.clear()
+            _reg._registry.update(snapshot)
 
     @staticmethod
     def _dummy(kind: str, name: str):

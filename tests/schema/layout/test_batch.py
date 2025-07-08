@@ -14,7 +14,7 @@ class TestBatchData:
     @staticmethod
     def _make_reader_file(name: str) -> PlateReaderFile:
         return PlateReaderFile(
-            filepath=f"/tmp/{name}.xlsx",
+            path=f"/tmp/{name}.xlsx",
             run_date=datetime(2024, 1, 1, 12, 0, 0),
             instrument="SpectraMax-iD5",
             operator="AR",
@@ -48,7 +48,7 @@ class TestBatchData:
 
         assert len(batch.plates) == 1
         assert batch.plates[0].plate_id == "Plate-01"
-        assert batch.plates[0].source_file.filepath.endswith("run1.xlsx")
+        assert batch.plates[0].source_file.path.name.endswith("run1.xlsx")
 
     def test_multiple_plates_batch_ok(self):
         plates = [

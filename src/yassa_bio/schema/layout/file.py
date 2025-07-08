@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import Optional
-from pydantic import Field
+from pydantic import Field, field_validator
 from datetime import datetime
+from pathlib import Path
 
 from yassa_bio.core.model import SchemaModel
+from yassa_bio.io.utils import as_path
 
 
 class PlateReaderFile(SchemaModel):
@@ -15,11 +17,9 @@ class PlateReaderFile(SchemaModel):
     assay-specific – it’s purely where the raw numbers live.
     """
 
-    filepath: str = Field(
+    path: Path = Field(
         ...,
-        description=(
-            "Full path to the file on disk or cloud storage. Used as the lookup key."
-        ),
+        description="Full path to the file on disk or cloud storage.",
     )
     run_date: Optional[datetime] = Field(
         None,
@@ -33,3 +33,10 @@ class PlateReaderFile(SchemaModel):
         None,
         description="Initials or user ID of analyst.",
     )
+
+    @field_validator("path", mode="before")
+    @classmethod
+    def _norm_path(cls, v):
+        if v is None:
+            raise ValueError("path cannot be None")
+        return as_path(v)

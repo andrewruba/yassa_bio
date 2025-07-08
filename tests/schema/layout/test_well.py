@@ -215,3 +215,12 @@ class TestWellTemplate:
     def test_nonstandard_with_level_idx_raises(self):
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="sample", level_idx=1))
+
+    def test_record_property_matches_dump(self):
+        w = WellTemplate(
+            **self._base_kwargs(
+                sample_id="X", replicate=2, exclude=True, exclude_reason="bubble"
+            )
+        )
+        dumped = w.model_dump()
+        assert w.record == dumped

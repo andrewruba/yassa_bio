@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, PrivateAttr
+import pandas as pd
 
 from yassa_bio.schema.layout.file import PlateReaderFile
 from yassa_bio.schema.layout.enum import PlateFormat, SampleType
@@ -9,6 +10,8 @@ from yassa_bio.schema.layout.standard import StandardSeries
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
 from yassa_bio.utils.standard import series_concentration_map
+from yassa_bio.core.registry import get
+from yassa_bio.io.reader import _infer_format
 
 
 class PlateData(SchemaModel):
@@ -32,6 +35,51 @@ class PlateData(SchemaModel):
     layout: PlateLayout = Field(
         ..., description="Map defining well roles and nominal values."
     )
+
+    _df: Optional[pd.DataFrame] = PrivateAttr(None)
+    _mtime: Optional[float] = PrivateAttr(None)
+
+    @property
+    def df(self) -> pd.DataFrame:
+        path = self.source_file.path
+
+        try:
+            current_mtime = path.stat().st_mtime
+        except Exception as exc:
+            raise ValueError(
+                f"While loading plate '{self.plate_id}' "
+                f"from {path!s} (sheet {self.layout.sheet_index}): "
+                f"{type(exc).__name__}: {exc}"
+            ) from exc
+
+        if self._df is None or self._mtime != current_mtime:
+            try:
+                format = _infer_format(path)
+                reader = get("reader", format)
+                raw = reader(
+                    path=path,
+                    sheet_index=self.layout.sheet_index,
+                )
+            except Exception as exc:
+                raise ValueError(
+                    f"While loading plate '{self.plate_id}' "
+                    f"from {path!s} (sheet {self.layout.sheet_index}): "
+                    f"{type(exc).__name__}: {exc}"
+                ) from exc
+
+            records = [
+                {
+                    **w.record,
+                    "signal": pd.to_numeric(
+                        raw.iat[w.file_row, w.file_col], errors="coerce"
+                    ),
+                }
+                for w in self.layout.wells
+            ]
+            self._df = pd.DataFrame.from_records(records)
+            self._mtime = current_mtime
+
+        return self._df
 
 
 class PlateLayout(SchemaModel):

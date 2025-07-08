@@ -16,7 +16,7 @@ def preprocess(
     df: pd.DataFrame,
     cfg: Preprocess,
     *,
-    signal_col: str = "signal_raw",
+    signal_col: str = "signal",
     plate_id: str | None = None,
 ) -> PrepResult:
     # ----- slice & copy --------------------------------------------------- #
@@ -34,7 +34,7 @@ def preprocess(
 
     # ----- normalisation -------------------------------------------------- #
     norm_fn = get("norm_rule", cfg.norm_rule)
-    clean, span = norm_fn(df.assign(signal_raw=clean))  # function returns Series
+    clean, span = norm_fn(df.assign(signal=clean))  # function returns Series
 
     df["clean_signal"] = clean
 

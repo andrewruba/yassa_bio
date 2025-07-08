@@ -125,6 +125,10 @@ class WellTemplate(SchemaModel):
         ),
     )
 
+    @property
+    def record(self) -> dict:
+        return self.model_dump()
+
     @model_validator(mode="after")
     def _reason_required_if_excluded(self):
         if self.exclude and not self.exclude_reason:

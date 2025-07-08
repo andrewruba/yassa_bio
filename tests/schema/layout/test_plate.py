@@ -1,6 +1,9 @@
 from __future__ import annotations
 import pytest
 from pydantic import ValidationError
+import tempfile
+import pandas as pd
+from pathlib import Path
 
 from yassa_bio.schema.layout.file import PlateReaderFile
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -62,7 +65,7 @@ class TestPlateData:
     def test_minimal_defaults(self):
         pd = PlateData(
             plate_id="P1",
-            source_file=PlateReaderFile(filepath="/tmp/F1.csv"),
+            source_file=PlateReaderFile(path="/tmp/F1.csv"),
             layout=_layout(),
         )
         assert pd.plate_id == "P1"
@@ -78,7 +81,7 @@ class TestPlateData:
         wells = _wells(3)
         pd = PlateData(
             plate_id="EZHNPY-25K",
-            source_file=PlateReaderFile(filepath="/tmp/RAW_02.csv"),
+            source_file=PlateReaderFile(path="/tmp/RAW_02.csv"),
             layout=PlateLayout(
                 sheet_index=2,
                 plate_format=384,
@@ -198,3 +201,53 @@ class TestStandardConcentrationValidator:
 
         with pytest.raises(ValidationError):
             self.cs_well(conc=None, units="ng/mL")
+
+    def test_df_reads_and_maps_signal_correctly(self):
+        with tempfile.NamedTemporaryFile(suffix=".csv", mode="w+", delete=False) as tmp:
+            tmp.write("n/a,skip\n1.23,4.56\n")
+            tmp.flush()
+
+            source = PlateReaderFile(path=tmp.name)
+            wells = [
+                Well(well="A1", file_row=1, file_col=0, sample_type="sample"),
+                Well(well="B1", file_row=1, file_col=1, sample_type="sample"),
+                Well(well="C1", file_row=0, file_col=0, sample_type="sample"),
+                Well(well="D1", file_row=0, file_col=1, sample_type="sample"),
+            ]
+            layout = PlateLayout(wells=wells)
+            plate = PlateData(plate_id="test2", source_file=source, layout=layout)
+            df = plate.df
+
+            assert isinstance(df, pd.DataFrame)
+            assert list(df["well"]) == ["A1", "B1", "C1", "D1"]
+
+            expected = pd.Series(
+                [1.23, 4.56, float("nan"), float("nan")], name="signal"
+            )
+            pd.testing.assert_series_equal(df["signal"], expected, check_names=True)
+
+    def test_df_with_invalid_file_path_raises(self):
+        bad_path = Path("/tmp/does_not_exist.csv")
+        source = PlateReaderFile(path=bad_path)
+        layout = PlateLayout(
+            wells=[
+                Well(well="A1", file_row=0, file_col=0, sample_type="sample"),
+            ]
+        )
+        plate = PlateData(plate_id="bad", source_file=source, layout=layout)
+        with pytest.raises(ValueError, match="While loading plate 'bad'"):
+            _ = plate.df
+
+    def test_df_reader_failure_raises_in_expected_block(self):
+        with tempfile.NamedTemporaryFile(suffix=".bad", mode="w+", delete=False) as tmp:
+            tmp.write("this should not matter")
+            tmp.flush()
+
+            source = PlateReaderFile(path=tmp.name)
+            layout = PlateLayout(
+                wells=[Well(well="A1", file_row=0, file_col=0, sample_type="sample")]
+            )
+            plate = PlateData(plate_id="fail-reader", source_file=source, layout=layout)
+
+            with pytest.raises(ValueError, match="While loading plate 'fail-reader'"):
+                _ = plate.df
