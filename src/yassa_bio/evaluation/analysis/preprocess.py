@@ -11,6 +11,8 @@ class CheckData(Step):
 
     def logic(self, ctx: PipelineContext) -> PipelineContext:
         # TODO: add shape / column checks etc.
+        # check signal column
+        # check run_type is present
         return ctx
 
 
