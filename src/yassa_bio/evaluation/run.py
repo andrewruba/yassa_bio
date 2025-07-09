@@ -1,6 +1,6 @@
 from yassa_bio.pipeline.engine import Pipeline
 from yassa_bio.evaluation.analysis.preprocess import Preprocess
-from yassa_bio.evaluation.analysis.fit import Fit
+from yassa_bio.evaluation.analysis.fit import CurveFit
 from yassa_bio.evaluation.acceptance.router import Acceptance
 from yassa_bio.evaluation.acceptance.analytical import Analytical
 from yassa_bio.evaluation.acceptance.validation import Validation
@@ -9,7 +9,7 @@ from yassa_bio.evaluation.acceptance.validation import Validation
 pipe = Pipeline(
     [
         Preprocess(),
-        Fit(),
+        CurveFit(),
         Acceptance(
             criteria={
                 "validation": Validation(),

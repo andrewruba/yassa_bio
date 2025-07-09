@@ -12,9 +12,9 @@ class FourPLModel:
         pass
 
 
-class Fit(CompositeStep):
+class CurveFit(CompositeStep):
     def __init__(self) -> None:
         super().__init__(
-            name="fit",
+            name="curve_fit",
             children=[],
         )
