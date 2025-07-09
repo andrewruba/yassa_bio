@@ -1,9 +1,18 @@
+import logging
+from typing import Union
+
+from yassa_bio.pipeline.base import PipelineContext
 from yassa_bio.pipeline.engine import Pipeline
 from yassa_bio.evaluation.analysis.preprocess import Preprocess
 from yassa_bio.evaluation.analysis.fit import CurveFit
 from yassa_bio.evaluation.acceptance.router import Acceptance
 from yassa_bio.evaluation.acceptance.analytical import Analytical
 from yassa_bio.evaluation.acceptance.validation import Validation
+from yassa_bio.schema.layout.batch import BatchData
+from yassa_bio.schema.layout.plate import PlateData
+from yassa_bio.schema.analysis.config import LBAAnalysisConfig
+from yassa_bio.schema.acceptance.validation import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.analytical import LBAAnalyticalAcceptanceCriteria
 
 
 pipe = Pipeline(
@@ -12,19 +21,31 @@ pipe = Pipeline(
         CurveFit(),
         Acceptance(
             criteria={
-                "validation": Validation(),
-                "analytical": Analytical(),
+                LBAValidationAcceptanceCriteria: Validation(),
+                LBAAnalyticalAcceptanceCriteria: Analytical(),
             }
         ),
     ]
 )
 
-# def run():
-#     logging.basicConfig(level=logging.INFO)
-# ctx = pipe.run(
-#     PipelineContext(
-#         layout=layout,
-#         analysis_config=analysis_config,
-#         acceptance_config=acceptance_config,
-#     )
-# )
+
+def run(
+    batch_data: Union[
+        BatchData,
+        PlateData,
+    ],
+    analysis_config: LBAAnalysisConfig,
+    acceptance_criteria: Union[
+        LBAValidationAcceptanceCriteria,
+        LBAAnalyticalAcceptanceCriteria,
+    ],
+) -> PipelineContext:
+    logging.basicConfig(level=logging.INFO)
+    ctx = pipe.run(
+        PipelineContext(
+            batch_data=batch_data,
+            analysis_config=analysis_config,
+            acceptance_criteria=acceptance_criteria,
+        )
+    )
+    return ctx

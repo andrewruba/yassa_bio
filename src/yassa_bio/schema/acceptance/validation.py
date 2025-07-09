@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
 from yassa_bio.core.typing import Percent, Fraction01
-from yassa_bio.schema.layout.well import Well
+from yassa_bio.schema.layout.well import WellTemplate
 
 
 class RequiredWellPattern(BaseModel):
@@ -19,7 +19,7 @@ class RequiredWellPattern(BaseModel):
     needs_sample_id: bool = False
     recovery_stage: Optional[RecoveryStage] = None
 
-    def matches(self, well: Well) -> bool:
+    def matches(self, well: WellTemplate) -> bool:
         if well.sample_type != self.sample_type:
             return False
 
