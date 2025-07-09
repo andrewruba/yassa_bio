@@ -21,4 +21,10 @@ pipe = Pipeline(
 
 # def run():
 #     logging.basicConfig(level=logging.INFO)
-#     ctx = pipe.run(PipelineContext(data=batch.df, config=analysis_config))
+# ctx = pipe.run(
+#     PipelineContext(
+#         layout=layout,
+#         analysis_config=analysis_config,
+#         acceptance_config=acceptance_config,
+#     )
+# )

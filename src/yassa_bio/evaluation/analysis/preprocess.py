@@ -5,6 +5,15 @@ from yassa_bio.pipeline.base import Step, PipelineContext
 from yassa_bio.pipeline.composite import CompositeStep
 
 
+class LoadData(Step):
+    name = "load_data"
+    fingerprint_keys = ()
+
+    def logic(self, ctx: PipelineContext) -> PipelineContext:
+        # TODO: load data from batch files and templates.
+        return ctx
+
+
 class CheckData(Step):
     name = "check_data"
     fingerprint_keys = ()
@@ -73,6 +82,7 @@ class Preprocess(CompositeStep):
         super().__init__(
             name="preprocess",
             children=[
+                LoadData(),
                 CheckData(),
                 SubtractBlank(),
                 NormalizeSignal(),
