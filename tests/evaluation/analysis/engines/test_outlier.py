@@ -21,7 +21,7 @@ class TestZScore:
         vals = np.array([1, 2, 3, 4])
         p = OutlierParams(rule="zscore", z_threshold=5.0, grubbs_alpha=0.05, iqr_k=1.5)
         mask = _mask_zscore(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
 
     def test_zscore_zero_std(self):
         vals = np.array([3, 3, 3])
@@ -29,7 +29,7 @@ class TestZScore:
         # ignore expected divide by zero warning
         with np.errstate(invalid="ignore"):
             mask = _mask_zscore(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
 
 
 class TestGrubbs:
@@ -37,7 +37,7 @@ class TestGrubbs:
         vals = np.array([1, 10])
         p = OutlierParams(rule="grubbs", z_threshold=3.0, grubbs_alpha=0.05, iqr_k=1.5)
         mask = _mask_grubbs(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
 
     def test_detects_grubbs_outlier(self):
         vals = np.array([10, 11, 12, 50])
@@ -63,13 +63,13 @@ class TestIQR:
         vals = np.array([1, 2, 3, 4, 5])
         p = OutlierParams(rule="iqr", z_threshold=3.0, grubbs_alpha=0.05, iqr_k=1.5)
         mask = _mask_iqr(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
 
     def test_iqr_zero_range(self):
         vals = np.array([5, 5, 5, 5])
         p = OutlierParams(rule="iqr", z_threshold=3.0, grubbs_alpha=0.05, iqr_k=1.5)
         mask = _mask_iqr(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
 
 
 class TestNoneRule:
@@ -77,4 +77,4 @@ class TestNoneRule:
         vals = np.array([10, 100, 3])
         p = OutlierParams(rule="none", z_threshold=3.0, grubbs_alpha=0.05, iqr_k=1.5)
         mask = _mask_none(vals, p)
-        assert np.all(not mask)
+        assert not np.all(mask)
