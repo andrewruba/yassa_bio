@@ -28,7 +28,6 @@ class Transformation(StrEnum):
 class OutlierRule(StrEnum):
     NONE = "none"
     GRUBBS = "grubbs"
-    ROSNER = "rosner"
     IQR = "iqr"
     ZSCORE = "zscore"
 

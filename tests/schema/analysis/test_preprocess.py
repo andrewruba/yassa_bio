@@ -1,4 +1,3 @@
-# tests/schema/analysis/test_preprocess.py
 from __future__ import annotations
 
 import pytest
@@ -35,7 +34,7 @@ class TestOutlierParams:
         assert p.iqr_k == 2.2
         assert p.rule is OutlierRule.IQR
 
-    @pytest.mark.parametrize("bad_zscore", [-0.1, 0, 12])
+    @pytest.mark.parametrize("bad_zscore", [-0.1, 0])
     def test_zscore_requires_threshold(self, bad_zscore):
         with pytest.raises(ValidationError):
             OutlierParams(rule=OutlierRule.ZSCORE, z_threshold=bad_zscore)

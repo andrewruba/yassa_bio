@@ -17,25 +17,23 @@ class OutlierParams(SchemaModel):
         OutlierRule.NONE,
         description=(
             "Statistical test to apply for outlier detection "
-            "(e.g., Grubbs, Rosner, IQR)."
+            "(e.g., Grubbs, Z-score, IQR)."
         ),
         examples=enum_examples(OutlierRule),
     )
     z_threshold: PositiveFloat = Field(
         3.0,
-        ge=2,
-        le=10,
+        ge=0,
         description=(
             "Z-score threshold for identifying outliers (used if rule is zscore)."
         ),
     )
     grubbs_alpha: PositiveFloat = Fraction01(
-        0.05, description="Significance level for Grubbs or Rosner outlier tests."
+        0.05, description="Significance level for Grubbs outlier test."
     )
     iqr_k: PositiveFloat = Field(
         1.5,
         gt=0,
-        le=5,
         description=(
             "Multiplier for IQR method; defines cutoff from the interquartile range."
         ),

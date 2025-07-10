@@ -1,8 +1,8 @@
 import logging
 from typing import Union
 
-from yassa_bio.pipeline.base import PipelineContext
 from yassa_bio.pipeline.engine import Pipeline
+from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.evaluation.analysis.preprocess import Preprocess
 from yassa_bio.evaluation.analysis.fit import CurveFit
 from yassa_bio.evaluation.acceptance.router import Acceptance
@@ -39,10 +39,10 @@ def run(
         LBAValidationAcceptanceCriteria,
         LBAAnalyticalAcceptanceCriteria,
     ],
-) -> PipelineContext:
+) -> LBAContext:
     logging.basicConfig(level=logging.INFO)
     ctx = pipe.run(
-        PipelineContext(
+        LBAContext(
             batch_data=batch_data,
             analysis_config=analysis_config,
             acceptance_criteria=acceptance_criteria,

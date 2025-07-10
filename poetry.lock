@@ -400,6 +400,22 @@ files = [
 et-xmlfile = "*"
 
 [[package]]
+name = "outlier-utils"
+version = "0.0.5"
+description = "Utility library for detecting and removing outliers from normally distributed datasets"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "outlier_utils-0.0.5-py3-none-any.whl", hash = "sha256:2e16148a3fa7b2e16ad0a3b75d8c8920828b5cc11568795782d597d4cfb0b194"},
+    {file = "outlier_utils-0.0.5.tar.gz", hash = "sha256:16e46fa6f7b01fe5518ea73fc15d3de0e30091750c428760bbe7dde2c9590579"},
+]
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
+
+[[package]]
 name = "packaging"
 version = "25.0"
 description = "Core utilities for Python packages"
@@ -997,4 +1013,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "a05761fee8ed880310648835b13b2ba4d48ed2f8d934d1a1eb32cb4afa5b00b9"
+content-hash = "f5feac5bc8fa4cb63b4e4bf1de29465e054b521e7670579bb69e328822c7ae79"

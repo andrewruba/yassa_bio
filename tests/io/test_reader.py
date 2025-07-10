@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from yassa_bio.io.reader import _infer_format, read_csv, read_excel
-from yassa_bio.core.registry import get as registry_get
+from yassa_bio.core.registry import get
 
 
 META_LINES = [
@@ -93,5 +93,5 @@ class TestReadExcel:
 
 class TestRegistry:
     def test_plugins_registered(self):
-        assert registry_get("reader", "csv") is read_csv
-        assert registry_get("reader", "excel") is read_excel
+        assert get("reader", "csv") is read_csv
+        assert get("reader", "excel") is read_excel
