@@ -1,5 +1,6 @@
 import pytest
 from pydantic import ValidationError
+
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.plate import PlateData
 from yassa_bio.schema.layout.batch import BatchData
@@ -8,7 +9,7 @@ from yassa_bio.schema.layout.plate import PlateLayout
 from yassa_bio.schema.layout.enum import PlateFormat, SampleType
 from yassa_bio.schema.layout.well import WellTemplate
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
 from yassa_bio.schema.acceptance.analytical import LBAAnalyticalAcceptanceCriteria
 
 
