@@ -5,6 +5,7 @@ from yassa_bio.core.registry import get
 from yassa_bio.pipeline.base import Step
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.pipeline.composite import CompositeStep
+from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 
 
 class LoadData(Step):
@@ -30,7 +31,7 @@ class CheckData(Step):
         if not isinstance(df, pd.DataFrame):
             raise TypeError("ctx.data must be a pandas DataFrame")
 
-        required = {"signal", "concentration"}
+        required = {"signal", "concentration", "sample_type"}
         missing = required - set(df.columns)
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
@@ -50,10 +51,10 @@ class SubtractBlank(Step):
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
-        cfg = ctx.analysis_config
+        cfg: LBAAnalysisConfig = ctx.analysis_config
 
         blank_mask = df["sample_type"].eq("blank")
-        blank_fn = get("blank_rule", cfg.blank_rule)
+        blank_fn = get("blank_rule", cfg.preprocess.blank_rule)
 
         blank_val = blank_fn(df["signal"].to_numpy(float), blank_mask.to_numpy())
         clean = df["signal"].astype(float)
@@ -72,11 +73,11 @@ class NormalizeSignal(Step):
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
-        cfg = ctx.analysis_config
+        cfg: LBAAnalysisConfig = ctx.analysis_config
 
-        norm_fn = get("norm_rule", cfg.norm_rule)
+        norm_fn = get("norm_rule", cfg.preprocess.norm_rule)
 
-        clean, span = norm_fn(df["signal"])
+        clean, span = norm_fn(df)
         df["signal"] = clean
 
         ctx.norm_span = span
@@ -90,8 +91,8 @@ class MaskOutliers(Step):
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
-        cfg = ctx.analysis_config
-        out_fn = get("outlier_rule", cfg.outliers.rule)
+        cfg: LBAAnalysisConfig = ctx.analysis_config
+        out_fn = get("outlier_rule", cfg.preprocess.outliers.rule)
 
         mask = pd.Series(False, index=df.index)
 
@@ -101,7 +102,7 @@ class MaskOutliers(Step):
             if len(vals) < 2:
                 continue
 
-            mask.loc[idxs] = out_fn(vals, cfg.outliers)
+            mask.loc[idxs] = out_fn(vals, cfg.preprocess.outliers)
 
         df["is_outlier"] = mask
         ctx.data = df
@@ -111,9 +112,6 @@ class MaskOutliers(Step):
         """
         Yields (name, group_df) for each relevant replicate group.
         """
-        if "sample_type" not in df.columns:
-            raise ValueError("Missing 'sample_type' column")
-
         std_mask = df["sample_type"] == "calibration_standard"
         qc_mask = df["sample_type"] == "quality_control"
         sample_mask = df["sample_type"] == "sample"
