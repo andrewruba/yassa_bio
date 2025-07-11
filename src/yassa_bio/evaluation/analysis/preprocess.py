@@ -47,7 +47,10 @@ class CheckData(Step):
 
 class SubtractBlank(Step):
     name = "subtract_blank"
-    fingerprint_keys = ("data",)
+    fingerprint_keys = (
+        "data",
+        "analysis_config",
+    )
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -69,7 +72,10 @@ class SubtractBlank(Step):
 
 class NormalizeSignal(Step):
     name = "normalize_signal"
-    fingerprint_keys = ("data",)
+    fingerprint_keys = (
+        "data",
+        "analysis_config",
+    )
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data

@@ -289,7 +289,7 @@ class TestMaskOutliers:
     def test_zscore_flags_outlier_within_each_group(self):
         df = pd.DataFrame(
             {
-                "signal": [1.0, 1.0, 10.0, 2.0, 2.0],
+                "signal": [1.0, 1.1, 10.0, 2.0, 2.1],
                 "concentration": [np.nan] * 5,
                 "sample_type": ["sample"] * 5,
                 "sample_id": ["A", "A", "A", "B", "B"],
