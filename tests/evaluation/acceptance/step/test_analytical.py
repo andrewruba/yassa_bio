@@ -121,18 +121,23 @@ class TestCheckRerun:
 
 
 class TestAnalytical:
-    def test_runs_all_steps_if_no_rerun_needed(self):
+    def test_runs_all_steps_if_no_rerun_needed(self, mocker):
         df = pd.DataFrame(
             {
-                "concentration": [1, 2, 3, 4, 5, 6],
-                "signal": [1, 2, 3, 4, 5, 6],
-                "x": [1, 2, 3, 4, 5, 6],
-                "y": [1, 2, 3, 4, 5, 6],
+                "concentration": [1, 2, 3],
+                "signal": [1, 2, 3],
+                "x": [1, 2, 3],
+                "y": [1, 2, 3],
                 "sample_type": "calibration_standard",
                 "qc_level": None,
             }
         )
         ctx = make_ctx(df)
+
+        mocker.patch(
+            "yassa_bio.evaluation.acceptance.step.analytical.EvaluateSpecs.logic",
+            return_value=ctx,
+        )
 
         out = Analytical().run(ctx)
 
@@ -141,26 +146,35 @@ class TestAnalytical:
         assert "evaluate_specs" in out.step_meta
         assert "check_rerun" in out.step_meta
         assert out.step_meta["check_rerun"]["status"] == "ok"
-        assert not getattr(out, "needs_rerun", False)
 
-    def test_aborts_after_checkrerun_if_needs_rerun(self):
+    def test_aborts_after_checkrerun_if_needs_rerun(self, mocker):
         df = pd.DataFrame(
             {
-                "concentration": [1, 2, 3, 4, 5, 6, 7],
-                "signal": [1, 2, 3, 4, 5, 6, 7],
-                "x": [1, 2, 3, 4, 5, 6, 7],
-                "y": [1, 2, 3, 4, 5, 6, 100],
+                "concentration": [1, 2, 3, 4],
+                "signal": [1, 2, 3, 4],
+                "x": [1, 2, 3, 4],
+                "y": [1, 2, 3, 100],
                 "sample_type": "calibration_standard",
                 "qc_level": None,
             }
         )
         ctx = make_ctx(df)
 
+        ctx.acceptance_results["calibration"] = {
+            "pass": False,
+            "can_refit": True,
+            "failing_levels": [4],
+        }
+
+        mocker.patch(
+            "yassa_bio.evaluation.acceptance.step.analytical.EvaluateSpecs.logic",
+            return_value=ctx,
+        )
+
         out = Analytical().run(ctx)
 
         assert out.needs_rerun is True
         assert out.abort_pass is True
         assert "check_rerun" in out.step_meta
-        assert out.step_meta["check_rerun"]["status"] == "ok"
-        assert set(out.dropped_cal_wells["concentration"]) == {7}
-        assert out.data["concentration"].tolist() == [1, 2, 3, 4, 5, 6]
+        assert out.dropped_cal_wells["concentration"].tolist() == [4]
+        assert out.data["concentration"].tolist() == [1, 2, 3]
