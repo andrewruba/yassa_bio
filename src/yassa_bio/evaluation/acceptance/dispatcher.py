@@ -22,7 +22,7 @@ class EvaluateSpecs(Step):
 
         for field_name, spec_obj in crit.model_dump().items():
             spec_cls = type(spec_obj).__name__
-            fn = get("acceptance_rule", spec_cls)
+            fn = get("acceptance", spec_cls)
 
             res = fn(ctx, spec_obj)
 

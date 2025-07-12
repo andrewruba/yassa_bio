@@ -15,7 +15,7 @@ from yassa_bio.schema.layout.enum import (
 )
 
 
-@register("acceptance_rule", AnalyticalCalibrationSpec.__name__)
+@register("acceptance", AnalyticalCalibrationSpec.__name__)
 def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     cal = ctx.calib_df.copy()
     by_lvl = cal.groupby("concentration")
@@ -67,7 +67,7 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     }
 
 
-@register("acceptance_rule", AnalyticalQCSpec.__name__)
+@register("acceptance", AnalyticalQCSpec.__name__)
 def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
     """
     Evaluate QC-well accuracy/precision for an analytical run.
