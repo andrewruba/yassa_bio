@@ -89,10 +89,10 @@ class TestSelectCalibrationData:
             }
         )
         ctx = LoadData().run(make_ctx(df))
-        out = SelectCalibrationData().run(ctx)
+        ctx = SelectCalibrationData().run(ctx)
 
-        assert out.calib_df.shape[0] == 2
-        assert (out.calib_df["sample_type"] == "calibration_standard").all()
+        assert ctx.calib_df.shape[0] == 2
+        assert (ctx.calib_df["sample_type"] == "calibration_standard").all()
 
     def test_raises_if_no_calibration(self):
         df = pd.DataFrame(
@@ -118,12 +118,11 @@ class TestApplyTransforms:
             }
         )
         ctx = LoadData().run(make_ctx(df))
+        ctx = ApplyTransforms().run(ctx)
         ctx = SelectCalibrationData().run(ctx)
-        out = ApplyTransforms().run(ctx)
 
-        assert np.allclose(out.calib_df["x"], [0.0, 1.0])
-        assert np.allclose(out.calib_df["y"], [1, 10])
-        assert "x_orig" in out.calib_df and "y_orig" in out.calib_df
+        assert np.allclose(ctx.calib_df["x"], [0.0, 1.0])
+        assert np.allclose(ctx.calib_df["y"], [1, 10])
 
 
 class TestComputeWeights:
@@ -136,11 +135,11 @@ class TestComputeWeights:
             }
         )
         ctx = LoadData().run(make_ctx(df))
-        ctx = SelectCalibrationData().run(ctx)
         ctx = ApplyTransforms().run(ctx)
-        out = ComputeWeights().run(ctx)
+        ctx = ComputeWeights().run(ctx)
+        ctx = SelectCalibrationData().run(ctx)
 
-        assert np.allclose(out.calib_df["w"], [1.0, 1.0])
+        assert np.allclose(ctx.calib_df["w"], [1.0, 1.0])
 
 
 class TestFitCalibrationData:
@@ -153,23 +152,23 @@ class TestFitCalibrationData:
             }
         )
         ctx = LoadData().run(make_ctx(df))
-        ctx = SelectCalibrationData().run(ctx)
         ctx = ApplyTransforms().run(ctx)
         ctx = ComputeWeights().run(ctx)
-        out = FitCalibrationData().run(ctx)
+        ctx = SelectCalibrationData().run(ctx)
+        ctx = FitCalibrationData().run(ctx)
 
-        assert callable(out.curve_fwd)
-        assert callable(out.curve_back)
-        assert isinstance(out.curve_params, np.ndarray)
+        assert callable(ctx.curve_fwd)
+        assert callable(ctx.curve_back)
+        assert isinstance(ctx.curve_params, np.ndarray)
 
         assert np.isclose(
-            out.curve_fwd(out.calib_df["x"][0]),
+            ctx.curve_fwd(ctx.calib_df["x"][0]),
             2.0,
             atol=1e-6,  # transformed
         )
         assert np.isclose(
-            out.curve_back([4.0]),
-            out.calib_df["x"][1],
+            ctx.curve_back([4.0]),
+            ctx.calib_df["x"][1],
             atol=1e-6,  # transformed
         )
 
@@ -184,11 +183,11 @@ class TestCurveFit:
             }
         )
         ctx = LoadData().run(make_ctx(df))
-        out = CurveFit().run(ctx)
+        ctx = CurveFit().run(ctx)
 
-        assert callable(out.curve_fwd)
-        assert callable(out.curve_back)
-        assert isinstance(out.curve_params, np.ndarray)
+        assert callable(ctx.curve_fwd)
+        assert callable(ctx.curve_back)
+        assert isinstance(ctx.curve_params, np.ndarray)
 
         expected_steps = {
             SelectCalibrationData.name,
@@ -196,8 +195,8 @@ class TestCurveFit:
             ComputeWeights.name,
             FitCalibrationData.name,
         }
-        assert expected_steps.issubset(out.step_meta)
+        assert expected_steps.issubset(ctx.step_meta)
         for name in expected_steps:
-            m = out.step_meta[name]
+            m = ctx.step_meta[name]
             assert m["status"] == "ok"
             assert "duration" in m

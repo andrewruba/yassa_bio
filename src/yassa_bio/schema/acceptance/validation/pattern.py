@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
+import pandas as pd
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
-from yassa_bio.schema.layout.well import WellTemplate
 
 
 class RequiredWellPattern(BaseModel):
@@ -14,25 +14,28 @@ class RequiredWellPattern(BaseModel):
     needs_sample_id: bool = False
     recovery_stage: Optional[RecoveryStage] = None
 
-    def matches(self, well: WellTemplate) -> bool:
-        if well.sample_type != self.sample_type:
-            return False
+    def mask(self, df: pd.DataFrame) -> pd.Series:
+        m = df["sample_type"] == self.sample_type.value
 
-        if self.qc_level is not None and well.qc_level != self.qc_level:
-            return False
+        if self.qc_level is not None:
+            m &= df["qc_level"] == self.qc_level.value
 
-        if self.needs_interferent != (well.interferent is not None):
-            return False
+        if self.needs_interferent:
+            m &= df["interferent"].notna()
 
-        if well.carryover != self.carryover:
-            return False
+        if self.carryover:
+            m &= df["carryover"]
 
-        if self.needs_stability_condition != (well.stability_condition is not None):
-            return False
+        if self.needs_stability_condition:
+            m &= df["stability_condition"].notna()
 
-        if self.recovery_stage is not None and (
-            well.recovery_stage != self.recovery_stage
-        ):
-            return False
+        if self.recovery_stage is not None:
+            m &= df["recovery_stage"] == self.recovery_stage.value
 
-        return True
+        if self.needs_sample_id:
+            m &= df["sample_id"].notna()
+
+        return m
+
+    def present(self, df: pd.DataFrame) -> bool:
+        return self.mask(df).any()
