@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from yassa_bio.pipeline.composite import CompositeStep
-from yassa_bio.evaluation.acceptance.dispatcher import EvaluateSpecs
+from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 
 
 class Validation(CompositeStep):

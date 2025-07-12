@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel
 from yassa_bio.pipeline.base import Step, PipelineContext
-from yassa_bio.evaluation.acceptance.router import Acceptance
+from yassa_bio.evaluation.acceptance.step.router import Acceptance
 
 
 class ConfigA(BaseModel):

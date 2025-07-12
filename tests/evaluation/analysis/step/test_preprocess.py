@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 import tempfile
 
-from yassa_bio.evaluation.analysis.preprocess import (
+from yassa_bio.evaluation.analysis.step.preprocess import (
     LoadData,
     CheckData,
     SubtractBlank,

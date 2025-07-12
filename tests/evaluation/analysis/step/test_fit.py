@@ -5,14 +5,14 @@ from datetime import datetime
 from pathlib import Path
 import tempfile
 
-from yassa_bio.evaluation.analysis.fit import (
+from yassa_bio.evaluation.analysis.step.fit import (
     SelectCalibrationData,
     ApplyTransforms,
     ComputeWeights,
     FitCalibrationData,
     CurveFit,
 )
-from yassa_bio.evaluation.analysis.preprocess import LoadData
+from yassa_bio.evaluation.analysis.step.preprocess import LoadData
 from yassa_bio.schema.analysis.enum import Transformation, Weighting, CurveModel
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria

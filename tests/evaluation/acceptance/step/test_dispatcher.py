@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 import tempfile
 
-from yassa_bio.evaluation.acceptance.dispatcher import EvaluateSpecs
+from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 from yassa_bio.schema.analysis.enum import Transformation, CurveModel, Weighting
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.analytical import (

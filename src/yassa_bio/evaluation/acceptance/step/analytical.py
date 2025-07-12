@@ -4,7 +4,7 @@ import logging
 
 from yassa_bio.pipeline.base import Step
 from yassa_bio.pipeline.composite import CompositeStep
-from yassa_bio.evaluation.acceptance.dispatcher import EvaluateSpecs
+from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 from yassa_bio.evaluation.context import LBAContext
 
 log = logging.getLogger(__name__)
