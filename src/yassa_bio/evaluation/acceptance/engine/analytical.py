@@ -1,5 +1,4 @@
 from __future__ import annotations
-import pandas as pd
 
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
@@ -19,13 +18,8 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     by_lvl = cal.groupby("concentration")
     cal["back_calc"] = ctx.curve_back(cal["y"].to_numpy(float))
 
-    summary = by_lvl.apply(
-        lambda g: pd.Series(
-            {
-                "x": g["x"].mean(),
-                "back_mean": g["back_calc"].mean(),
-            }
-        )
+    summary = (
+        by_lvl[["x", "back_calc"]].mean().rename(columns={"back_calc": "back_mean"})
     )
 
     summary["bias_pct"] = (
@@ -51,7 +45,10 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     can_refit = n_retained >= spec.min_retained_levels
 
     overall_pass = (
-        can_refit and frac_pass >= spec.pass_fraction and n_levels >= spec.min_levels
+        can_refit
+        and frac_pass >= spec.pass_fraction
+        and n_fail == 0
+        and n_levels >= spec.min_levels
     )
 
     return {
