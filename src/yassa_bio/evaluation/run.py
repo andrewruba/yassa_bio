@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from yassa_bio.pipeline.engine import Pipeline
 from yassa_bio.evaluation.context import LBAContext
@@ -30,15 +29,11 @@ pipe = Pipeline(
 
 
 def run(
-    batch_data: Union[
-        BatchData,
-        PlateData,
-    ],
+    batch_data: BatchData | PlateData,
     analysis_config: LBAAnalysisConfig,
-    acceptance_criteria: Union[
-        LBAValidationAcceptanceCriteria,
-        LBAAnalyticalAcceptanceCriteria,
-    ],
+    acceptance_criteria: (
+        LBAValidationAcceptanceCriteria | LBAAnalyticalAcceptanceCriteria
+    ),
 ) -> LBAContext:
     logging.basicConfig(level=logging.INFO)
     ctx = pipe.run(

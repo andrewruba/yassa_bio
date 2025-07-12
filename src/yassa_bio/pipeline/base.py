@@ -5,7 +5,7 @@ import time
 import json
 import hashlib
 import logging
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,28 @@ def _deep_hash(obj: Any) -> str:
 
 
 class PipelineContext(BaseModel):
-    step_meta: Dict[str, Any] = {}
+    step_meta: Dict[str, Any] = Field(
+        default_factory=dict, description="Per-step diagnostics and cache metadata."
+    )
+    needs_rerun: bool = Field(
+        False,
+        description=(
+            "Set by a step to request a brand-new pipeline pass after the current "
+            "one finishes."
+        ),
+    )
+    abort_pass: bool = Field(
+        False,
+        description=(
+            "Set by a step to abort the remainder of the current pass early. "
+        ),
+    )
+    abort_run: bool = Field(
+        False,
+        description=(
+            "Set by a step to terminate the entire pipeline run after the current pass."
+        ),
+    )
 
     model_config = {"extra": "allow"}
 

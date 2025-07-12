@@ -86,7 +86,7 @@ class FitCalibrationData(Step):
         return ctx
 
 
-class CurveFitComposite(CompositeStep):
+class CurveFit(CompositeStep):
     def __init__(self) -> None:
         super().__init__(
             name="curve_fit",

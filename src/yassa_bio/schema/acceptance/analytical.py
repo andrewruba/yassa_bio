@@ -37,8 +37,7 @@ class AnalyticalCalibrationSpec(BaseModel):
         6,
         ge=3,
         description=(
-            "Minimum number of  levels that may be retained after "
-            "discarding and re-fit."
+            "Minimum number of levels that may be retained after discarding and re-fit."
         ),
     )
 

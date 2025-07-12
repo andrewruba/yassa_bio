@@ -20,7 +20,6 @@ from yassa_bio.schema.layout.file import PlateReaderFile
 from datetime import datetime
 from pathlib import Path
 from yassa_bio.schema.analysis.enum import BlankRule, NormRule, OutlierRule
-
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
 
