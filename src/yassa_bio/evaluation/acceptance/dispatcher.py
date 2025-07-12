@@ -20,18 +20,19 @@ class EvaluateSpecs(Step):
         results: dict[str, dict] = {}
         overall = True
 
-        for field_name, spec_obj in crit.model_dump().items():
+        for field_name in crit.__class__.model_fields:
+            spec_obj = getattr(crit, field_name)
             spec_cls = type(spec_obj).__name__
             fn = get("acceptance", spec_cls)
 
             res = fn(ctx, spec_obj)
-
             results[field_name] = res
             overall &= bool(res["pass"])
 
         ctx.acceptance_results = results
-        history = ctx.setdefault("acceptance_history", [])
+        history = getattr(ctx, "acceptance_history", [])
         history.append(results)
+        ctx.acceptance_history = history
         ctx.acceptance_pass = overall
 
         return ctx

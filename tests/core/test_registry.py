@@ -7,11 +7,6 @@ import yassa_bio.core.registry as _reg
 class TestRegistry:
     @pytest.fixture(autouse=True)
     def isolate_registry(self):
-        """
-        Start every test with an empty registry, but put the original
-        entries (CSV/Excel readers, etc.) back when the test is done so
-        the global test suite is unaffected.
-        """
         snapshot = _reg._registry.copy()
         _reg._registry.clear()
         try:

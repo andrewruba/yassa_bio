@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 class CheckRerun(Step):
     """
     Drop failing calibration levels (when refit is allowed) and trigger a pipeline
-    rerun, which skips the remaining Analytical steps by setting `abort_pass`.
+    rerun, which skips the remaining Analytical steps.
     """
 
     name = "check_rerun"

@@ -67,10 +67,6 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
 
 @register("acceptance", AnalyticalQCSpec.__name__)
 def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
-    """
-    Evaluate QC accuracy/precision for an analytical run (ICH M10-style).
-    """
-
     df = ctx.data
     qc_df = df[df["sample_type"] == SampleType.QUALITY_CONTROL.value].copy()
 
