@@ -15,8 +15,10 @@ class TestRequiredWellPattern:
                 "interferent": [None, "glucose", None],
                 "carryover": [False, True, False],
                 "stability_condition": [None, None, "long-term"],
+                "stability_condition_time": [None, None, "after"],
                 "recovery_stage": ["before", None, "after"],
-                "sample_id": ["id1", None, "id2"],
+                "matrix_type": [None, None, "lipemic"],
+                "matrix_source_id": [None, None, "donor_3"],
             }
         )
 
@@ -56,13 +58,13 @@ class TestRequiredWellPattern:
         assert mask.sum() == 1
         assert mask.iloc[0]
 
-    def test_mask_with_sample_id(self, base_df):
+    def test_mask_with_matrix_type_and_source(self, base_df):
         pat = RequiredWellPattern(
-            sample_type=SampleType.QUALITY_CONTROL, needs_sample_id=True
+            sample_type=SampleType.QUALITY_CONTROL, needs_matrix_type=True
         )
         mask = pat.mask(base_df)
-        assert mask.sum() == 2
-        assert mask.iloc[[0, 2]].all()
+        assert mask.sum() == 1
+        assert mask.iloc[2]
 
     def test_present_true(self, base_df):
         pat = RequiredWellPattern(sample_type=SampleType.BLANK, carryover=True)

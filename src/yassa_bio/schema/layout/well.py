@@ -32,26 +32,39 @@ class WellTemplate(SchemaModel):
         description="0-based absolute column index in the raw file.",
     )
 
-    sample_id: Optional[str] = Field(
-        None,
-        description=(
-            "Logical ID of the original study sample this well belongs to. "
-            "Use the same ID across all dilution levels to form a series."
-        ),
-        examples=["SUBJ_1234_VISIT1", "SERUM_A", "POOL42"],
-    )
     sample_type: SampleType = Field(
         ...,
         description="High-level role of this well in the assay.",
-        examples=[sample_type.value for sample_type in SampleType],
+        examples=enum_examples(SampleType),
     )
+    qc_level: Optional[QCLevel] = Field(
+        None,
+        description=(
+            "QC band for quality control wells. "
+            "Leave blank when the assay has only one global tolerance band."
+        ),
+        examples=enum_examples(QCLevel),
+    )
+
     interferent: Optional[str] = Field(
         None,
         description=(
-            "Name / ID of related, interfering molecule spiked into this well. "
-            "None = no interferent."
+            "Name / ID of related, interfering molecule spiked into this well."
         ),
         examples=["glucose", "cholesterol", "bovine serum albumin"],
+    )
+    matrix_type: Optional[str] = Field(
+        None,
+        description="Characterizes the matrix source for selectivity testing.",
+        examples=["normal", "lipemic", "hemolyzed"],
+    )
+    matrix_source_id: Optional[str] = Field(
+        None,
+        description=(
+            "ID of the biological matrix source this well belongs to, used for "
+            "selectivity evaluation."
+        ),
+        examples=["donor_001", "subject_A", "matrix_lot_123"],
     )
     carryover: bool = Field(
         False,
@@ -82,14 +95,7 @@ class WellTemplate(SchemaModel):
         ),
         examples=enum_examples(RecoveryStage),
     )
-    qc_level: Optional[QCLevel] = Field(
-        None,
-        description=(
-            "QC band for quality control wells. "
-            "Leave blank when the assay has only one global tolerance band."
-        ),
-        examples=enum_examples(QCLevel),
-    )
+
     replicate: Optional[int] = Field(
         None,
         ge=1,
@@ -185,6 +191,15 @@ class WellTemplate(SchemaModel):
                 raise ValueError("recovery_stage allowed only on QUALITY_CONTROL wells")
             if self.qc_level is None:
                 raise ValueError("recovery_stage requires qc_level to be set")
+        return self
+
+    @model_validator(mode="after")
+    def _matrix_fields_must_be_paired(self):
+        has_source = self.matrix_source_id is not None
+        has_type = self.matrix_type is not None
+
+        if has_source ^ has_type:
+            raise ValueError("matrix_source_id and matrix_type must be set together")
         return self
 
     @model_validator(mode="after")

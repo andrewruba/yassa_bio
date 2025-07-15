@@ -3,14 +3,38 @@ from pydantic import (
     Field,
     PositiveFloat,
 )
+from typing import List
 
 from yassa_bio.core.typing import Percent
+from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
 class AccuracySpec(BaseModel):
     """
     Acceptance criteria to determine the closeness of measured value to true value.
     """
+
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LLOQ
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LOW
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.HIGH
+            ),
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.ULOQ
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
 
     min_levels: int = Field(
         5,
@@ -23,9 +47,7 @@ class AccuracySpec(BaseModel):
     min_replicates_per_level: int = Field(
         3,
         ge=1,
-        description=(
-            "Minimum replicate wells analysed at each calibration standard level."
-        ),
+        description=("Minimum replicate wells analysed at each quality control level."),
     )
 
     acc_tol_pct_mid: PositiveFloat = Percent(

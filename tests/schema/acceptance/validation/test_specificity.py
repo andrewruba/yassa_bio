@@ -10,7 +10,7 @@ class TestSpecificitySpec:
     def test_valid_instantiation(self):
         spec = SpecificitySpec()
 
-        assert 0.0 < spec.bias_tol_pct <= 100
+        assert 0.0 < spec.acc_tol_pct <= 100
         assert 0.0 < spec.blank_thresh_pct_lloq <= 100
 
         patterns = spec.required_well_patterns
@@ -34,19 +34,19 @@ class TestSpecificitySpec:
                     sample_type=SampleType.BLANK, needs_interferent=True
                 )
             ],
-            bias_tol_pct=15,
+            acc_tol_pct=15,
             blank_thresh_pct_lloq=10,
         )
 
-        assert custom_spec.bias_tol_pct == 15
+        assert custom_spec.acc_tol_pct == 15
         assert custom_spec.blank_thresh_pct_lloq == 10
         assert len(custom_spec.required_well_patterns) == 1
         assert custom_spec.required_well_patterns[0].sample_type == SampleType.BLANK
 
     def test_reject_negative_percent(self):
         with pytest.raises(ValidationError) as e:
-            SpecificitySpec(bias_tol_pct=-5)
-        assert "bias_tol_pct" in str(e.value)
+            SpecificitySpec(acc_tol_pct=-5)
+        assert "acc_tol_pct" in str(e.value)
 
     def test_reject_excessive_threshold(self):
         with pytest.raises(ValidationError) as e:

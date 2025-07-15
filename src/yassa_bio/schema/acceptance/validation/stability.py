@@ -6,7 +6,7 @@ from pydantic import (
 from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
-from yassa_bio.core.typing import Percent, Fraction01
+from yassa_bio.core.typing import Percent
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
@@ -38,12 +38,8 @@ class StabilitySpec(BaseModel):
         ge=0,
         description="Total distinct stability conditions that must be evaluated.",
     )
-    pass_fraction: PositiveFloat = Fraction01(
-        1.0,
-        description="Fraction of QC aliquots that must meet limits in each condition.",
-    )
 
-    bias_tol_pct: PositiveFloat = Percent(
+    acc_tol_pct: PositiveFloat = Percent(
         20,
-        description="Mean bias (± %) allowed at each QC level.",
+        description="Mean accuracy tolerance (± %) allowed at each QC level.",
     )

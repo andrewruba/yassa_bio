@@ -19,7 +19,9 @@ class TestSelectivitySpec:
         patterns = spec.required_well_patterns
         assert isinstance(patterns, list)
         assert len(patterns) >= 3
-        assert any(p.sample_type == SampleType.BLANK for p in patterns)
+        assert any(
+            p.sample_type == SampleType.BLANK and p.needs_matrix_type for p in patterns
+        )
         assert any(
             p.qc_level == QCLevel.LLOQ
             for p in patterns

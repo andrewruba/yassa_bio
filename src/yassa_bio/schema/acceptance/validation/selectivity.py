@@ -18,7 +18,10 @@ class SelectivitySpec(BaseModel):
 
     required_well_patterns: List[RequiredWellPattern] = Field(
         [
-            RequiredWellPattern(sample_type=SampleType.BLANK),
+            RequiredWellPattern(
+                sample_type=SampleType.BLANK,
+                needs_matrix_type=True,
+            ),
             RequiredWellPattern(
                 sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LLOQ
             ),
@@ -30,7 +33,7 @@ class SelectivitySpec(BaseModel):
     )
 
     min_sources: int = Field(
-        10, ge=1, description="Minimum number of individual blank matrices."
+        10, ge=1, description="Minimum number of individual sources for blank matrices."
     )
     pass_fraction: PositiveFloat = Fraction01(
         0.80, description="Fraction of sources that must meet each criterion."

@@ -6,6 +6,7 @@ import tempfile
 from yassa_bio.evaluation.analysis.step.preprocess import (
     LoadData,
     CheckData,
+    ExcludeData,
     SubtractBlank,
     NormalizeSignal,
     MaskOutliers,
@@ -109,7 +110,8 @@ class TestCheckData:
             {
                 "signal": [1.0, 2.0],
                 "concentration": [1, 2],
-                "sample_type": ["sample"] * 2,
+                "sample_type": "sample",
+                "exclude": False,
             }
         )
         ctx = LoadData().run(make_ctx(df))
@@ -120,7 +122,9 @@ class TestCheckData:
         [
             (pd.DataFrame({"signal": [1, 2]}), ValueError, "Missing required columns"),
             (
-                pd.DataFrame(columns=["signal", "concentration", "sample_type"]),
+                pd.DataFrame(
+                    columns=["signal", "concentration", "sample_type", "exclude"]
+                ),
                 ValueError,
                 "DataFrame is empty",
             ),
@@ -129,7 +133,8 @@ class TestCheckData:
                     {
                         "signal": ["a", "b"],
                         "concentration": [1, 2],
-                        "sample_type": ["sample"] * 2,
+                        "sample_type": "sample",
+                        "exclude": False,
                     }
                 ),
                 TypeError,
@@ -150,6 +155,42 @@ class TestCheckData:
             CheckData().run(ctx)
 
 
+class TestExcludeData:
+    def test_excludes_rows_marked_true(self):
+        df = pd.DataFrame(
+            {
+                "signal": [1.0, 2.0, 3.0],
+                "concentration": [0, 1, 2],
+                "sample_type": "sample",
+                "exclude": [False, True, False],
+            }
+        )
+
+        ctx = LoadData().run(make_ctx(df))
+        out = ExcludeData().run(ctx)
+
+        assert len(out.data) == 2
+        assert len(out.excluded_data) == 1
+        assert out.excluded_data.iloc[0]["signal"] == 2.0
+        assert "exclude" in out.data.columns
+
+    def test_exclude_fills_na_as_false(self):
+        df = pd.DataFrame(
+            {
+                "signal": [5.0, 6.0],
+                "concentration": [1, 2],
+                "sample_type": "sample",
+                "exclude": [None, False],
+            }
+        )
+
+        ctx = LoadData().run(make_ctx(df))
+        out = ExcludeData().run(ctx)
+
+        assert len(out.data) == 2
+        assert len(out.excluded_data) == 0
+
+
 class TestSubtractBlank:
     def test_subtracts_mean_blank(self):
         df = pd.DataFrame(
@@ -157,6 +198,7 @@ class TestSubtractBlank:
                 "signal": [1.0, 2.0, 10.0],
                 "concentration": [1, 2, 3],
                 "sample_type": [SampleType.BLANK, SampleType.BLANK, "sample"],
+                "exclude": False,
             }
         )
         ctx = LoadData().run(make_ctx(df))
@@ -172,7 +214,8 @@ class TestSubtractBlank:
             {
                 "signal": [5.0, 6.0],
                 "concentration": [1, 2],
-                "sample_type": ["sample", "sample"],
+                "sample_type": "sample",
+                "exclude": False,
             }
         )
         ctx = LoadData().run(make_ctx(df))
@@ -187,6 +230,7 @@ class TestSubtractBlank:
                 "signal": [2.0, 8.0, 10.0],
                 "concentration": [0, 0, 0],
                 "sample_type": [SampleType.BLANK, SampleType.BLANK, "sample"],
+                "exclude": False,
             }
         )
         ctx = LoadData().run(make_ctx(df, blank_rule=BlankRule.MEDIAN))
@@ -207,6 +251,7 @@ class TestNormalizeSignal:
                     SampleType.CALIBRATION_STANDARD,
                     "sample",
                 ],
+                "exclude": False,
             }
         )
 
@@ -220,8 +265,9 @@ class TestNormalizeSignal:
         df = pd.DataFrame(
             {
                 "signal": [3.0, 7.0],
-                "concentration": [np.nan, np.nan],
-                "sample_type": ["sample", "sample"],
+                "concentration": np.nan,
+                "sample_type": "sample",
+                "exclude": False,
             }
         )
 
@@ -240,6 +286,7 @@ class TestNormalizeSignal:
                     SampleType.CALIBRATION_STANDARD,
                     SampleType.CALIBRATION_STANDARD,
                 ],
+                "exclude": False,
             }
         )
 
@@ -259,6 +306,7 @@ class TestNormalizeSignal:
                     SampleType.CALIBRATION_STANDARD,
                     "sample",
                 ],
+                "exclude": False,
             }
         )
 
@@ -272,8 +320,9 @@ class TestNormalizeSignal:
         df = pd.DataFrame(
             {
                 "signal": [6.0, 9.0],
-                "concentration": [np.nan, np.nan],
-                "sample_type": ["sample", "sample"],
+                "concentration": np.nan,
+                "sample_type": "sample",
+                "exclude": False,
             }
         )
 
@@ -289,9 +338,10 @@ class TestMaskOutliers:
         df = pd.DataFrame(
             {
                 "signal": [1.0, 1.1, 10.0, 2.0, 2.1],
-                "concentration": [np.nan] * 5,
-                "sample_type": ["sample"] * 5,
-                "sample_id": ["A", "A", "A", "B", "B"],
+                "concentration": np.nan,
+                "sample_type": "quality_control",
+                "qc_level": "mid",
+                "exclude": False,
             }
         )
 
@@ -309,6 +359,7 @@ class TestMaskOutliers:
                 "concentration": [1],
                 "sample_type": ["calibration_standard"],
                 "level_idx": [1],
+                "exclude": False,
             }
         )
 
@@ -321,8 +372,9 @@ class TestMaskOutliers:
             {
                 "signal": [1.0, 100.0, 1.1, 1.2, 1.3, 1.4],
                 "concentration": [1, 1, 2, 1, 1, 2],
-                "sample_type": ["calibration_standard"] * 6,
+                "sample_type": "calibration_standard",
                 "level_idx": [1, 1, 2, 1, 1, 2],
+                "exclude": False,
             }
         )
         ctx = LoadData().run(make_ctx(df, z_threshold=1.0))
@@ -335,9 +387,10 @@ class TestMaskOutliers:
         df = pd.DataFrame(
             {
                 "signal": [1.0, 100.0, 1.1, 1.2, 1.3, 1.4],
-                "concentration": [np.nan] * 6,
-                "sample_type": ["quality_control"] * 6,
+                "concentration": np.nan,
+                "sample_type": "quality_control",
                 "qc_level": ["low", "low", "high", "high", "low", "low"],
+                "exclude": False,
             }
         )
 
@@ -353,9 +406,10 @@ class TestPreprocessComposite:
         df = pd.DataFrame(
             {
                 "signal": [1.0, 1.1, 100.0, 1.2, 1.3, 1.4],
-                "concentration": [np.nan] * 6,
-                "sample_type": ["sample"] * 6,
-                "sample_id": ["A"] * 6,
+                "concentration": np.nan,
+                "sample_type": "quality_control",
+                "qc_level": "mid",
+                "exclude": False,
             }
         )
 
@@ -374,6 +428,7 @@ class TestPreprocessComposite:
             for s in (
                 LoadData(),
                 CheckData(),
+                ExcludeData(),
                 SubtractBlank(),
                 NormalizeSignal(),
                 MaskOutliers(),

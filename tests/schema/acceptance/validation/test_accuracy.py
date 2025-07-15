@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.acceptance.validation.accuracy import AccuracySpec
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
 class TestAccuracySpec:
@@ -13,6 +14,25 @@ class TestAccuracySpec:
         assert spec.acc_tol_pct_edge == 25
         assert spec.total_error_pct_mid == 30
         assert spec.total_error_pct_edge == 40
+
+    def test_default_required_well_patterns_present_and_valid(self):
+        spec = AccuracySpec()
+        patterns = spec.required_well_patterns
+        assert isinstance(patterns, list)
+        assert len(patterns) == 5
+
+        expected_qc_levels = {
+            QCLevel.LLOQ,
+            QCLevel.LOW,
+            QCLevel.MID,
+            QCLevel.HIGH,
+            QCLevel.ULOQ,
+        }
+
+        seen_qc_levels = {p.qc_level for p in patterns}
+        assert seen_qc_levels == expected_qc_levels
+        for p in patterns:
+            assert p.sample_type == SampleType.QUALITY_CONTROL
 
     def test_valid_override_values(self):
         spec = AccuracySpec(

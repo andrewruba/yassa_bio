@@ -39,6 +39,7 @@ class QCLevel(DescribedStrEnum):
     MID = ("mid", "Geometric-mean / mid-range QC")
     HIGH = ("high", "≈ 75 % ULOQ QC")
     ULOQ = ("uloq", "QC at upper-limit of quantification")
+    ABOVE_ULOQ = ("above_uloq", "QC level above the upper-limit of quantification")
 
 
 class StabilityConditionTime(DescribedStrEnum):

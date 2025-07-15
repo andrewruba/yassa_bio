@@ -64,19 +64,19 @@ class TestLBAValidationAcceptanceCriteria:
 
     def test_full_custom_instantiation_valid(self):
         full = LBAValidationAcceptanceCriteria(
-            specificity=SpecificitySpec(bias_tol_pct=15, blank_thresh_pct_lloq=10),
+            specificity=SpecificitySpec(acc_tol_pct=15, blank_thresh_pct_lloq=10),
             selectivity=SelectivitySpec(min_sources=5, pass_fraction=0.9),
             calibration=CalibrationSpec(pass_fraction=0.8),
             accuracy=AccuracySpec(acc_tol_pct_mid=10, total_error_pct_mid=15),
             precision=PrecisionSpec(cv_tol_pct_mid=15, total_error_pct_edge=20),
             carryover=CarryoverSpec(blank_thresh_pct_lloq=10, pass_fraction=0.9),
             dilution_linearity=DilutionLinearitySpec(
-                pass_fraction=0.9, hook_check_threshold_pct=85
+                pass_fraction=0.9, undiluted_recovery_min_pct=85
             ),
-            stability=StabilitySpec(min_conditions=1, pass_fraction=0.95),
+            stability=StabilitySpec(min_conditions=1, acc_tol_pct=30),
             parallelism=ParallelismSpec(pass_fraction=0.95),
             recovery=RecoverySpec(max_cv_pct_within_level=10),
         )
         assert full.precision.cv_tol_pct_mid == 15
         assert full.recovery.max_cv_pct_within_level == 10
-        assert full.stability.pass_fraction == 0.95
+        assert full.stability.acc_tol_pct == 30

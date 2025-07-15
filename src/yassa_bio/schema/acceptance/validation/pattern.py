@@ -9,9 +9,9 @@ class RequiredWellPattern(BaseModel):
     sample_type: SampleType
     qc_level: Optional[QCLevel] = None
     needs_interferent: bool = False
+    needs_matrix_type: bool = False
     carryover: bool = False
     needs_stability_condition: bool = False
-    needs_sample_id: bool = False
     recovery_stage: Optional[RecoveryStage] = None
 
     def mask(self, df: pd.DataFrame) -> pd.Series:
@@ -23,17 +23,19 @@ class RequiredWellPattern(BaseModel):
         if self.needs_interferent:
             m &= df["interferent"].notna()
 
+        if self.needs_matrix_type:
+            m &= df["matrix_type"].notna()
+            m &= df["matrix_source_id"].notna()
+
         if self.carryover:
             m &= df["carryover"]
 
         if self.needs_stability_condition:
             m &= df["stability_condition"].notna()
+            m &= df["stability_condition_time"].notna()
 
         if self.recovery_stage is not None:
             m &= df["recovery_stage"] == self.recovery_stage.value
-
-        if self.needs_sample_id:
-            m &= df["sample_id"].notna()
 
         return m
 

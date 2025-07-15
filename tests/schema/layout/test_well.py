@@ -44,15 +44,6 @@ class TestWellTemplate:
         assert w.replicate == 2
         assert w.level_idx == 1
 
-    def test_sample_id_round_trip(self):
-        w = WellTemplate(
-            **self._base_kwargs(
-                sample_type="sample",
-                sample_id="SUBJ42_DAY1",
-            )
-        )
-        assert w.sample_id == "SUBJ42_DAY1"
-
     @pytest.mark.parametrize("bad_id", ["1A", "AA0", "!!!", "A"])
     def test_bad_well_ids_raise(self, bad_id):
         with pytest.raises(ValidationError):
@@ -216,11 +207,35 @@ class TestWellTemplate:
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="sample", level_idx=1))
 
-    def test_record_property_matches_dump(self):
+    def test_matrix_source_and_type_pair_ok(self):
         w = WellTemplate(
             **self._base_kwargs(
-                sample_id="X", replicate=2, exclude=True, exclude_reason="bubble"
+                matrix_source_id="donor42",
+                matrix_type="hemolyzed",
             )
+        )
+        assert w.matrix_source_id == "donor42"
+        assert w.matrix_type == "hemolyzed"
+
+    def test_matrix_source_without_type_raises(self):
+        with pytest.raises(ValidationError):
+            WellTemplate(
+                **self._base_kwargs(
+                    matrix_source_id="donor42",
+                )
+            )
+
+    def test_matrix_type_without_source_raises(self):
+        with pytest.raises(ValidationError):
+            WellTemplate(
+                **self._base_kwargs(
+                    matrix_type="lipemic",
+                )
+            )
+
+    def test_record_property_matches_dump(self):
+        w = WellTemplate(
+            **self._base_kwargs(replicate=2, exclude=True, exclude_reason="bubble")
         )
         dumped = w.model_dump()
         assert w.record == dumped

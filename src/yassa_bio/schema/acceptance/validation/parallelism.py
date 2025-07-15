@@ -6,7 +6,7 @@ from pydantic import (
 from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType
-from yassa_bio.core.typing import Percent, Fraction01
+from yassa_bio.core.typing import Percent
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
@@ -28,13 +28,15 @@ class ParallelismSpec(BaseModel):
 
     min_dilutions: int = Field(
         3,
-        ge=1,
-        description="Minimum number of distinct dilution factors to test.",
+        ge=0,
+        description="Minimum distinct dilution factors that must be tested.",
     )
-    min_replicates_each: int = Field(
+    min_replicates: int = Field(
         3,
         ge=1,
-        description="Replicate wells for each point in every dilution series.",
+        description=(
+            "Minimum number of replicate wells required for each dilution factor."
+        ),
     )
 
     cv_tol_pct: PositiveFloat = Percent(
@@ -43,8 +45,4 @@ class ParallelismSpec(BaseModel):
             "Maximum allowed %CV among back-calculated concentrations "
             "within a dilution series."
         ),
-    )
-    pass_fraction: PositiveFloat = Fraction01(
-        1.0,
-        description="Fraction of dilution series that must meet the %CV limit.",
     )

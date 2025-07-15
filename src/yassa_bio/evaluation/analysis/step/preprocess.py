@@ -31,7 +31,7 @@ class CheckData(Step):
         if not isinstance(df, pd.DataFrame):
             raise TypeError("ctx.data must be a pandas DataFrame")
 
-        required = {"signal", "concentration", "sample_type"}
+        required = {"signal", "concentration", "sample_type", "exclude"}
         missing = required - set(df.columns)
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
@@ -41,6 +41,20 @@ class CheckData(Step):
 
         if not pd.api.types.is_numeric_dtype(df["signal"]):
             raise TypeError("'signal' column must be numeric")
+
+        return ctx
+
+
+class ExcludeData(Step):
+    name = "exclude_data"
+    fingerprint_keys = ("data",)
+
+    def logic(self, ctx: LBAContext) -> LBAContext:
+        df: pd.DataFrame = ctx.data
+
+        mask = df["exclude"].astype(bool).fillna(False)
+        ctx.excluded_data = df[mask].copy()
+        ctx.data = df[~mask].copy()
 
         return ctx
 
@@ -120,7 +134,6 @@ class MaskOutliers(Step):
         """
         std_mask = df["sample_type"] == "calibration_standard"
         qc_mask = df["sample_type"] == "quality_control"
-        sample_mask = df["sample_type"] == "sample"
 
         if std_mask.any():
             for _, g in df[std_mask].groupby("level_idx"):
@@ -130,10 +143,6 @@ class MaskOutliers(Step):
             for _, g in df[qc_mask].groupby("qc_level"):
                 yield "qc", g
 
-        if sample_mask.any() and "sample_id" in df.columns:
-            for _, g in df[sample_mask].groupby("sample_id"):
-                yield "sample", g
-
 
 class Preprocess(CompositeStep):
     def __init__(self) -> None:
@@ -142,6 +151,7 @@ class Preprocess(CompositeStep):
             children=[
                 LoadData(),
                 CheckData(),
+                ExcludeData(),
                 SubtractBlank(),
                 NormalizeSignal(),
                 MaskOutliers(),

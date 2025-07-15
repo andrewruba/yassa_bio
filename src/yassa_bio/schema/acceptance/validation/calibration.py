@@ -38,11 +38,11 @@ class CalibrationSpec(BaseModel):
         25,
         description="Accuracy tolerance (± %) at LLOQ and ULOQ.",
     )
-    prec_cv_tol_pct_mid: PositiveFloat = Percent(
+    cv_tol_pct_mid: PositiveFloat = Percent(
         20,
         description="Precision CV tolerance (%) for NON-edge standards.",
     )
-    prec_cv_tol_pct_edge: PositiveFloat = Percent(
+    cv_tol_pct_edge: PositiveFloat = Percent(
         25,
         description="Precision CV tolerance (%) at LLOQ and ULOQ.",
     )

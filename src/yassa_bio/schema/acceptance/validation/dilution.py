@@ -3,8 +3,11 @@ from pydantic import (
     Field,
     PositiveFloat,
 )
+from typing import List
 
-from yassa_bio.core.typing import Percent, Fraction01
+from yassa_bio.core.typing import Percent
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
 class DilutionLinearitySpec(BaseModel):
@@ -13,41 +16,39 @@ class DilutionLinearitySpec(BaseModel):
     from above the calibration range.
     """
 
-    min_dilution_factors: int = Field(
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.ABOVE_ULOQ,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
+    min_dilutions: int = Field(
         3,
         ge=0,
-        description="Distinct dilution factors that must be tested.",
+        description="Minimum distinct dilution factors that must be tested.",
     )
-    min_series: int = Field(
+    min_replicates: int = Field(
         3,
         ge=1,
         description=(
-            "Independently prepared dilution series required for each factor."
-        ),
-    )
-    min_replicates_per_point: int = Field(
-        3,
-        ge=1,
-        description="Replicate wells analysed per dilution point.",
-    )
-    pass_fraction: PositiveFloat = Fraction01(
-        1.0,
-        description=(
-            "Fraction of dilution points (series × factor) that must meet limits. "
-            "1.0 = every point must pass."
+            "Minimum number of replicate wells required for each dilution factor."
         ),
     )
 
-    bias_tol_pct: PositiveFloat = Percent(
+    acc_tol_pct: PositiveFloat = Percent(
         20,
-        description="Maximum bias (%) after correcting for the dilution factor.",
+        description="Accuracy tolerance (%) after correcting for the dilution factor.",
     )
     cv_tol_pct: PositiveFloat = Percent(
         20,
         description="Maximum precision CV (%) across replicates at each dilution.",
     )
 
-    hook_check_threshold_pct: PositiveFloat = Percent(
+    undiluted_recovery_min_pct: PositiveFloat = Percent(
         80,
         description=(
             "Undiluted sample (above ULOQ) must recover ≥ this % of its own "

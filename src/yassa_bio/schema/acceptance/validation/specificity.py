@@ -36,8 +36,8 @@ class SpecificitySpec(BaseModel):
         description="Minimal list of well patterns that must be present.",
     )
 
-    bias_tol_pct: PositiveFloat = Percent(
-        25, description="Maximum allowed bias (±) at LLOQ & ULOQ with interferent."
+    acc_tol_pct: PositiveFloat = Percent(
+        25, description="Accuracy tolerance (±) at LLOQ & ULOQ with interferent."
     )
     blank_thresh_pct_lloq: PositiveFloat = Percent(
         20, description="Blank + interferent must be < this % of LLOQ response."

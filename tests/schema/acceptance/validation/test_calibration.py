@@ -11,8 +11,8 @@ class TestCalibrationSpec:
         assert spec.pass_fraction == 0.75
         assert spec.acc_tol_pct_mid == 20
         assert spec.acc_tol_pct_edge == 25
-        assert spec.prec_cv_tol_pct_mid == 20
-        assert spec.prec_cv_tol_pct_edge == 25
+        assert spec.cv_tol_pct_mid == 20
+        assert spec.cv_tol_pct_edge == 25
 
     def test_valid_override_values(self):
         spec = CalibrationSpec(
@@ -20,15 +20,15 @@ class TestCalibrationSpec:
             pass_fraction=0.85,
             acc_tol_pct_mid=15,
             acc_tol_pct_edge=20,
-            prec_cv_tol_pct_mid=10,
-            prec_cv_tol_pct_edge=15,
+            cv_tol_pct_mid=10,
+            cv_tol_pct_edge=15,
         )
         assert spec.min_levels == 8
         assert spec.pass_fraction == 0.85
         assert spec.acc_tol_pct_mid == 15
         assert spec.acc_tol_pct_edge == 20
-        assert spec.prec_cv_tol_pct_mid == 10
-        assert spec.prec_cv_tol_pct_edge == 15
+        assert spec.cv_tol_pct_mid == 10
+        assert spec.cv_tol_pct_edge == 15
 
     def test_rejects_invalid_pass_fraction(self):
         with pytest.raises(ValidationError) as e:
@@ -47,5 +47,5 @@ class TestCalibrationSpec:
 
     def test_rejects_precision_over_100(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(prec_cv_tol_pct_mid=150)
-        assert "prec_cv_tol_pct_mid" in str(e.value)
+            CalibrationSpec(cv_tol_pct_mid=150)
+        assert "cv_tol_pct_mid" in str(e.value)
