@@ -16,39 +16,37 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 @register("acceptance", AnalyticalCalibrationSpec.__name__)
 def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     cal = ctx.calib_df.copy()
-    by_lvl = cal.groupby("concentration")
     cal["back_calc"] = ctx.curve_back(cal["y"].to_numpy(float))
 
+    # Group by level and calculate bias
+    by_lvl = cal.groupby("concentration")
     summary = (
         by_lvl[["x", "back_calc"]].mean().rename(columns={"back_calc": "back_mean"})
     )
-
     summary["bias_pct"] = compute_relative_pct_vectorized(
         (summary["back_mean"] - summary["x"]).abs(), summary["x"]
     )
 
+    # Flag edge levels and assess tolerance
     edge_levels = {summary.index.min(), summary.index.max()}
     summary["is_edge"] = summary.index.isin(edge_levels)
-
-    tol_mid, tol_edge = spec.acc_tol_pct_mid, spec.acc_tol_pct_edge
     summary["pass"] = summary.apply(
-        lambda r: r["bias_pct"] <= (tol_edge if r["is_edge"] else tol_mid), axis=1
+        lambda r: r["bias_pct"]
+        <= (spec.acc_tol_pct_edge if r["is_edge"] else spec.acc_tol_pct_mid),
+        axis=1,
     )
 
+    # Compute overall pass/fail
     n_levels = len(summary)
     n_pass = int(summary["pass"].sum())
     frac_pass = n_pass / n_levels if n_levels else 0.0
-
     failing_levels = summary[~summary["pass"]].index
-    n_fail = len(failing_levels)
-    n_retained = n_levels - n_fail
-
+    n_retained = n_levels - len(failing_levels)
     can_refit = n_retained >= spec.min_retained_levels
-
     overall_pass = (
         can_refit
         and frac_pass >= spec.pass_fraction
-        and n_fail == 0
+        and len(failing_levels) == 0
         and n_levels >= spec.min_levels
     )
 
@@ -68,21 +66,22 @@ def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
     df = ctx.data
     qc_df = df[df["sample_type"] == SampleType.QUALITY_CONTROL.value].copy()
 
+    # Check required QC well patterns
     missing = check_required_well_patterns(qc_df, spec.required_well_patterns)
     if missing:
         return pattern_error_dict(missing, "Missing {n} required QC pattern(s)")
 
+    # Compute per-well accuracy
     qc_df["back_calc"] = ctx.curve_back(qc_df["y"].to_numpy(float))
-
     qc_df["bias_pct"] = compute_relative_pct_vectorized(
         (qc_df["back_calc"] - qc_df["x"]).abs(), qc_df["x"]
     )
     qc_df["ok"] = qc_df["bias_pct"] <= spec.qc_tol_pct
 
+    # Summarize by QC level
     n_total = len(qc_df)
     n_pass_total = int(qc_df["ok"].sum())
     frac_pass_total = n_pass_total / n_total if n_total else 0.0
-
     per_level: dict[str, dict] = {}
     failing_idxs: list[int] = []
 
@@ -100,6 +99,7 @@ def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
         }
         failing_idxs.extend(sub[~sub["ok"]].index.tolist())
 
+    # Determine overall result
     overall_pass = frac_pass_total >= spec.pass_fraction_total and all(
         v["meets_level_fraction"] for v in per_level.values()
     )
