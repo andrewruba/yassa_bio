@@ -29,7 +29,7 @@ def make_ctx(
     if qc_levels:
         df["qc_level"] = [lvl.value for lvl in qc_levels]
 
-    class DummyContext(LBAContext):
+    class DummyContext:
         curve_back = staticmethod(back_calc_fn)
         calib_df = df
         data = df
