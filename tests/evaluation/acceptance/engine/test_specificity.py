@@ -166,5 +166,5 @@ class TestEvalSpecificity:
 
         result = eval_specificity(ctx, spec)
 
-        assert ~result["lloq_accuracy"]["pass"] or ~result["uloq_accuracy"]["pass"]
+        assert ~result["uloq_accuracy"]["pass"]
         assert ~result["pass"]
