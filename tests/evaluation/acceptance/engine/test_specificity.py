@@ -143,8 +143,8 @@ class TestEvalSpecificity:
 
         result = eval_specificity(ctx, spec)
 
-        assert ~result["blank_pass"]
-        assert ~result["pass"]
+        assert not result["blank_pass"]
+        assert not result["pass"]
 
     def test_accuracy_fails(self):
         df = pd.DataFrame(
@@ -166,5 +166,43 @@ class TestEvalSpecificity:
 
         result = eval_specificity(ctx, spec)
 
-        assert ~result["uloq_accuracy"]["pass"]
-        assert ~result["pass"]
+        assert not result["uloq_accuracy"]["pass"]
+        assert not result["pass"]
+
+    def test_insufficient_data_sets_error_flag(self, mocker):
+        df = pd.DataFrame(
+            {
+                "sample_type": ["blank", "quality_control", "quality_control"] * 2,
+                "qc_level": [None, "lloq", "uloq"] * 2,
+                "interferent": ["X", "X", "X", None, None, None],
+                "signal": [2, 100, 200, None, 95, 205],
+            }
+        )
+        calib_df = pd.DataFrame(
+            {
+                "concentration": [1, 1, 2, 2, 5],
+                "signal": [20, 20, 50, 52, 100],
+            }
+        )
+        ctx = self.make_ctx(df, calib_df)
+        spec = SpecificitySpec()
+
+        mocker.patch(
+            (
+                "yassa_bio"
+                ".evaluation"
+                ".acceptance"
+                ".engine"
+                ".specificity"
+                ".compute_interferent_accuracy"
+            ),
+            return_value=None,
+        )
+
+        result = eval_specificity(ctx, spec)
+
+        assert not result["lloq_accuracy"]["pass"]
+        assert not result["uloq_accuracy"]["pass"]
+        assert "error" in result["lloq_accuracy"]
+        assert "error" in result["uloq_accuracy"]
+        assert not result["pass"]
