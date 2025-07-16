@@ -44,9 +44,3 @@ def run(
         )
     )
     return ctx
-
-
-# TODO:
-# 1) if we rerun an analytical run with a failed calibration curve,
-# it will reload the full df in LoadData when it needs to use the
-# filtered df from CheckRerun
