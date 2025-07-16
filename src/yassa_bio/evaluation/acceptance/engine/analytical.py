@@ -1,14 +1,15 @@
 from __future__ import annotations
-
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.analytical import (
     AnalyticalCalibrationSpec,
     AnalyticalQCSpec,
 )
-from yassa_bio.schema.layout.enum import (
-    SampleType,
-    QCLevel,
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.evaluation.acceptance.engine.utils import (
+    check_required_well_patterns,
+    pattern_error_dict,
+    compute_relative_pct,
 )
 
 
@@ -22,8 +23,8 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
         by_lvl[["x", "back_calc"]].mean().rename(columns={"back_calc": "back_mean"})
     )
 
-    summary["bias_pct"] = (
-        (summary["back_mean"] - summary["x"]).abs() / summary["x"] * 100.0
+    summary["bias_pct"] = compute_relative_pct(
+        (summary["back_mean"] - summary["x"]).abs(), summary["x"]
     )
 
     edge_levels = {summary.index.min(), summary.index.max()}
@@ -67,17 +68,15 @@ def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
     df = ctx.data
     qc_df = df[df["sample_type"] == SampleType.QUALITY_CONTROL.value].copy()
 
-    missing = [pat for pat in spec.required_well_patterns if not pat.present(qc_df)]
+    missing = check_required_well_patterns(qc_df, spec.required_well_patterns)
     if missing:
-        return {
-            "error": f"Missing {len(missing)} required QC pattern(s)",
-            "missing_patterns": [p.model_dump() for p in missing],
-            "pass": False,
-        }
+        return pattern_error_dict(missing, "Missing {n} required QC pattern(s)")
 
     qc_df["back_calc"] = ctx.curve_back(qc_df["y"].to_numpy(float))
 
-    qc_df["bias_pct"] = (qc_df["back_calc"] - qc_df["x"]).abs() / qc_df["x"] * 100.0
+    qc_df["bias_pct"] = compute_relative_pct(
+        (qc_df["back_calc"] - qc_df["x"]).abs(), qc_df["x"]
+    )
     qc_df["ok"] = qc_df["bias_pct"] <= spec.qc_tol_pct
 
     n_total = len(qc_df)

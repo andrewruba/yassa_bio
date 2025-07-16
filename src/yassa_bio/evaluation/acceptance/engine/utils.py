@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
@@ -24,5 +25,6 @@ def get_lloq_signal(calib_df: pd.DataFrame) -> float | None:
     return calib_df[calib_df["concentration"] == lloq_conc]["signal"].mean()
 
 
+@np.vectorize
 def compute_relative_pct(numerator: float, denominator: float | None) -> float | None:
     return (numerator / denominator * 100.0) if denominator else None

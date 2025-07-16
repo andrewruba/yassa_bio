@@ -29,7 +29,7 @@ def make_ctx(
     if qc_levels:
         df["qc_level"] = [lvl.value for lvl in qc_levels]
 
-    class DummyContext:
+    class DummyContext(LBAContext):
         curve_back = staticmethod(back_calc_fn)
         calib_df = df
         data = df
@@ -43,7 +43,7 @@ class TestEvalCalibration:
             concs=[1, 2, 3, 4, 5, 6],
             signals=[1, 2, 3, 4, 5, 6],
             sample_type=SampleType.CALIBRATION_STANDARD,
-            back_calc_fn=lambda y: y,  # perfect match
+            back_calc_fn=lambda y: y,
         )
         spec = AnalyticalCalibrationSpec()
 
