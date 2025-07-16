@@ -107,7 +107,10 @@ class NormalizeSignal(Step):
 
 class MaskOutliers(Step):
     name = "mask_outliers"
-    fingerprint_keys = ("data",)
+    fingerprint_keys = (
+        "data",
+        "analysis_config",
+    )
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
