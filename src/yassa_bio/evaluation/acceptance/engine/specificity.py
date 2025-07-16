@@ -9,7 +9,7 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
     pattern_error_dict,
     get_lloq_signal,
-    compute_relative_pct,
+    compute_relative_pct_scalar,
 )
 
 
@@ -31,7 +31,7 @@ def eval_specificity(ctx: LBAContext, spec: SpecificitySpec) -> dict:
     ]
     lloq_signal = get_lloq_signal(ctx.calib_df)
     blank_signal = blank_with_int["signal"].mean()
-    blank_pct_of_lloq = compute_relative_pct(blank_signal, lloq_signal)
+    blank_pct_of_lloq = compute_relative_pct_scalar(blank_signal, lloq_signal)
     blank_pass = (
         blank_pct_of_lloq is not None and blank_pct_of_lloq < spec.blank_thresh_pct_lloq
     )
@@ -78,7 +78,9 @@ def compute_interferent_accuracy(
 
     clean_mean = clean[signal_col].mean()
     interfered_mean = interfered[signal_col].mean()
-    accuracy_pct = compute_relative_pct(abs(interfered_mean - clean_mean), clean_mean)
+    accuracy_pct = compute_relative_pct_scalar(
+        abs(interfered_mean - clean_mean), clean_mean
+    )
 
     return {
         "accuracy_pct": accuracy_pct,

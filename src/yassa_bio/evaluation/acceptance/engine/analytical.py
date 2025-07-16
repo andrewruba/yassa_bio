@@ -9,7 +9,7 @@ from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
     pattern_error_dict,
-    compute_relative_pct,
+    compute_relative_pct_vectorized,
 )
 
 
@@ -23,7 +23,7 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
         by_lvl[["x", "back_calc"]].mean().rename(columns={"back_calc": "back_mean"})
     )
 
-    summary["bias_pct"] = compute_relative_pct(
+    summary["bias_pct"] = compute_relative_pct_vectorized(
         (summary["back_mean"] - summary["x"]).abs(), summary["x"]
     )
 
@@ -74,7 +74,7 @@ def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
 
     qc_df["back_calc"] = ctx.curve_back(qc_df["y"].to_numpy(float))
 
-    qc_df["bias_pct"] = compute_relative_pct(
+    qc_df["bias_pct"] = compute_relative_pct_vectorized(
         (qc_df["back_calc"] - qc_df["x"]).abs(), qc_df["x"]
     )
     qc_df["ok"] = qc_df["bias_pct"] <= spec.qc_tol_pct
