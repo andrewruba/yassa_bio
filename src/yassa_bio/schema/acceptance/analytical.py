@@ -62,12 +62,12 @@ class AnalyticalQCSpec(BaseModel):
         description="Minimal list of well patterns that must be present.",
     )
 
-    qc_tol_pct: PositiveFloat = Percent(
+    acc_tol_pct: PositiveFloat = Percent(
         20, description="Per-well accuracy tolerance (± %)."
     )
     pass_fraction_total: PositiveFloat = Fraction01(
         2 / 3,
-        description="Fractin of QC wells that must pass accuracy.",
+        description="Fraction of QC wells that must pass accuracy.",
     )
     pass_fraction_each_level: PositiveFloat = Fraction01(
         0.50,

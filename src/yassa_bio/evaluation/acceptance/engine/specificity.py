@@ -4,12 +4,12 @@ from typing import Any
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.validation.specificity import SpecificitySpec
-from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
     pattern_error_dict,
-    get_lloq_signal,
     compute_relative_pct_scalar,
+    get_calibration_signal_for_level,
 )
 
 
@@ -18,30 +18,26 @@ def eval_specificity(ctx: LBAContext, spec: SpecificitySpec) -> dict:
     df = ctx.data.copy()
     results: dict[str, Any] = {}
 
-    # Check required well patterns
     missing = check_required_well_patterns(df, spec.required_well_patterns)
     if missing:
         return pattern_error_dict(
             missing, "Missing {n} required well pattern(s) with interferent"
         )
 
-    # Blank with interferent vs LLOQ calibration signal
+    # Check blank w/ interferent < LLOQ
     blank_with_int = df[
         (df["sample_type"] == SampleType.BLANK) & (df["interferent"].notna())
     ]
-    lloq_signal = get_lloq_signal(ctx.calib_df)
+    lloq_signal = get_calibration_signal_for_level(ctx.calib_df, CalibrationLevel.LLOQ)
     blank_signal = blank_with_int["signal"].mean()
-    blank_pct_of_lloq = compute_relative_pct_scalar(blank_signal, lloq_signal)
-    blank_pass = (
-        blank_pct_of_lloq is not None and blank_pct_of_lloq < spec.blank_thresh_pct_lloq
-    )
-
-    results["blank_pct_of_lloq"] = blank_pct_of_lloq
+    blank_pass = blank_signal < lloq_signal if lloq_signal is not None else False
+    results["blank_signal"] = blank_signal
+    results["lloq_signal"] = lloq_signal
     results["blank_pass"] = blank_pass
 
-    # Accuracy checks (LLOQ and ULOQ)
+    # Check LLOQ/ULOQ w/ interferent accuracy
     for level in [QCLevel.LLOQ, QCLevel.ULOQ]:
-        acc = compute_interferent_accuracy(df, level)
+        acc = compute_interferent_accuracy(df, ctx.calib_df, level)
         if acc:
             acc["pass"] = acc["accuracy_pct"] <= spec.acc_tol_pct
         else:
@@ -59,7 +55,7 @@ def eval_specificity(ctx: LBAContext, spec: SpecificitySpec) -> dict:
 
 
 def compute_interferent_accuracy(
-    df: pd.DataFrame, level: QCLevel, signal_col="signal"
+    df: pd.DataFrame, calib_df: pd.DataFrame, level: QCLevel
 ) -> dict | None:
     """Compare signals at a QC level with vs. without interferents."""
     interfered = df[
@@ -67,17 +63,12 @@ def compute_interferent_accuracy(
         & (df["qc_level"] == level)
         & (df["interferent"].notna())
     ]
-    clean = df[
-        (df["sample_type"] == SampleType.QUALITY_CONTROL)
-        & (df["qc_level"] == level)
-        & (df["interferent"].isna())
-    ]
 
-    if interfered.empty or clean.empty:
+    if interfered.empty:
         return None
 
-    clean_mean = clean[signal_col].mean()
-    interfered_mean = interfered[signal_col].mean()
+    clean_mean = get_calibration_signal_for_level(calib_df, level)
+    interfered_mean = interfered["signal"].mean()
     accuracy_pct = compute_relative_pct_scalar(
         abs(interfered_mean - clean_mean), clean_mean
     )
@@ -86,6 +77,5 @@ def compute_interferent_accuracy(
         "accuracy_pct": accuracy_pct,
         "pass": None,  # Filled in by caller
         "interferents": sorted(interfered["interferent"].dropna().unique().tolist()),
-        "clean_n": len(clean),
         "interfered_n": len(interfered),
     }

@@ -1,10 +1,22 @@
 import pandas as pd
+from datetime import datetime
+from pathlib import Path
+import tempfile
 
 from yassa_bio.evaluation.acceptance.engine.analytical import eval_calibration, eval_qc
 from yassa_bio.schema.acceptance.analytical import AnalyticalCalibrationSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.schema.acceptance.analytical import AnalyticalQCSpec
+from yassa_bio.schema.layout.batch import BatchData
+from yassa_bio.schema.layout.plate import PlateData, PlateLayout
+from yassa_bio.schema.layout.file import PlateReaderFile
+from yassa_bio.schema.layout.enum import PlateFormat
+from yassa_bio.schema.layout.well import WellTemplate
+from yassa_bio.schema.analysis.config import LBAAnalysisConfig
+from yassa_bio.schema.acceptance.analytical import (
+    LBAAnalyticalAcceptanceCriteria,
+)
 
 
 def make_ctx(
@@ -12,6 +24,7 @@ def make_ctx(
     concs,
     signals,
     sample_type: SampleType,
+    level_idx=1,
     qc_levels=None,
     back_calc_fn,
 ) -> LBAContext:
@@ -29,12 +42,44 @@ def make_ctx(
     if qc_levels:
         df["qc_level"] = [lvl.value for lvl in qc_levels]
 
-    class DummyContext:
-        curve_back = staticmethod(back_calc_fn)
-        calib_df = df
-        data = df
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+        tmp_path = Path(tmp.name)
 
-    return DummyContext()
+    plate = PlateData(
+        source_file=PlateReaderFile(
+            path=tmp_path,
+            run_date=datetime(2025, 1, 1, 12),
+            instrument="pytest",
+            operator="pytest",
+        ),
+        plate_id="P1",
+        layout=PlateLayout(
+            plate_format=PlateFormat.FMT_96,
+            wells=[
+                WellTemplate(
+                    well="A1",
+                    file_row=0,
+                    file_col=0,
+                    sample_type=sample_type,
+                    level_idx=level_idx,
+                )
+            ],
+        ),
+    )
+    plate._df = df.copy()
+    plate._mtime = tmp_path.stat().st_mtime
+
+    ctx = LBAContext(
+        batch_data=BatchData(plates=[plate]),
+        analysis_config=LBAAnalysisConfig(preprocess={}, curve_fit={}),
+        acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
+        acceptance_results={},
+    )
+    ctx.data = df.copy()
+    ctx.calib_df = df.copy()
+    ctx.curve_back = staticmethod(back_calc_fn)
+
+    return ctx
 
 
 class TestEvalCalibration:
@@ -114,6 +159,7 @@ class TestEvalQC:
             concs=[10, 20, 30, 10, 20, 30],
             signals=[10, 20, 30, 10, 20, 30],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH] * 2,
             back_calc_fn=lambda y: y,
         )
@@ -131,6 +177,7 @@ class TestEvalQC:
             concs=[10, 20],
             signals=[10, 20],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID],
             back_calc_fn=lambda y: y,
         )
@@ -146,10 +193,11 @@ class TestEvalQC:
             concs=[10, 20, 30],
             signals=[20, 40, 60],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec(qc_tol_pct=50)  # Will fail all (bias is 100%)
+        spec = AnalyticalQCSpec(acc_tol_pct=50)
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -162,6 +210,7 @@ class TestEvalQC:
             concs=[10, 20, 30, 10, 20, 30],
             signals=[10, 20, 30, 100, 20, 30],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH] * 2,
             back_calc_fn=lambda y: y,
         )
@@ -178,6 +227,7 @@ class TestEvalQC:
             concs=[10, 20, 30],
             signals=[10, 200, 300],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH],
             back_calc_fn=lambda y: y,
         )
@@ -193,6 +243,7 @@ class TestEvalQC:
             concs=[],
             signals=[],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[],
             back_calc_fn=lambda y: y,
         )
@@ -207,6 +258,7 @@ class TestEvalQC:
             concs=[10, 20],
             signals=[10, 20],
             sample_type=SampleType.QUALITY_CONTROL,
+            level_idx=None,
             qc_levels=[QCLevel.LOW, QCLevel.MID],
             back_calc_fn=lambda y: y,
         )

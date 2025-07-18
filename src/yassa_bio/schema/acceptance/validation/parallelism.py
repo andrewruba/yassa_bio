@@ -16,6 +16,7 @@ class ParallelismSpec(BaseModel):
     the calibration curve and serially-diluted study samples.
     """
 
+    # sample_id not a field anymore in well
     required_well_patterns: List[RequiredWellPattern] = Field(
         [
             RequiredWellPattern(

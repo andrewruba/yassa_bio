@@ -1,12 +1,10 @@
 from pydantic import (
     BaseModel,
     Field,
-    PositiveFloat,
 )
 from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType
-from yassa_bio.core.typing import Percent
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
@@ -34,6 +32,7 @@ class CarryoverSpec(BaseModel):
         ),
     )
 
-    blank_thresh_pct_lloq: PositiveFloat = Percent(
-        20, description="Blank signal must be < this % of LLOQ response."
-    )
+    # just need to check that blank < lloq
+    # blank_thresh_pct_lloq: PositiveFloat = Percent(
+    #     20, description="Blank signal must be < this % of LLOQ response."
+    # )

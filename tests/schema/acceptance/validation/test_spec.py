@@ -39,12 +39,12 @@ class TestLBAValidationAcceptanceCriteria:
                 pass_fraction=0.9,
             ),
             carryover=CarryoverSpec(
-                blank_thresh_pct_lloq=10,
+                min_blanks_after_uloq=2,
             ),
         )
         assert custom.accuracy.acc_tol_pct_mid == 15
         assert custom.calibration.pass_fraction == 0.9
-        assert custom.carryover.blank_thresh_pct_lloq == 10
+        assert custom.carryover.min_blanks_after_uloq == 2
 
     def test_invalid_nested_model_raises(self):
         with pytest.raises(ValidationError) as e:
@@ -64,12 +64,12 @@ class TestLBAValidationAcceptanceCriteria:
 
     def test_full_custom_instantiation_valid(self):
         full = LBAValidationAcceptanceCriteria(
-            specificity=SpecificitySpec(acc_tol_pct=15, blank_thresh_pct_lloq=10),
+            specificity=SpecificitySpec(acc_tol_pct=15),
             selectivity=SelectivitySpec(min_sources=5, pass_fraction=0.9),
             calibration=CalibrationSpec(pass_fraction=0.8),
             accuracy=AccuracySpec(acc_tol_pct_mid=10, total_error_pct_mid=15),
             precision=PrecisionSpec(cv_tol_pct_mid=15, total_error_pct_edge=20),
-            carryover=CarryoverSpec(blank_thresh_pct_lloq=10, pass_fraction=0.9),
+            carryover=CarryoverSpec(pass_fraction=0.9),
             dilution_linearity=DilutionLinearitySpec(
                 pass_fraction=0.9, undiluted_recovery_min_pct=85
             ),

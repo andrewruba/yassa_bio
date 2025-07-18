@@ -28,7 +28,7 @@ class SampleType(DescribedStrEnum):
     )
     QUALITY_CONTROL = (
         "quality_control",
-        "Independent QC sample (LLOQ, low, mid, high, ULOQ)",
+        "Independent QC sample (LLOQ, low, mid, high, ULOQ, above ULOQ)",
     )
     SAMPLE = ("sample", "Study / incurred sample well")
 
@@ -40,6 +40,11 @@ class QCLevel(DescribedStrEnum):
     HIGH = ("high", "≈ 75 % ULOQ QC")
     ULOQ = ("uloq", "QC at upper-limit of quantification")
     ABOVE_ULOQ = ("above_uloq", "QC level above the upper-limit of quantification")
+
+
+class CalibrationLevel(DescribedStrEnum):
+    LLOQ = ("lloq", "Calibration standard at lower-limit of quantification")
+    ULOQ = ("uloq", "Calibration standard at upper-limit of quantification")
 
 
 class StabilityConditionTime(DescribedStrEnum):

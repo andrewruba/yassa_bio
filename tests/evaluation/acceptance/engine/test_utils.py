@@ -1,15 +1,16 @@
 import pandas as pd
 import numpy as np
+import pytest
 
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
     pattern_error_dict,
-    get_lloq_signal,
+    get_calibration_signal_for_level,
     compute_relative_pct_scalar,
     compute_relative_pct_vectorized,
 )
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
-from yassa_bio.schema.layout.enum import SampleType
+from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
 
 
 class TestCheckRequiredWellPatterns:
@@ -39,20 +40,35 @@ class TestPatternErrorDict:
         assert result["missing_patterns"][0]["sample_type"] == "blank"
 
 
-class TestGetLLOQSignal:
+class TestGetCalibrationSignalForLevel:
     def test_returns_none_on_empty(self):
         df = pd.DataFrame(columns=["concentration", "signal"])
-        assert get_lloq_signal(df) is None
+        assert get_calibration_signal_for_level(df, QCLevel.LLOQ) is None
 
-    def test_returns_mean_of_lowest_conc(self):
-        df = pd.DataFrame(
-            {
-                "concentration": [10, 1, 1, 5],
-                "signal": [100, 10, 20, 50],
-            }
-        )
-        result = get_lloq_signal(df)
-        assert result == 15.0  # mean of signals at concentration 1
+    def test_lloq_returns_mean_of_min_concentration(self):
+        df = pd.DataFrame({"concentration": [10, 1, 1, 5], "signal": [100, 10, 20, 50]})
+        result = get_calibration_signal_for_level(df, QCLevel.LLOQ)
+        assert result == 15.0
+
+        result = get_calibration_signal_for_level(df, CalibrationLevel.LLOQ)
+        assert result == 15.0
+
+    def test_uloq_returns_mean_of_max_concentration(self):
+        df = pd.DataFrame({"concentration": [10, 10, 5], "signal": [200, 300, 50]})
+        result = get_calibration_signal_for_level(df, QCLevel.ULOQ)
+        assert result == 250.0
+
+        result = get_calibration_signal_for_level(df, CalibrationLevel.ULOQ)
+        assert result == 250.0
+
+    def test_raises_on_unsupported_level(self):
+        df = pd.DataFrame({"concentration": [1], "signal": [1]})
+
+        class DummyLevel:
+            value = "unsupported"
+
+        with pytest.raises(ValueError):
+            get_calibration_signal_for_level(df, DummyLevel())
 
 
 class TestComputeRelativePctScalar:
@@ -75,16 +91,14 @@ class TestComputeRelativePctVectorized:
         dens = np.array([100, 10, 0])
         result = compute_relative_pct_vectorized(nums, dens)
         expected = np.array([50.0, 0.0, None], dtype=object)
-        assert np.all(result[:2] == expected[:2])
-        assert result[2] is None
+        assert result.tolist() == expected.tolist()
 
     def test_pandas_series_input(self):
         nums = pd.Series([30, 0, 10])
         dens = pd.Series([60, 20, np.nan])
         result = compute_relative_pct_vectorized(nums, dens)
         expected = np.array([50.0, 0.0, None], dtype=object)
-        assert np.all(result[:2] == expected[:2])
-        assert result[2] is None
+        assert result.tolist() == expected.tolist()
 
     def test_all_valid(self):
         nums = np.array([25, 50])

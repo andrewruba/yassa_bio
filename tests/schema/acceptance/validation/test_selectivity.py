@@ -12,7 +12,6 @@ class TestSelectivitySpec:
 
         assert spec.min_sources >= 1
         assert 0.0 < spec.pass_fraction <= 1.0
-        assert spec.blank_thresh_pct_lloq < 100
         assert spec.acc_tol_pct_lloq < 100
         assert spec.acc_tol_pct_high < 100
 
@@ -32,7 +31,6 @@ class TestSelectivitySpec:
         spec = SelectivitySpec(
             min_sources=5,
             pass_fraction=0.9,
-            blank_thresh_pct_lloq=10,
             acc_tol_pct_lloq=15,
             acc_tol_pct_high=12,
             required_well_patterns=[
@@ -42,7 +40,6 @@ class TestSelectivitySpec:
 
         assert spec.min_sources == 5
         assert spec.pass_fraction == 0.9
-        assert spec.blank_thresh_pct_lloq == 10
         assert spec.acc_tol_pct_lloq == 15
         assert spec.acc_tol_pct_high == 12
         assert len(spec.required_well_patterns) == 1
@@ -51,11 +48,6 @@ class TestSelectivitySpec:
         with pytest.raises(ValidationError) as e:
             SelectivitySpec(pass_fraction=1.5)
         assert "pass_fraction" in str(e.value)
-
-    def test_invalid_blank_thresh(self):
-        with pytest.raises(ValidationError) as e:
-            SelectivitySpec(blank_thresh_pct_lloq=-1)
-        assert "blank_thresh_pct_lloq" in str(e.value)
 
     def test_invalid_min_sources(self):
         with pytest.raises(ValidationError) as e:

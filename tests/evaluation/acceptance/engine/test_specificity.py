@@ -6,7 +6,7 @@ from yassa_bio.evaluation.acceptance.engine.specificity import (
     compute_interferent_accuracy,
 )
 from yassa_bio.schema.acceptance.validation.specificity import SpecificitySpec
-from yassa_bio.schema.layout.enum import QCLevel
+from yassa_bio.schema.layout.enum import CalibrationLevel
 
 
 class TestComputeInterferentAccuracy:
@@ -19,11 +19,16 @@ class TestComputeInterferentAccuracy:
                 "signal": [95, 105, 120, 130],
             }
         )
+        calib_df = pd.DataFrame(
+            {
+                "concentration": [1, 1],
+                "signal": [95, 105],
+            }
+        )
 
-        result = compute_interferent_accuracy(df, QCLevel.LLOQ)
+        result = compute_interferent_accuracy(df, calib_df, CalibrationLevel.LLOQ)
 
         assert result["accuracy_pct"] == pytest.approx(25.0)
-        assert result["clean_n"] == 2
         assert result["interfered_n"] == 2
         assert result["pass"] is None
         assert result["interferents"] == ["X"]
@@ -37,19 +42,10 @@ class TestComputeInterferentAccuracy:
                 "signal": [100, 100],
             }
         )
-        result = compute_interferent_accuracy(df, QCLevel.LLOQ)
-        assert result is None
-
-    def test_empty_clean(self):
-        df = pd.DataFrame(
-            {
-                "sample_type": ["quality_control"] * 2,
-                "qc_level": ["uloq"] * 2,
-                "interferent": ["A", "B"],
-                "signal": [200, 220],
-            }
+        calib_df = pd.DataFrame(
+            {"concentration": [1], "signal": [100]},
         )
-        result = compute_interferent_accuracy(df, QCLevel.ULOQ)
+        result = compute_interferent_accuracy(df, calib_df, CalibrationLevel.LLOQ)
         assert result is None
 
 
@@ -68,7 +64,7 @@ class TestEvalSpecificity:
                 "sample_type": ["blank", "quality_control", "quality_control"] * 2,
                 "qc_level": [None, "lloq", "uloq"] * 2,
                 "interferent": ["X", "X", "X", None, None, None],
-                "signal": [2, 100, 200, None, 95, 205],
+                "signal": [2, 19, 98, None, 20, 100],
             }
         )
         calib_df = pd.DataFrame(
@@ -166,6 +162,7 @@ class TestEvalSpecificity:
 
         result = eval_specificity(ctx, spec)
 
+        assert not result["lloq_accuracy"]["pass"]
         assert not result["uloq_accuracy"]["pass"]
         assert not result["pass"]
 

@@ -1,86 +1,48 @@
+import pandas as pd
+from typing import Any, Dict, Callable
+
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.validation.selectivity import SelectivitySpec
-from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
+from yassa_bio.evaluation.acceptance.engine.utils import (
+    check_required_well_patterns,
+    pattern_error_dict,
+    get_calibration_signal_for_level,
+    compute_relative_pct_vectorized,
+)
 
 
 @register("acceptance", SelectivitySpec.__name__)
 def eval_selectivity(ctx: LBAContext, spec: SelectivitySpec) -> dict:
     df = ctx.data.copy()
 
-    # 1. Required well patterns
-    missing = [p for p in spec.required_well_patterns if not p.present(df)]
+    missing = check_required_well_patterns(df, spec.required_well_patterns)
     if missing:
-        return {
-            "error": f"Missing {len(missing)} required well pattern(s)",
-            "missing_patterns": [p.model_dump() for p in missing],
-            "pass": False,
-        }
+        return pattern_error_dict(missing, "Missing {n} required well pattern(s)")
 
-    # 2. Reference signal for blank check — from calibration
-    cal = ctx.calib_df
-    lloq_conc = cal["concentration"].min()
-    lloq_signal = cal[cal["concentration"] == lloq_conc]["signal"].mean()
-    if lloq_signal == 0:
-        return {"error": "LLOQ calibration signal is 0", "pass": False}
+    lloq_signal = get_calibration_signal_for_level(ctx.calib_df, CalibrationLevel.LLOQ)
+    if lloq_signal is None:
+        return {"error": "LLOQ signal could not be determined", "pass": False}
 
-    # 3. Evaluate each source
-    source_results = {}
+    # Group and evaluate per matrix source
     df["matrix_type"] = df["matrix_type"].fillna("normal")
-    grouped = df.groupby("source_id")
+    grouped = df.groupby("matrix_source_id")
+    matrix_type_map = df.groupby("matrix_source_id")["matrix_type"].first()
+    source_results: Dict[str, dict] = {
+        sid: evaluate_source_group(
+            sub, matrix_type_map[sid], lloq_signal, spec, ctx.curve_back
+        )
+        for sid, sub in grouped
+    }
 
-    for sid, sub in grouped:
-        matrix_type = sub["matrix_type"].iloc[0]
-        entry = {"matrix_type": matrix_type}
-
-        # --- Blank: signal < X% of LLOQ
-        blank = sub[sub["sample_type"] == SampleType.BLANK]
-        blank_mean = blank["signal"].mean()
-        blank_pct = blank_mean / lloq_signal * 100.0 if lloq_signal else 0.0
-        entry["blank_pct_of_lloq"] = blank_pct
-        entry["blank_ok"] = blank_pct < spec.blank_thresh_pct_lloq
-
-        # --- LLOQ QC
-        lloq = sub[
-            (sub["sample_type"] == SampleType.QUALITY_CONTROL)
-            & (sub["qc_level"] == QCLevel.LLOQ)
-        ]
-        if not lloq.empty:
-            lloq_bias = (
-                abs((lloq["y"].mean() - lloq["x"].mean()) / lloq["x"].mean()) * 100.0
-            )
-            entry["lloq_bias_pct"] = lloq_bias
-            entry["lloq_ok"] = lloq_bias <= spec.acc_tol_pct_lloq
-        else:
-            entry["lloq_ok"] = False
-            entry["lloq_bias_pct"] = None
-
-        # --- High QC
-        high = sub[
-            (sub["sample_type"] == SampleType.QUALITY_CONTROL)
-            & (sub["qc_level"] == QCLevel.HIGH)
-        ]
-        if not high.empty:
-            high_bias = (
-                abs((high["y"].mean() - high["x"].mean()) / high["x"].mean()) * 100.0
-            )
-            entry["high_bias_pct"] = high_bias
-            entry["high_ok"] = high_bias <= spec.acc_tol_pct_high
-        else:
-            entry["high_ok"] = False
-            entry["high_bias_pct"] = None
-
-        entry["pass"] = entry["blank_ok"] and entry["lloq_ok"] and entry["high_ok"]
-        source_results[sid] = entry
-
-    # 4. Pass/fail summary
+    # Summary statistics
     n_sources = len(source_results)
-    n_pass = sum(1 for r in source_results.values() if r["pass"])
+    n_pass = sum(r["pass"] for r in source_results.values())
     frac_pass = n_pass / n_sources if n_sources else 0.0
     overall_pass = frac_pass >= spec.pass_fraction and n_sources >= spec.min_sources
 
-    # 5. Matrix-type breakdown
-    matrix_type_counts: dict[str, int] = {}
+    matrix_type_counts: Dict[str, int] = {}
     for r in source_results.values():
         t = r["matrix_type"]
         matrix_type_counts[t] = matrix_type_counts.get(t, 0) + 1
@@ -93,3 +55,57 @@ def eval_selectivity(ctx: LBAContext, spec: SelectivitySpec) -> dict:
         "per_source": source_results,
         "pass": overall_pass,
     }
+
+
+def evaluate_source_group(
+    df: pd.DataFrame,
+    matrix_type: str,
+    lloq_signal: float,
+    spec: SelectivitySpec,
+    back_calc_fn: Callable,
+) -> dict:
+    """Evaluate selectivity metrics for a single matrix_source_id group."""
+    entry: dict[str, Any] = {"matrix_type": matrix_type}
+
+    # Blank signal < LLOQ signal
+    blank = df[df["sample_type"] == SampleType.BLANK]
+    blank_signal = blank["signal"].mean()
+    entry["blank_signal"] = blank_signal
+    entry["blank_ok"] = blank_signal < lloq_signal if pd.notna(blank_signal) else False
+
+    # LLOQ QC back-calculate and compute accuracy
+    lloq = df[
+        (df["sample_type"] == SampleType.QUALITY_CONTROL)
+        & (df["qc_level"] == QCLevel.LLOQ)
+    ].copy()
+    if not lloq.empty:
+        lloq["back_calc"] = back_calc_fn(lloq["y"].to_numpy(float))
+        lloq["acc_pct"] = compute_relative_pct_vectorized(
+            (lloq["back_calc"] - lloq["x"]).abs(), lloq["x"]
+        )
+        acc_mean = lloq["acc_pct"].mean()
+        entry["lloq_acc_pct"] = acc_mean
+        entry["lloq_ok"] = acc_mean <= spec.acc_tol_pct_lloq
+    else:
+        entry["lloq_acc_pct"] = None
+        entry["lloq_ok"] = False
+
+    # High QC back-calculate and compute accuracy
+    high = df[
+        (df["sample_type"] == SampleType.QUALITY_CONTROL)
+        & (df["qc_level"] == QCLevel.HIGH)
+    ].copy()
+    if not high.empty:
+        high["back_calc"] = back_calc_fn(high["y"].to_numpy(float))
+        high["acc_pct"] = compute_relative_pct_vectorized(
+            (high["back_calc"] - high["x"]).abs(), high["x"]
+        )
+        acc_mean = high["acc_pct"].mean()
+        entry["high_acc_pct"] = acc_mean
+        entry["high_ok"] = acc_mean <= spec.acc_tol_pct_high
+    else:
+        entry["high_acc_pct"] = None
+        entry["high_ok"] = False
+
+    entry["pass"] = entry["blank_ok"] and entry["lloq_ok"] and entry["high_ok"]
+    return entry

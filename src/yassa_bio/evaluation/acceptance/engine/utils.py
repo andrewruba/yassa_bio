@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.layout.enum import QCLevel, CalibrationLevel
 
 
 def check_required_well_patterns(
@@ -18,11 +19,24 @@ def pattern_error_dict(missing: list[RequiredWellPattern], msg: str) -> dict:
     }
 
 
-def get_lloq_signal(calib_df: pd.DataFrame) -> float | None:
+def get_calibration_signal_for_level(
+    calib_df: pd.DataFrame, level: QCLevel | CalibrationLevel
+) -> float | None:
+    """
+    Returns the mean signal at the calibration concentration corresponding to the
+    LLOQ or ULOQ, regardless of whether the input is a QCLevel or CalibrationLevel.
+    """
     if calib_df.empty:
         return None
-    lloq_conc = calib_df["concentration"].min()
-    return calib_df[calib_df["concentration"] == lloq_conc]["signal"].mean()
+
+    if level.value == "lloq":
+        target_conc = calib_df["concentration"].min()
+    elif level.value == "uloq":
+        target_conc = calib_df["concentration"].max()
+    else:
+        raise ValueError(f"Unsupported level for calibration lookup: {level}")
+
+    return calib_df[calib_df["concentration"] == target_conc]["signal"].mean()
 
 
 def compute_relative_pct_scalar(

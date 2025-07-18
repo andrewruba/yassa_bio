@@ -23,28 +23,38 @@ class SelectivitySpec(BaseModel):
                 needs_matrix_type=True,
             ),
             RequiredWellPattern(
-                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LLOQ
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.LLOQ,
+                needs_matrix_type=True,
             ),
             RequiredWellPattern(
-                sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.HIGH
+                sample_type=SampleType.QUALITY_CONTROL,
+                qc_level=QCLevel.HIGH,
+                needs_matrix_type=True,
             ),
         ],
         description="Minimal list of well patterns that must be present.",
     )
 
     min_sources: int = Field(
-        10, ge=1, description="Minimum number of individual sources for blank matrices."
+        10,
+        ge=1,
+        description=(
+            "Minimum number of individual matrix sources to evaluate for selectivity. "
+            "Each source should contribute a blank sample and be spiked "
+            "at LLOQ and high QC."
+        ),
     )
     pass_fraction: PositiveFloat = Fraction01(
-        0.80, description="Fraction of sources that must meet each criterion."
+        0.80,
+        description=(
+            "Minimum fraction of matrix sources that must pass all selectivity checks."
+        ),
     )
 
-    blank_thresh_pct_lloq: PositiveFloat = Percent(
-        20, description="Blank signal must be < this % of LLOQ response."
-    )
     acc_tol_pct_lloq: PositiveFloat = Percent(
-        25, description="Allowed bias for LLOQ-spiked QC."
+        25, description="Accuracy tolerance (±) for LLOQ-spiked QC."
     )
     acc_tol_pct_high: PositiveFloat = Percent(
-        20, description="Allowed bias for High-QC-spiked QC."
+        20, description="Accuracy tolerance (±) High-QC-spiked QC."
     )

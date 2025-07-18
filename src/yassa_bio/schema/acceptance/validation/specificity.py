@@ -39,6 +39,3 @@ class SpecificitySpec(BaseModel):
     acc_tol_pct: PositiveFloat = Percent(
         25, description="Accuracy tolerance (±) at LLOQ & ULOQ with interferent."
     )
-    blank_thresh_pct_lloq: PositiveFloat = Percent(
-        20, description="Blank + interferent must be < this % of LLOQ response."
-    )

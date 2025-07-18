@@ -23,7 +23,7 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     summary = (
         by_lvl[["x", "back_calc"]].mean().rename(columns={"back_calc": "back_mean"})
     )
-    summary["bias_pct"] = compute_relative_pct_vectorized(
+    summary["acc_pct"] = compute_relative_pct_vectorized(
         (summary["back_mean"] - summary["x"]).abs(), summary["x"]
     )
 
@@ -31,7 +31,7 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     edge_levels = {summary.index.min(), summary.index.max()}
     summary["is_edge"] = summary.index.isin(edge_levels)
     summary["pass"] = summary.apply(
-        lambda r: r["bias_pct"]
+        lambda r: r["acc_pct"]
         <= (spec.acc_tol_pct_edge if r["is_edge"] else spec.acc_tol_pct_mid),
         axis=1,
     )
@@ -55,7 +55,7 @@ def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
         "num_pass": n_pass,
         "pass_fraction": frac_pass,
         "failing_levels": failing_levels.tolist(),
-        "per_level": summary[["bias_pct", "pass"]].to_dict(orient="index"),
+        "per_level": summary[["acc_pct", "pass"]].to_dict(orient="index"),
         "can_refit": can_refit,
         "pass": overall_pass,
     }
@@ -73,10 +73,10 @@ def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
 
     # Compute per-well accuracy
     qc_df["back_calc"] = ctx.curve_back(qc_df["y"].to_numpy(float))
-    qc_df["bias_pct"] = compute_relative_pct_vectorized(
+    qc_df["acc_pct"] = compute_relative_pct_vectorized(
         (qc_df["back_calc"] - qc_df["x"]).abs(), qc_df["x"]
     )
-    qc_df["ok"] = qc_df["bias_pct"] <= spec.qc_tol_pct
+    qc_df["ok"] = qc_df["acc_pct"] <= spec.acc_tol_pct
 
     # Summarize by QC level
     n_total = len(qc_df)

@@ -28,7 +28,7 @@ class TestLBAAnalyticalAcceptanceValidation:
             assert pattern.sample_type == SampleType.QUALITY_CONTROL
             assert pattern.qc_level in {QCLevel.LOW, QCLevel.MID, QCLevel.HIGH}
 
-        assert 0 < qc.qc_tol_pct < 100
+        assert 0 < qc.acc_tol_pct < 100
         assert 0 < qc.pass_fraction_total <= 1.0
         assert 0 < qc.pass_fraction_each_level <= 1.0
 
@@ -46,7 +46,7 @@ class TestLBAAnalyticalAcceptanceValidation:
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
                 )
             ],
-            qc_tol_pct=10,
+            acc_tol_pct=10,
             pass_fraction_total=0.9,
             pass_fraction_each_level=0.8,
         )
@@ -56,7 +56,7 @@ class TestLBAAnalyticalAcceptanceValidation:
         )
 
         assert criteria.calibration.min_levels == 8
-        assert criteria.qc.qc_tol_pct == 10
+        assert criteria.qc.acc_tol_pct == 10
         assert len(criteria.qc.required_well_patterns) == 1
 
     def test_reject_invalid_percent(self):
@@ -78,8 +78,8 @@ class TestLBAAnalyticalAcceptanceValidation:
                         sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LOW
                     )
                 ],
-                qc_tol_pct=-5,  # invalid
+                acc_tol_pct=-5,  # invalid
                 pass_fraction_total=0.5,
                 pass_fraction_each_level=0.5,
             )
-        assert "qc_tol_pct" in str(e.value)
+        assert "acc_tol_pct" in str(e.value)

@@ -41,5 +41,8 @@ class StabilitySpec(BaseModel):
 
     acc_tol_pct: PositiveFloat = Percent(
         20,
-        description="Mean accuracy tolerance (± %) allowed at each QC level.",
+        description=(
+            "Mean accuracy tolerance (± %) allowed at each QC level after condition"
+            " has been applied."
+        ),
     )
