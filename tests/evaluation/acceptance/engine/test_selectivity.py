@@ -142,15 +142,12 @@ class TestEvaluateSourceGroup:
         lloq_signal = 20
         spec = SelectivitySpec()
 
-        def back_calc(y):
-            return y
-
         result = evaluate_source_group(
             df,
             matrix_type="rat",
             lloq_signal=lloq_signal,
             spec=spec,
-            back_calc_fn=back_calc,
+            back_calc_fn=lambda y: y,
         )
 
         assert result["blank_ok"]
