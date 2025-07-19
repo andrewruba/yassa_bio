@@ -48,7 +48,7 @@ class TestPrecisionSpec:
 
     def test_invalid_min_levels_too_low(self):
         with pytest.raises(ValidationError) as e:
-            PrecisionSpec(min_levels=2)
+            PrecisionSpec(min_levels=0)
         assert "min_levels" in str(e.value)
 
     def test_invalid_min_replicates_zero(self):

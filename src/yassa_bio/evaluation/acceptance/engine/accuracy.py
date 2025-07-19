@@ -65,8 +65,6 @@ def eval_accuracy(ctx: LBAContext, spec: AccuracySpec) -> dict:
             "n": n,
             "mean_acc_pct": mean_acc,
             "total_error_pct": total_error,
-            "acc_tol": acc_tol,
-            "total_tol": total_tol,
             "acc_ok": acc_ok,
             "total_ok": total_ok,
             "pass": level_pass,
@@ -77,7 +75,6 @@ def eval_accuracy(ctx: LBAContext, spec: AccuracySpec) -> dict:
     return {
         "num_levels": len(per_level),
         "num_pass": passed_levels,
-        "min_levels": spec.min_levels,
         "per_level": per_level,
         "pass": overall_pass,
     }

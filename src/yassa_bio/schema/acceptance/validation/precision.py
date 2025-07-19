@@ -38,7 +38,7 @@ class PrecisionSpec(BaseModel):
 
     min_levels: int = Field(
         5,
-        ge=3,
+        ge=1,
         description=(
             "Minimum number of calibration levels (LLOQ, ULOQ included). "
             "Blank and anchor levels are not counted."
