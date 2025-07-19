@@ -6,6 +6,7 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
     pattern_error_dict,
     get_calibration_signal_for_level,
+    get_calibration_concentration_for_level,
     compute_relative_pct_scalar,
     compute_relative_pct_vectorized,
 )
@@ -69,6 +70,37 @@ class TestGetCalibrationSignalForLevel:
 
         with pytest.raises(ValueError):
             get_calibration_signal_for_level(df, DummyLevel())
+
+
+class TestGetCalibrationConcentrationForLevel:
+    def test_returns_none_on_empty(self):
+        df = pd.DataFrame(columns=["concentration", "signal"])
+        assert get_calibration_concentration_for_level(df, QCLevel.LLOQ) is None
+
+    def test_lloq_returns_min_concentration(self):
+        df = pd.DataFrame({"concentration": [10, 1, 1, 5], "signal": [100, 10, 20, 50]})
+        result = get_calibration_concentration_for_level(df, QCLevel.LLOQ)
+        assert result == 1
+
+        result = get_calibration_concentration_for_level(df, CalibrationLevel.LLOQ)
+        assert result == 1
+
+    def test_uloq_returns_max_concentration(self):
+        df = pd.DataFrame({"concentration": [10, 10, 5], "signal": [200, 300, 50]})
+        result = get_calibration_concentration_for_level(df, QCLevel.ULOQ)
+        assert result == 10
+
+        result = get_calibration_concentration_for_level(df, CalibrationLevel.ULOQ)
+        assert result == 10
+
+    def test_raises_on_unsupported_level(self):
+        df = pd.DataFrame({"concentration": [1], "signal": [1]})
+
+        class DummyLevel:
+            value = "not_supported"
+
+        with pytest.raises(ValueError):
+            get_calibration_concentration_for_level(df, DummyLevel())
 
 
 class TestComputeRelativePctScalar:

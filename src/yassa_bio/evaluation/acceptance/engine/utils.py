@@ -39,6 +39,23 @@ def get_calibration_signal_for_level(
     return calib_df[calib_df["concentration"] == target_conc]["signal"].mean()
 
 
+def get_calibration_concentration_for_level(
+    calib_df: pd.DataFrame, level: QCLevel | CalibrationLevel
+) -> float | None:
+    """
+    Returns the concentration corresponding to LLOQ or ULOQ in the calibration data.
+    """
+    if calib_df.empty:
+        return None
+
+    if level.value == "lloq":
+        return calib_df["concentration"].min()
+    elif level.value == "uloq":
+        return calib_df["concentration"].max()
+    else:
+        raise ValueError(f"Unsupported level for calibration lookup: {level}")
+
+
 def compute_relative_pct_scalar(
     numerator: float, denominator: float | None
 ) -> float | None:

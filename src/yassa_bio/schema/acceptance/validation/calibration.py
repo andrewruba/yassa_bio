@@ -3,8 +3,11 @@ from pydantic import (
     Field,
     PositiveFloat,
 )
+from typing import List
 
 from yassa_bio.core.typing import Percent, Fraction01
+from yassa_bio.schema.layout.enum import SampleType
+from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
 class CalibrationSpec(BaseModel):
@@ -14,9 +17,18 @@ class CalibrationSpec(BaseModel):
     analytical platform to the analyte.
     """
 
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.CALIBRATION_STANDARD,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
+
     min_levels: int = Field(
         6,
-        ge=3,
+        ge=2,
         description=(
             "Minimum number of calibration levels (LLOQ, ULOQ included). "
             "Blank and anchor levels are not counted."
