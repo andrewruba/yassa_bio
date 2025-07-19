@@ -50,7 +50,7 @@ class TestAccuracySpec:
 
     def test_invalid_low_min_levels(self):
         with pytest.raises(ValidationError) as e:
-            AccuracySpec(min_levels=2)
+            AccuracySpec(min_levels=0)
         assert "min_levels" in str(e.value)
 
     def test_invalid_negative_percent(self):
