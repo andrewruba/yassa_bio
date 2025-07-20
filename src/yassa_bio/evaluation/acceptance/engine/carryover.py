@@ -1,7 +1,12 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.validation.carryover import CarryoverSpec
-from yassa_bio.schema.layout.enum import SampleType
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.evaluation.acceptance.engine.utils import (
+    check_required_well_patterns,
+    pattern_error_dict,
+    get_calibration_signal_for_level,
+)
 import pandas as pd
 
 
@@ -10,19 +15,15 @@ def eval_carryover(ctx: LBAContext, spec: CarryoverSpec) -> dict:
     df = ctx.data.copy()
 
     # Ensure required well patterns exist
-    missing = [p for p in spec.required_well_patterns if not p.present(df)]
+    missing = check_required_well_patterns(df, spec.required_well_patterns)
     if missing:
-        return {
-            "error": f"Missing {len(missing)} required blank(s) for carryover",
-            "missing_patterns": [p.model_dump() for p in missing],
-            "pass": False,
-        }
+        return pattern_error_dict(
+            missing, "Missing {n} required blank(s) for carryover"
+        )
 
-    # Get LLOQ reference signal from calibration
-    cal_df = ctx.calib_df
-    lloq_conc = cal_df["concentration"].min()
-    lloq_signal = cal_df[cal_df["concentration"] == lloq_conc]["signal"].mean()
-    if lloq_signal == 0 or pd.isna(lloq_signal):
+    # Get LLOQ signal from calibration
+    lloq_signal = get_calibration_signal_for_level(ctx.calib_df, QCLevel.LLOQ)
+    if not lloq_signal or pd.isna(lloq_signal):
         return {"error": "Invalid LLOQ signal (0 or NaN)", "pass": False}
 
     # Find carryover blank wells
@@ -35,25 +36,20 @@ def eval_carryover(ctx: LBAContext, spec: CarryoverSpec) -> dict:
         return {
             "error": (
                 f"Only {n_blanks} carryover blank(s) found; "
-                "expected ≥ {spec.min_blanks_after_uloq}"
+                f"expected ≥ {spec.min_blanks_after_uloq}"
             ),
             "pass": False,
         }
 
-    carry_blanks["pct_of_lloq"] = carry_blanks["signal"] / lloq_signal * 100.0
-    carry_blanks["pass"] = carry_blanks["pct_of_lloq"] < spec.blank_thresh_pct_lloq
+    carry_blanks["pass"] = carry_blanks["signal"] < lloq_signal
 
     n_pass = int(carry_blanks["pass"].sum())
-    frac_pass = n_pass / n_blanks if n_blanks else 0.0
-    overall = frac_pass >= spec.pass_fraction
+    overall = n_pass == n_blanks
 
     return {
         "n_blanks": n_blanks,
         "n_pass": n_pass,
-        "pass_fraction": frac_pass,
-        "threshold_pct": spec.blank_thresh_pct_lloq,
-        "per_blank": carry_blanks[["well", "signal", "pct_of_lloq", "pass"]].to_dict(
-            orient="records"
-        ),
+        "lloq_signal": lloq_signal,
+        "per_blank": carry_blanks[["well", "signal", "pass"]].to_dict(orient="records"),
         "pass": overall,
     }
