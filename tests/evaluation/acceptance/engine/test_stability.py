@@ -67,25 +67,18 @@ class TestEvalStability:
                 *[
                     {
                         "sample_type": SampleType.QUALITY_CONTROL.value,
-                        "qc_level": QCLevel.LOW,
-                        "stability_condition": "freeze-thaw",
-                        "stability_condition_time": t,
-                        "y": 10,
+                        "qc_level": level,
+                        "stability_condition": cond,
+                        "stability_condition_time": time,
+                        "y": y,
                     }
-                    for t in [StabilityConditionTime.BEFORE] * 3
+                    for level, cond, y in [
+                        (QCLevel.LOW, "freeze-thaw", 10),
+                        (QCLevel.HIGH, "long-term", 20),
+                    ]
+                    for time in [StabilityConditionTime.BEFORE] * 3
                     + [StabilityConditionTime.AFTER] * 3
-                ],
-                *[
-                    {
-                        "sample_type": SampleType.QUALITY_CONTROL.value,
-                        "qc_level": QCLevel.HIGH,
-                        "stability_condition": "long-term",
-                        "stability_condition_time": t,
-                        "y": 20,
-                    }
-                    for t in [StabilityConditionTime.BEFORE] * 3
-                    + [StabilityConditionTime.AFTER] * 3
-                ],
+                ]
             ]
         )
         spec = StabilitySpec(min_conditions=2)
@@ -114,7 +107,7 @@ class TestEvalStability:
         assert "Missing" in result["error"]
 
     def test_fails_missing_required_patterns(self):
-        df = pd.DataFrame(
+        df = pd.DataFrame.from_records(
             [
                 {
                     "sample_type": SampleType.QUALITY_CONTROL.value,
@@ -133,22 +126,16 @@ class TestEvalStability:
         assert "missing_patterns" in result
 
     def test_fails_missing_before_or_after(self):
-        df = pd.DataFrame(
+        df = pd.DataFrame.from_records(
             [
                 {
                     "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.LOW,
+                    "qc_level": qc_level,
                     "stability_condition": "freeze-thaw",
                     "stability_condition_time": StabilityConditionTime.BEFORE,
                     "y": 10,
-                },
-                {
-                    "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.HIGH,
-                    "stability_condition": "freeze-thaw",
-                    "stability_condition_time": StabilityConditionTime.BEFORE,
-                    "y": 10,
-                },
+                }
+                for qc_level in [QCLevel.LOW, QCLevel.HIGH]
             ]
         )
         spec = StabilitySpec()
@@ -162,91 +149,59 @@ class TestEvalStability:
         )
 
     def test_fails_due_to_zero_mean_before(self):
-        df = pd.DataFrame()
-        for qc_level in [QCLevel.LOW, QCLevel.HIGH]:
-            df = pd.concat(
-                [
-                    df,
-                    pd.DataFrame(
-                        [
-                            {
-                                "sample_type": SampleType.QUALITY_CONTROL.value,
-                                "qc_level": qc_level,
-                                "stability_condition": "freeze-thaw",
-                                "stability_condition_time": (
-                                    StabilityConditionTime.BEFORE
-                                ),
-                                "y": 0,
-                            }
-                            for _ in range(3)
-                        ]
-                    ),
-                    pd.DataFrame(
-                        [
-                            {
-                                "sample_type": SampleType.QUALITY_CONTROL.value,
-                                "qc_level": qc_level,
-                                "stability_condition": "freeze-thaw",
-                                "stability_condition_time": (
-                                    StabilityConditionTime.AFTER
-                                ),
-                                "y": y,
-                            }
-                            for y in [10, 10, 10, 0, 0, 0, 10, 10, 10]
-                        ]
-                    ),
-                ],
-                ignore_index=True,
-            )
+        df = pd.concat(
+            [
+                pd.DataFrame.from_records(
+                    [
+                        {
+                            "sample_type": SampleType.QUALITY_CONTROL.value,
+                            "qc_level": level,
+                            "stability_condition": "freeze-thaw",
+                            "stability_condition_time": StabilityConditionTime.BEFORE,
+                            "y": 0,
+                        }
+                        for _ in range(3)
+                    ]
+                )
+                for level in [QCLevel.LOW, QCLevel.HIGH]
+            ]
+            + [
+                pd.DataFrame.from_records(
+                    [
+                        {
+                            "sample_type": SampleType.QUALITY_CONTROL.value,
+                            "qc_level": level,
+                            "stability_condition": "freeze-thaw",
+                            "stability_condition_time": StabilityConditionTime.AFTER,
+                            "y": y,
+                        }
+                        for y in [10, 10, 10, 0, 0, 0, 10, 10, 10]
+                    ]
+                )
+                for level in [QCLevel.LOW, QCLevel.HIGH]
+            ],
+            ignore_index=True,
+        )
         spec = StabilitySpec()
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
-
         assert result["pass"] is False
         assert "Zero mean" in next(iter(result["per_condition"].values()))["error"]
 
     def test_fails_due_to_bias_exceeding_tolerance(self):
-        df = pd.DataFrame(
+        df = pd.DataFrame.from_records(
             [
                 {
                     "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.HIGH,
+                    "qc_level": qc_level,
                     "stability_condition": "lt",
-                    "stability_condition_time": StabilityConditionTime.BEFORE,
-                    "y": 10,
+                    "stability_condition_time": time,
+                    "y": 10 if time == StabilityConditionTime.BEFORE else 15,
                 }
-                for _ in range(3)
-            ]
-            + [
-                {
-                    "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.HIGH,
-                    "stability_condition": "lt",
-                    "stability_condition_time": StabilityConditionTime.AFTER,
-                    "y": 15,
-                }
-                for _ in range(3)
-            ]
-            + [
-                {
-                    "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.LOW,
-                    "stability_condition": "lt",
-                    "stability_condition_time": StabilityConditionTime.BEFORE,
-                    "y": 10,
-                }
-                for _ in range(3)
-            ]
-            + [
-                {
-                    "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.LOW,
-                    "stability_condition": "lt",
-                    "stability_condition_time": StabilityConditionTime.AFTER,
-                    "y": 15,
-                }
-                for _ in range(3)
+                for qc_level in [QCLevel.HIGH, QCLevel.LOW]
+                for time in [StabilityConditionTime.BEFORE] * 3
+                + [StabilityConditionTime.AFTER] * 3
             ]
         )
         spec = StabilitySpec(acc_tol_pct=20)
@@ -258,27 +213,20 @@ class TestEvalStability:
         assert not next(iter(result["per_condition"].values()))["pass"]
 
     def test_fails_due_to_too_few_conditions(self):
-        df = pd.DataFrame(
+        df = pd.DataFrame.from_records(
             [
                 {
                     "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.LOW,
+                    "qc_level": qc_level,
                     "stability_condition": "only",
-                    "stability_condition_time": t,
+                    "stability_condition_time": time,
                     "y": 10,
                 }
-                for t in [StabilityConditionTime.BEFORE, StabilityConditionTime.AFTER]
-                * 3
-            ]
-            + [
-                {
-                    "sample_type": SampleType.QUALITY_CONTROL.value,
-                    "qc_level": QCLevel.HIGH,
-                    "stability_condition": "only",
-                    "stability_condition_time": t,
-                    "y": 10,
-                }
-                for t in [StabilityConditionTime.BEFORE, StabilityConditionTime.AFTER]
+                for qc_level in [QCLevel.LOW, QCLevel.HIGH]
+                for time in [
+                    StabilityConditionTime.BEFORE,
+                    StabilityConditionTime.AFTER,
+                ]
                 * 3
             ]
         )
