@@ -31,8 +31,3 @@ class CarryoverSpec(BaseModel):
             "Number of blank wells that must be placed immediately after the ULOQ."
         ),
     )
-
-    # just need to check that blank < lloq
-    # blank_thresh_pct_lloq: PositiveFloat = Percent(
-    #     20, description="Blank signal must be < this % of LLOQ response."
-    # )

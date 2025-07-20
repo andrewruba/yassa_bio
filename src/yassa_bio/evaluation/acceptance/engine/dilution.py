@@ -1,33 +1,50 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
+from yassa_bio.evaluation.acceptance.engine.utils import (
+    check_required_well_patterns,
+    pattern_error_dict,
+    compute_relative_pct_scalar,
+    get_calibration_concentration_for_level,
+)
 
 
 @register("acceptance", DilutionLinearitySpec.__name__)
 def eval_dilution_linearity(ctx: LBAContext, spec: DilutionLinearitySpec) -> dict:
     df = ctx.data.copy()
 
-    required_cols = {"dilution_factor", "series_id", "back_calc", "x"}
-    if not required_cols.issubset(df.columns):
-        return {
-            "error": (
-                f"Missing required columns: {sorted(required_cols - set(df.columns))}"
-            ),
-            "pass": False,
-        }
+    # Ensure required well patterns are present
+    missing = check_required_well_patterns(df, spec.required_well_patterns)
+    if missing:
+        return pattern_error_dict(missing, "Missing {n} required dilution pattern(s)")
 
-    # Group by (dilution_factor, series_id)
-    grouped = df.groupby(["dilution_factor", "series_id"])
+    df["back_calc"] = ctx.curve_back(df["y"].to_numpy(float))
+
+    # Evaluate dilution linearity by level_idx
+    in_range_qc = df[
+        (df["sample_type"] == SampleType.QUALITY_CONTROL)
+        & (
+            df["qc_level"].isin(
+                [
+                    QCLevel.LLOQ,
+                    QCLevel.LOW,
+                    QCLevel.MID,
+                    QCLevel.HIGH,
+                    QCLevel.ULOQ,
+                ]
+            )
+        )
+    ]
+    grouped = in_range_qc.groupby("level_idx")
     point_results = []
-    hook_results = []
 
-    for (factor, series), sub in grouped:
+    for level, sub in grouped:
         n = len(sub)
-        if n < spec.min_replicates_per_point:
+        if n < spec.min_replicates:
             point_results.append(
                 {
-                    "dilution_factor": factor,
-                    "series_id": series,
+                    "level_idx": level,
                     "n": n,
                     "error": (
                         f"Only {n} replicates (min required: {spec.min_replicates})"
@@ -37,82 +54,78 @@ def eval_dilution_linearity(ctx: LBAContext, spec: DilutionLinearitySpec) -> dic
             )
             continue
 
-        # Accuracy
-        expected = sub["x"].mean() / factor  # Expected after dilution
+        expected = sub["x"].mean()
         observed = sub["back_calc"].mean()
-        bias_pct = abs(observed - expected) / expected * 100.0 if expected else 0.0
-
-        # Precision
+        acc_pct = compute_relative_pct_scalar(abs(observed - expected), expected) or 0.0
         cv = sub["back_calc"].std(ddof=1) / observed * 100.0 if observed else 0.0
-        bias_ok = bias_pct <= spec.acc_tol_pct
+
+        acc_ok = acc_pct <= spec.acc_tol_pct
         cv_ok = cv <= spec.cv_tol_pct
-        passed = bias_ok and cv_ok
+        point_pass = acc_ok and cv_ok
 
         point_results.append(
             {
-                "dilution_factor": factor,
-                "series_id": series,
+                "level_idx": level,
                 "n": n,
-                "bias_pct": bias_pct,
+                "acc_pct": acc_pct,
                 "cv_pct": cv,
-                "bias_ok": bias_ok,
+                "acc_ok": acc_ok,
                 "cv_ok": cv_ok,
-                "pass": passed,
+                "pass": point_pass,
             }
         )
 
-    # Check distinct dilution factors and series counts
-    # dilution_counts = df["dilution_factor"].value_counts()
-    distinct_factors = df["dilution_factor"].nunique()
-    series_counts = df.groupby("dilution_factor")["series_id"].nunique().to_dict()
-
     # Hook effect check
+    hook_results = []
     hook_failures = 0
-    hook_checked = 0
-    diluted = df[df["dilution_factor"] > 1].copy()
-    undiluted = df[df["dilution_factor"] == 1]
+    uloq_conc = get_calibration_concentration_for_level(ctx.calib_df, QCLevel.ULOQ)
 
-    if not undiluted.empty:
-        ref = undiluted["back_calc"].mean()
-        for factor, series in diluted.groupby(["dilution_factor", "series_id"]):
-            expected = series["back_calc"].mean()
-            if expected > 0:
-                recovery = ref / expected * 100.0
-                hook_checked += 1
-                if recovery < spec.undiluted_recovery_min_pct:
-                    hook_failures += 1
-                hook_results.append(
-                    {
-                        "recovery_pct": recovery,
-                        "factor": factor,
-                        "hook_ok": recovery >= spec.undiluted_recovery_min_pct,
-                    }
-                )
+    above_uloq_qc = df[
+        (df["sample_type"] == SampleType.QUALITY_CONTROL)
+        & (df["qc_level"] == QCLevel.ABOVE_ULOQ)
+    ]
+
+    for idx, row in above_uloq_qc.iterrows():
+        recovery = compute_relative_pct_scalar(row["back_calc"], row["x"])
+        above_uloq = row["back_calc"] > uloq_conc
+        sufficient_recovery = (
+            recovery is not None and recovery >= spec.undiluted_recovery_min_pct
+        )
+        hook_ok = above_uloq and sufficient_recovery
+
+        hook_results.append(
+            {
+                "well": row.get("well", f"row_{idx}"),
+                "x": row["x"],
+                "back_calc": row["back_calc"],
+                "recovery_pct": recovery,
+                "uloq_conc": uloq_conc,
+                "above_uloq": above_uloq,
+                "recovery_ok": sufficient_recovery,
+                "hook_ok": hook_ok,
+            }
+        )
+
+        if not hook_ok:
+            hook_failures += 1
 
     # Pass logic
     n_total = len(point_results)
-    n_pass = sum(1 for p in point_results if p["pass"])
-    frac_pass = n_pass / n_total if n_total else 0.0
+    n_pass = sum(1 for r in point_results if r["pass"])
+    distinct_levels = df["level_idx"].nunique()
 
     pass_conditions = [
-        distinct_factors >= spec.min_dilution_factors,
-        all(series_counts.get(f, 0) >= spec.min_series for f in series_counts),
-        frac_pass >= spec.pass_fraction,
+        distinct_levels >= spec.min_dilutions,
+        all(r["pass"] for r in point_results),
         hook_failures == 0,
     ]
-    overall = all(pass_conditions)
 
     return {
-        "num_dilution_factors": distinct_factors,
-        "series_counts_per_factor": series_counts,
+        "num_dilution_levels": distinct_levels,
         "n_total_points": n_total,
         "n_pass": n_pass,
-        "pass_fraction": frac_pass,
-        "min_series": spec.min_series,
-        "min_dilution_factors": spec.min_dilution_factors,
         "hook_failures": hook_failures,
-        "undiluted_recovery_min_pct": spec.undiluted_recovery_min_pct,
         "per_point": point_results,
         "hook_checks": hook_results,
-        "pass": overall,
+        "pass": all(pass_conditions),
     }

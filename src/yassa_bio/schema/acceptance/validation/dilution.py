@@ -29,7 +29,10 @@ class DilutionLinearitySpec(BaseModel):
     min_dilutions: int = Field(
         3,
         ge=0,
-        description="Minimum distinct dilution factors that must be tested.",
+        description=(
+            "Minimum distinct dilution factors that must be tested in the "
+            "calibration range."
+        ),
     )
     min_replicates: int = Field(
         3,
