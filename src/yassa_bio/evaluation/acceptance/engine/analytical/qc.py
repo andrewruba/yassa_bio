@@ -1,7 +1,7 @@
 from __future__ import annotations
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
+from yassa_bio.schema.acceptance.analytical.qc import QCSpec
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -10,8 +10,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", AnalyticalQCSpec.__name__)
-def eval_qc(ctx: LBAContext, spec: AnalyticalQCSpec) -> dict:
+@register("acceptance", QCSpec.__name__)
+def eval_qc(ctx: LBAContext, spec: QCSpec) -> dict:
     df = ctx.data
     qc_df = df[df["sample_type"] == SampleType.QUALITY_CONTROL.value].copy()
 

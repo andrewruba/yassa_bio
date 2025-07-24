@@ -8,7 +8,7 @@ from yassa_bio.evaluation.acceptance.engine.analytical.qc import (
 )
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
-from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
+from yassa_bio.schema.acceptance.analytical.qc import QCSpec
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
 from yassa_bio.schema.layout.file import PlateReaderFile
@@ -93,7 +93,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH] * 2,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec()
+        spec = QCSpec()
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is True
@@ -111,7 +111,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec()
+        spec = QCSpec()
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -127,7 +127,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec(acc_tol_pct=50)
+        spec = QCSpec(acc_tol_pct=50)
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -144,7 +144,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH] * 2,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec(pass_fraction_each_level=0.75)
+        spec = QCSpec(pass_fraction_each_level=0.75)
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -161,7 +161,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID, QCLevel.HIGH],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec(pass_fraction_total=0.8)
+        spec = QCSpec(pass_fraction_total=0.8)
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -177,7 +177,7 @@ class TestEvalQC:
             qc_levels=[],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec()
+        spec = QCSpec()
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False
@@ -192,7 +192,7 @@ class TestEvalQC:
             qc_levels=[QCLevel.LOW, QCLevel.MID],
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalQCSpec()
+        spec = QCSpec()
 
         out = eval_qc(ctx, spec)
         assert out["pass"] is False

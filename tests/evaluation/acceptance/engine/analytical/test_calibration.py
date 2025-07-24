@@ -6,7 +6,7 @@ import tempfile
 from yassa_bio.evaluation.acceptance.engine.analytical.calibration import (
     eval_calibration,
 )
-from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.enum import SampleType
 from yassa_bio.schema.layout.batch import BatchData
@@ -91,7 +91,7 @@ class TestEvalCalibration:
             sample_type=SampleType.CALIBRATION_STANDARD,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalCalibrationSpec()
+        spec = CalibrationSpec()
 
         out = eval_calibration(ctx, spec)
         assert out["pass"] is True
@@ -106,7 +106,7 @@ class TestEvalCalibration:
             sample_type=SampleType.CALIBRATION_STANDARD,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalCalibrationSpec()
+        spec = CalibrationSpec()
 
         out = eval_calibration(ctx, spec)
         assert out["pass"] is False
@@ -120,7 +120,7 @@ class TestEvalCalibration:
             sample_type=SampleType.CALIBRATION_STANDARD,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalCalibrationSpec()
+        spec = CalibrationSpec()
 
         out = eval_calibration(ctx, spec)
         assert out["pass"] is False
@@ -134,7 +134,7 @@ class TestEvalCalibration:
             sample_type=SampleType.CALIBRATION_STANDARD,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalCalibrationSpec(min_retained_levels=5)
+        spec = CalibrationSpec(min_retained_levels=5)
 
         out = eval_calibration(ctx, spec)
         assert out["pass"] is False
@@ -147,7 +147,7 @@ class TestEvalCalibration:
             sample_type=SampleType.CALIBRATION_STANDARD,
             back_calc_fn=lambda y: y,
         )
-        spec = AnalyticalCalibrationSpec(min_levels=6)
+        spec = CalibrationSpec(min_levels=6)
 
         out = eval_calibration(ctx, spec)
         assert out["num_levels"] == 5

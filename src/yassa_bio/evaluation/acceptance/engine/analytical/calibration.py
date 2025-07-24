@@ -1,14 +1,14 @@
 from __future__ import annotations
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
 from yassa_bio.evaluation.acceptance.engine.utils import (
     compute_relative_pct_vectorized,
 )
 
 
-@register("acceptance", AnalyticalCalibrationSpec.__name__)
-def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
+@register("acceptance", CalibrationSpec.__name__)
+def eval_calibration(ctx: LBAContext, spec: CalibrationSpec) -> dict:
     cal = ctx.calib_df.copy()
     cal["back_calc"] = ctx.curve_back(cal["y"].to_numpy(float))
 

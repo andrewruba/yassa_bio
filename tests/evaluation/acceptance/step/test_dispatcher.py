@@ -8,8 +8,8 @@ from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 from yassa_bio.schema.analysis.enum import Transformation, CurveModel, Weighting
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
-from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
-from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.qc import QCSpec
+from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
 from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
@@ -20,11 +20,11 @@ from yassa_bio.schema.layout.well import WellTemplate
 import yassa_bio.core.registry as _reg
 
 
-class MockCalSpec(AnalyticalCalibrationSpec):
+class MockCalSpec(CalibrationSpec):
     pass
 
 
-class MockQCSpec(AnalyticalQCSpec):
+class MockQCSpec(QCSpec):
     pass
 
 
