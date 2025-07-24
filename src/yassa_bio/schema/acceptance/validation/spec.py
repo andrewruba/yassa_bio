@@ -13,7 +13,7 @@ from yassa_bio.schema.acceptance.validation.recovery import RecoverySpec
 
 class LBAValidationAcceptanceCriteria(BaseModel):
     """
-    Acceptance criteria for ligand binding assay validation runs.
+    Acceptance criteria for ligand binding assay (LBA) validation runs.
     """
 
     specificity: SpecificitySpec = SpecificitySpec()

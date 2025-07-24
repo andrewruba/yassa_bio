@@ -7,7 +7,7 @@ from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
 
 class LBAAnalyticalAcceptanceCriteria(BaseModel):
     """
-    Acceptance criteria for routine ligand binding assay study-sample runs.
+    Acceptance criteria for routine ligand binding assay (LBA) study-sample runs.
     """
 
     calibration: CalibrationSpec = CalibrationSpec()
