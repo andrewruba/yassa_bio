@@ -1,6 +1,6 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
 from yassa_bio.schema.layout.enum import SampleType
 
 

@@ -1,7 +1,7 @@
 from yassa_bio.pipeline.base import Step
 from yassa_bio.core.registry import get
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.analytical import (
+from yassa_bio.schema.acceptance.analytical.spec import (
     LBAAnalyticalAcceptanceCriteria,
 )
 from yassa_bio.schema.acceptance.validation.spec import (

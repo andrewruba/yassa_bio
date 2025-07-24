@@ -10,7 +10,6 @@ from yassa_bio.schema.acceptance.validation.precision import PrecisionSpec
 from yassa_bio.schema.acceptance.validation.carryover import CarryoverSpec
 from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
 from yassa_bio.schema.acceptance.validation.stability import StabilitySpec
-from yassa_bio.schema.acceptance.validation.parallelism import ParallelismSpec
 from yassa_bio.schema.acceptance.validation.recovery import RecoverySpec
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
@@ -26,7 +25,6 @@ class TestLBAValidationAcceptanceCriteria:
         assert isinstance(criteria.carryover, CarryoverSpec)
         assert isinstance(criteria.dilution_linearity, DilutionLinearitySpec)
         assert isinstance(criteria.stability, StabilitySpec)
-        assert isinstance(criteria.parallelism, ParallelismSpec)
         assert isinstance(criteria.recovery, RecoverySpec)
 
     def test_override_some_specs(self):
@@ -74,7 +72,6 @@ class TestLBAValidationAcceptanceCriteria:
                 pass_fraction=0.9, undiluted_recovery_min_pct=85
             ),
             stability=StabilitySpec(min_conditions=1, acc_tol_pct=30),
-            parallelism=ParallelismSpec(pass_fraction=0.95),
             recovery=RecoverySpec(max_cv_pct_within_level=10),
         )
         assert full.precision.cv_tol_pct_mid == 15

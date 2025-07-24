@@ -1,6 +1,6 @@
 import pandas as pd
 
-from yassa_bio.evaluation.acceptance.engine.calibration import (
+from yassa_bio.evaluation.acceptance.engine.validation.calibration import (
     eval_calibration_validation,
 )
 from yassa_bio.schema.acceptance.validation.calibration import CalibrationSpec

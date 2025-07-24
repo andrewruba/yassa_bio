@@ -1,7 +1,7 @@
 import pandas as pd
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.schema.acceptance.validation.selectivity import SelectivitySpec
-from yassa_bio.evaluation.acceptance.engine.selectivity import (
+from yassa_bio.evaluation.acceptance.engine.validation.selectivity import (
     eval_selectivity,
     evaluate_source_group,
 )

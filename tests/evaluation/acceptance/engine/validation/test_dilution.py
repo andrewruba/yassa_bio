@@ -3,7 +3,9 @@ from pathlib import Path
 from datetime import datetime
 import tempfile
 
-from yassa_bio.evaluation.acceptance.engine.dilution import eval_dilution_linearity
+from yassa_bio.evaluation.acceptance.engine.validation.dilution import (
+    eval_dilution_linearity,
+)
 from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData

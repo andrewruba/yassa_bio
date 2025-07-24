@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from yassa_bio.evaluation.acceptance.engine.specificity import (
+from yassa_bio.evaluation.acceptance.engine.validation.specificity import (
     eval_specificity,
     compute_interferent_accuracy,
 )
@@ -190,6 +190,7 @@ class TestEvalSpecificity:
                 ".evaluation"
                 ".acceptance"
                 ".engine"
+                ".validation"
                 ".specificity"
                 ".compute_interferent_accuracy"
             ),

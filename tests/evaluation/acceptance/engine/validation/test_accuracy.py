@@ -3,8 +3,8 @@ from pathlib import Path
 from datetime import datetime
 import tempfile
 
-from yassa_bio.evaluation.acceptance.engine.precision import eval_precision
-from yassa_bio.schema.acceptance.validation.precision import PrecisionSpec
+from yassa_bio.evaluation.acceptance.engine.validation.accuracy import eval_accuracy
+from yassa_bio.schema.acceptance.validation.accuracy import AccuracySpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -56,24 +56,24 @@ def make_ctx(df: pd.DataFrame) -> LBAContext:
     return ctx
 
 
-class TestEvalPrecision:
+class TestEvalAccuracy:
     def test_passes_all_levels(self):
         df = pd.DataFrame(
             {
                 "sample_type": ["quality_control"] * 15,
                 "qc_level": [
                     lvl.qc_level
-                    for lvl in PrecisionSpec().required_well_patterns
+                    for lvl in AccuracySpec().required_well_patterns
                     for _ in range(3)
                 ],
                 "x": [10] * 15,
                 "y": [10] * 15,
             }
         )
-        spec = PrecisionSpec()
+        spec = AccuracySpec()
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is True
         assert result["num_pass"] == 5
         assert all(v["pass"] for v in result["per_level"].values())
@@ -86,10 +86,10 @@ class TestEvalPrecision:
                 "y": [10, 10, 10],
             }
         )
-        spec = PrecisionSpec()
+        spec = AccuracySpec()
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is False
         assert "qc_level" in result["error"]
 
@@ -102,10 +102,10 @@ class TestEvalPrecision:
                 "y": [10] * 3,
             }
         )
-        spec = PrecisionSpec()
+        spec = AccuracySpec()
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is False
         assert "missing_patterns" in result
 
@@ -115,10 +115,10 @@ class TestEvalPrecision:
                 "sample_type": ["quality_control"] * 2,
                 "qc_level": [QCLevel.MID] * 2,
                 "x": [10, 10],
-                "y": [11, 9],
+                "y": [12, 11],
             }
         )
-        spec = PrecisionSpec(
+        spec = AccuracySpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -129,37 +129,10 @@ class TestEvalPrecision:
         )
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is False
         assert result["per_level"][QCLevel.MID]["n"] == 2
         assert result["per_level"][QCLevel.MID]["pass"] is False
-
-    def test_fails_due_to_cv(self):
-        df = pd.DataFrame(
-            {
-                "sample_type": ["quality_control"] * 3,
-                "qc_level": [QCLevel.MID] * 3,
-                "x": [10] * 3,
-                "y": [8, 10, 12],
-            }
-        )
-        spec = PrecisionSpec(
-            required_well_patterns=[
-                RequiredWellPattern(
-                    sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
-                )
-            ],
-            min_levels=1,
-            min_replicates_per_level=3,
-            cv_tol_pct_mid=5,
-            total_error_pct_mid=100,
-        )
-        ctx = make_ctx(df)
-
-        result = eval_precision(ctx, spec)
-        assert not result["pass"]
-        assert result["per_level"][QCLevel.MID]["cv_pct"] > 5
-        assert not result["per_level"][QCLevel.MID]["cv_ok"]
 
     def test_fails_due_to_total_error(self):
         df = pd.DataFrame(
@@ -170,7 +143,7 @@ class TestEvalPrecision:
                 "y": [20, 20, 20],
             }
         )
-        spec = PrecisionSpec(
+        spec = AccuracySpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -178,12 +151,12 @@ class TestEvalPrecision:
             ],
             min_levels=1,
             min_replicates_per_level=3,
-            cv_tol_pct_mid=100,
+            acc_tol_pct_mid=30,
             total_error_pct_mid=50,
         )
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is False
         assert result["per_level"][QCLevel.MID]["total_error_pct"] > 50
         assert result["per_level"][QCLevel.MID]["total_ok"] is False
@@ -197,7 +170,7 @@ class TestEvalPrecision:
                 "y": [9, 10, 11, 12, 10, 8],
             }
         )
-        spec = PrecisionSpec(
+        spec = AccuracySpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LLOQ
@@ -208,14 +181,14 @@ class TestEvalPrecision:
             ],
             min_levels=2,
             min_replicates_per_level=3,
-            cv_tol_pct_mid=20,
-            cv_tol_pct_edge=25,
+            acc_tol_pct_mid=15,
+            acc_tol_pct_edge=25,
             total_error_pct_mid=60,
             total_error_pct_edge=80,
         )
         ctx = make_ctx(df)
 
-        result = eval_precision(ctx, spec)
+        result = eval_accuracy(ctx, spec)
         assert result["pass"] is True
         assert result["num_pass"] == 2
         assert result["per_level"][QCLevel.LLOQ]["pass"] is True

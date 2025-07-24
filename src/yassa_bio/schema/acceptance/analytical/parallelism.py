@@ -44,6 +44,6 @@ class ParallelismSpec(BaseModel):
         30,
         description=(
             "Maximum allowed %CV among back-calculated concentrations "
-            "within a dilution series."
+            "after adjusting for dilution."
         ),
     )

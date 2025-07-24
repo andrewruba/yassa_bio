@@ -6,7 +6,7 @@ import tempfile
 from yassa_bio.evaluation.acceptance.step.analytical import CheckRerun, Analytical
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.analytical import (
+from yassa_bio.schema.acceptance.analytical.spec import (
     LBAAnalyticalAcceptanceCriteria,
 )
 from yassa_bio.schema.layout.batch import BatchData

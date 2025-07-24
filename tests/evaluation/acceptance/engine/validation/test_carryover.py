@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import tempfile
 
-from yassa_bio.evaluation.acceptance.engine.carryover import eval_carryover
+from yassa_bio.evaluation.acceptance.engine.validation.carryover import eval_carryover
 from yassa_bio.schema.acceptance.validation.carryover import CarryoverSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType
 

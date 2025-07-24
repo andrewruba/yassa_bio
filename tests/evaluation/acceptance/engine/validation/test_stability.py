@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import tempfile
 
-from yassa_bio.evaluation.acceptance.engine.stability import eval_stability
+from yassa_bio.evaluation.acceptance.engine.validation.stability import eval_stability
 from yassa_bio.schema.acceptance.validation.stability import StabilitySpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
