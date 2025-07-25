@@ -1,14 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.specificity import SpecificitySpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.validation.specificity import ValidationSpecificitySpec
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
-class TestSpecificitySpec:
+class TestValidationSpecificitySpec:
     def test_valid_instantiation(self):
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
 
         assert 0.0 < spec.acc_tol_pct <= 100
 
@@ -27,7 +27,7 @@ class TestSpecificitySpec:
         )
 
     def test_override_values(self):
-        custom_spec = SpecificitySpec(
+        custom_spec = ValidationSpecificitySpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.BLANK, needs_interferent=True
@@ -42,5 +42,5 @@ class TestSpecificitySpec:
 
     def test_reject_negative_percent(self):
         with pytest.raises(ValidationError) as e:
-            SpecificitySpec(acc_tol_pct=-5)
+            ValidationSpecificitySpec(acc_tol_pct=-5)
         assert "acc_tol_pct" in str(e.value)

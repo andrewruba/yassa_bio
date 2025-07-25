@@ -4,7 +4,7 @@ from datetime import datetime
 import tempfile
 
 from yassa_bio.evaluation.acceptance.engine.validation.precision import eval_precision
-from yassa_bio.schema.acceptance.validation.precision import PrecisionSpec
+from yassa_bio.schema.acceptance.validation.precision import ValidationPrecisionSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -13,7 +13,7 @@ from yassa_bio.schema.layout.well import WellTemplate
 from yassa_bio.schema.layout.enum import PlateFormat, SampleType, QCLevel
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
 def make_ctx(df: pd.DataFrame) -> LBAContext:
@@ -63,14 +63,14 @@ class TestEvalPrecision:
                 "sample_type": ["quality_control"] * 15,
                 "qc_level": [
                     lvl.qc_level
-                    for lvl in PrecisionSpec().required_well_patterns
+                    for lvl in ValidationPrecisionSpec().required_well_patterns
                     for _ in range(3)
                 ],
                 "x": [10] * 15,
                 "y": [10] * 15,
             }
         )
-        spec = PrecisionSpec()
+        spec = ValidationPrecisionSpec()
         ctx = make_ctx(df)
 
         result = eval_precision(ctx, spec)
@@ -86,7 +86,7 @@ class TestEvalPrecision:
                 "y": [10, 10, 10],
             }
         )
-        spec = PrecisionSpec()
+        spec = ValidationPrecisionSpec()
         ctx = make_ctx(df)
 
         result = eval_precision(ctx, spec)
@@ -102,7 +102,7 @@ class TestEvalPrecision:
                 "y": [10] * 3,
             }
         )
-        spec = PrecisionSpec()
+        spec = ValidationPrecisionSpec()
         ctx = make_ctx(df)
 
         result = eval_precision(ctx, spec)
@@ -118,7 +118,7 @@ class TestEvalPrecision:
                 "y": [11, 9],
             }
         )
-        spec = PrecisionSpec(
+        spec = ValidationPrecisionSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -143,7 +143,7 @@ class TestEvalPrecision:
                 "y": [8, 10, 12],
             }
         )
-        spec = PrecisionSpec(
+        spec = ValidationPrecisionSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -170,7 +170,7 @@ class TestEvalPrecision:
                 "y": [20, 20, 20],
             }
         )
-        spec = PrecisionSpec(
+        spec = ValidationPrecisionSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -197,7 +197,7 @@ class TestEvalPrecision:
                 "y": [9, 10, 11, 12, 10, 8],
             }
         )
-        spec = PrecisionSpec(
+        spec = ValidationPrecisionSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LLOQ

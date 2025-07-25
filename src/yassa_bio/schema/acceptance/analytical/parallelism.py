@@ -7,7 +7,7 @@ from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType
 from yassa_bio.core.typing import Percent
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
 class AnalyticalParallelismSpec(BaseModel):

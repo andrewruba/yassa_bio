@@ -1,14 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.selectivity import SelectivitySpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.validation.selectivity import ValidationSelectivitySpec
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
-class TestSelectivitySpec:
+class TestValidationSelectivitySpec:
     def test_valid_instantiation(self):
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
 
         assert spec.min_sources >= 1
         assert 0.0 < spec.pass_fraction <= 1.0
@@ -28,7 +28,7 @@ class TestSelectivitySpec:
         )
 
     def test_custom_instantiation(self):
-        spec = SelectivitySpec(
+        spec = ValidationSelectivitySpec(
             min_sources=5,
             pass_fraction=0.9,
             acc_tol_pct_lloq=15,
@@ -46,10 +46,10 @@ class TestSelectivitySpec:
 
     def test_invalid_pass_fraction(self):
         with pytest.raises(ValidationError) as e:
-            SelectivitySpec(pass_fraction=1.5)
+            ValidationSelectivitySpec(pass_fraction=1.5)
         assert "pass_fraction" in str(e.value)
 
     def test_invalid_min_sources(self):
         with pytest.raises(ValidationError) as e:
-            SelectivitySpec(min_sources=0)
+            ValidationSelectivitySpec(min_sources=0)
         assert "min_sources" in str(e.value)

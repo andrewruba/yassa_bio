@@ -1,6 +1,8 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
+from yassa_bio.schema.acceptance.validation.dilution import (
+    ValidationDilutionLinearitySpec,
+)
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -10,8 +12,10 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", DilutionLinearitySpec.__name__)
-def eval_dilution_linearity(ctx: LBAContext, spec: DilutionLinearitySpec) -> dict:
+@register("acceptance", ValidationDilutionLinearitySpec.__name__)
+def eval_dilution_linearity(
+    ctx: LBAContext, spec: ValidationDilutionLinearitySpec
+) -> dict:
     df = ctx.data.copy()
 
     # Ensure required well patterns are present

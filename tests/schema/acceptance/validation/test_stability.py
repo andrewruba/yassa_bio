@@ -1,14 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.stability import StabilitySpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.validation.stability import ValidationStabilitySpec
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
-class TestStabilitySpec:
+class TestValidationStabilitySpec:
     def test_valid_instantiation(self):
-        spec = StabilitySpec()
+        spec = ValidationStabilitySpec()
         assert 0 <= spec.min_conditions
         assert 0 < spec.acc_tol_pct <= 100
 
@@ -20,7 +20,7 @@ class TestStabilitySpec:
             assert p.qc_level in {QCLevel.LOW, QCLevel.HIGH}
 
     def test_override_fields(self):
-        spec = StabilitySpec(
+        spec = ValidationStabilitySpec(
             min_conditions=2,
             acc_tol_pct=15,
             required_well_patterns=[
@@ -38,10 +38,10 @@ class TestStabilitySpec:
 
     def test_reject_invalid_percent(self):
         with pytest.raises(ValidationError) as e:
-            StabilitySpec(acc_tol_pct=120)
+            ValidationStabilitySpec(acc_tol_pct=120)
         assert "acc_tol_pct" in str(e.value)
 
     def test_reject_negative_min_conditions(self):
         with pytest.raises(ValidationError) as e:
-            StabilitySpec(min_conditions=-1)
+            ValidationStabilitySpec(min_conditions=-1)
         assert "min_conditions" in str(e.value)

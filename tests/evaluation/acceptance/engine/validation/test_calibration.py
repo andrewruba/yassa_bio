@@ -3,7 +3,7 @@ import pandas as pd
 from yassa_bio.evaluation.acceptance.engine.validation.calibration import (
     eval_calibration_validation,
 )
-from yassa_bio.schema.acceptance.validation.calibration import CalibrationSpec
+from yassa_bio.schema.acceptance.validation.calibration import ValidationCalibrationSpec
 from yassa_bio.schema.layout.enum import SampleType
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
@@ -69,7 +69,7 @@ class TestEvalCalibrationValidation:
                 "sample_type": ["calibration_standard"] * 6,
             }
         )
-        spec = CalibrationSpec()
+        spec = ValidationCalibrationSpec()
         ctx = make_ctx(df)
 
         out = eval_calibration_validation(ctx, spec)
@@ -87,7 +87,7 @@ class TestEvalCalibrationValidation:
                 "sample_type": ["calibration_standard"] * 3,
             }
         )
-        spec = CalibrationSpec(min_levels=3, pass_fraction=0.8)
+        spec = ValidationCalibrationSpec(min_levels=3, pass_fraction=0.8)
         ctx = make_ctx(df)
 
         out = eval_calibration_validation(ctx, spec)
@@ -105,7 +105,7 @@ class TestEvalCalibrationValidation:
                 "sample_type": ["calibration_standard"] * 6,
             }
         )
-        spec = CalibrationSpec(
+        spec = ValidationCalibrationSpec(
             min_levels=2, pass_fraction=1.0, cv_tol_pct_edge=10, cv_tol_pct_mid=10
         )
         ctx = make_ctx(df)
@@ -124,7 +124,9 @@ class TestEvalCalibrationValidation:
                 "sample_type": ["calibration_standard"] * 3,
             }
         )
-        spec = CalibrationSpec(acc_tol_pct_edge=25, acc_tol_pct_mid=5, min_levels=3)
+        spec = ValidationCalibrationSpec(
+            acc_tol_pct_edge=25, acc_tol_pct_mid=5, min_levels=3
+        )
         ctx = make_ctx(df)
 
         out = eval_calibration_validation(ctx, spec)
@@ -142,7 +144,7 @@ class TestEvalCalibrationValidation:
                 "sample_type": ["quality_control"],
             }
         )
-        spec = CalibrationSpec()
+        spec = ValidationCalibrationSpec()
         ctx = make_ctx(df)
 
         out = eval_calibration_validation(ctx, spec)
@@ -151,7 +153,7 @@ class TestEvalCalibrationValidation:
 
     def test_empty_input(self):
         df = pd.DataFrame(columns=["concentration", "signal", "x", "y", "sample_type"])
-        spec = CalibrationSpec()
+        spec = ValidationCalibrationSpec()
         ctx = make_ctx(df)
 
         out = eval_calibration_validation(ctx, spec)

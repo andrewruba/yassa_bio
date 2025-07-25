@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
 
 

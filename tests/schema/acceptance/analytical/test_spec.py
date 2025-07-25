@@ -5,7 +5,7 @@ from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceC
 from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
 from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
 from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 

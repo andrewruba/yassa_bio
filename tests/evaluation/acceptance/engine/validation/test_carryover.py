@@ -4,7 +4,7 @@ from datetime import datetime
 import tempfile
 
 from yassa_bio.evaluation.acceptance.engine.validation.carryover import eval_carryover
-from yassa_bio.schema.acceptance.validation.carryover import CarryoverSpec
+from yassa_bio.schema.acceptance.validation.carryover import ValidationCarryoverSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -69,7 +69,7 @@ class TestEvalCarryover:
         ctx.calib_df = pd.DataFrame(
             {"concentration": [1, 10, 100], "signal": [5, 10, 50]}
         )
-        spec = CarryoverSpec(min_blanks_after_uloq=3)
+        spec = ValidationCarryoverSpec(min_blanks_after_uloq=3)
 
         result = eval_carryover(ctx, spec)
 
@@ -90,7 +90,7 @@ class TestEvalCarryover:
         ctx.calib_df = pd.DataFrame(
             {"concentration": [1, 10, 100], "signal": [2, 10, 50]}
         )
-        spec = CarryoverSpec(min_blanks_after_uloq=3)
+        spec = ValidationCarryoverSpec(min_blanks_after_uloq=3)
 
         result = eval_carryover(ctx, spec)
         assert result["pass"] is False
@@ -109,7 +109,7 @@ class TestEvalCarryover:
         ctx.calib_df = pd.DataFrame(
             {"concentration": [1, 10, 100], "signal": [5, 10, 50]}
         )
-        spec = CarryoverSpec(min_blanks_after_uloq=3)
+        spec = ValidationCarryoverSpec(min_blanks_after_uloq=3)
 
         result = eval_carryover(ctx, spec)
         assert result["pass"] is False
@@ -127,7 +127,7 @@ class TestEvalCarryover:
         )
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [], "signal": []})
-        spec = CarryoverSpec(min_blanks_after_uloq=1)
+        spec = ValidationCarryoverSpec(min_blanks_after_uloq=1)
 
         result = eval_carryover(ctx, spec)
         assert result["pass"] is False
@@ -144,7 +144,7 @@ class TestEvalCarryover:
         )
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [1], "signal": [10]})
-        spec = CarryoverSpec()
+        spec = ValidationCarryoverSpec()
 
         result = eval_carryover(ctx, spec)
         assert result["pass"] is False

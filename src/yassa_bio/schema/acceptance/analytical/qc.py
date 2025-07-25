@@ -3,7 +3,7 @@ from typing import List
 
 from yassa_bio.core.typing import Percent, Fraction01
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
 class AnalyticalQCSpec(BaseModel):

@@ -1,14 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.recovery import RecoverySpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.validation.recovery import ValidationRecoverySpec
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
 
 
-class TestRecoverySpec:
+class TestValidationRecoverySpec:
     def test_default_instantiation(self):
-        spec = RecoverySpec()
+        spec = ValidationRecoverySpec()
 
         patterns = {(p.qc_level, p.recovery_stage) for p in spec.required_well_patterns}
         expected = {
@@ -26,7 +26,7 @@ class TestRecoverySpec:
         assert spec.min_replicates_each >= 1
 
     def test_custom_instantiation(self):
-        spec = RecoverySpec(
+        spec = ValidationRecoverySpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL,
@@ -45,15 +45,15 @@ class TestRecoverySpec:
 
     def test_invalid_min_replicates_each(self):
         with pytest.raises(ValidationError) as e:
-            RecoverySpec(min_replicates_each=0)
+            ValidationRecoverySpec(min_replicates_each=0)
         assert "min_replicates_each" in str(e.value)
 
     def test_invalid_cv_within_level(self):
         with pytest.raises(ValidationError) as e:
-            RecoverySpec(max_cv_pct_within_level=150)
+            ValidationRecoverySpec(max_cv_pct_within_level=150)
         assert "max_cv_pct_within_level" in str(e.value)
 
     def test_invalid_diff_between_levels(self):
         with pytest.raises(ValidationError) as e:
-            RecoverySpec(max_diff_pct_between_levels=999)
+            ValidationRecoverySpec(max_diff_pct_between_levels=999)
         assert "max_diff_pct_between_levels" in str(e.value)

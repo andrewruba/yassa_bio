@@ -1,6 +1,6 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.precision import PrecisionSpec
+from yassa_bio.schema.acceptance.validation.precision import ValidationPrecisionSpec
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -9,8 +9,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", PrecisionSpec.__name__)
-def eval_precision(ctx: LBAContext, spec: PrecisionSpec) -> dict:
+@register("acceptance", ValidationPrecisionSpec.__name__)
+def eval_precision(ctx: LBAContext, spec: ValidationPrecisionSpec) -> dict:
     df = ctx.data.copy()
     qc_df = df[df["sample_type"] == SampleType.QUALITY_CONTROL].copy()
 

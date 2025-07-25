@@ -1,6 +1,6 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.carryover import CarryoverSpec
+from yassa_bio.schema.acceptance.validation.carryover import ValidationCarryoverSpec
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -10,8 +10,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 import pandas as pd
 
 
-@register("acceptance", CarryoverSpec.__name__)
-def eval_carryover(ctx: LBAContext, spec: CarryoverSpec) -> dict:
+@register("acceptance", ValidationCarryoverSpec.__name__)
+def eval_carryover(ctx: LBAContext, spec: ValidationCarryoverSpec) -> dict:
     df = ctx.data.copy()
 
     # Ensure required well patterns exist

@@ -5,10 +5,10 @@ from pydantic import (
 from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
-class CarryoverSpec(BaseModel):
+class ValidationCarryoverSpec(BaseModel):
     """
     Acceptance criteria to determine if there is residual analyte from
     a high sample affecting the next sample.

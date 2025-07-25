@@ -3,7 +3,7 @@ from typing import Any
 
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.specificity import SpecificitySpec
+from yassa_bio.schema.acceptance.validation.specificity import ValidationSpecificitySpec
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -13,8 +13,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", SpecificitySpec.__name__)
-def eval_specificity(ctx: LBAContext, spec: SpecificitySpec) -> dict:
+@register("acceptance", ValidationSpecificitySpec.__name__)
+def eval_specificity(ctx: LBAContext, spec: ValidationSpecificitySpec) -> dict:
     df = ctx.data.copy()
     results: dict[str, Any] = {}
 

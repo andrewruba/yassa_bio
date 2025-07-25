@@ -1,6 +1,6 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.stability import StabilitySpec
+from yassa_bio.schema.acceptance.validation.stability import ValidationStabilitySpec
 from yassa_bio.schema.layout.enum import StabilityConditionTime
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -9,8 +9,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", StabilitySpec.__name__)
-def eval_stability(ctx: LBAContext, spec: StabilitySpec) -> dict:
+@register("acceptance", ValidationStabilitySpec.__name__)
+def eval_stability(ctx: LBAContext, spec: ValidationStabilitySpec) -> dict:
     df = ctx.data.copy()
 
     # Ensure required well patterns exist

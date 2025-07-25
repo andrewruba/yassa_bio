@@ -10,7 +10,7 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
     compute_relative_pct_scalar,
     compute_relative_pct_vectorized,
 )
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
 
 

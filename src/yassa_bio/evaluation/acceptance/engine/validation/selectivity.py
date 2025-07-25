@@ -3,7 +3,7 @@ from typing import Any, Dict, Callable
 
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.selectivity import SelectivitySpec
+from yassa_bio.schema.acceptance.validation.selectivity import ValidationSelectivitySpec
 from yassa_bio.schema.layout.enum import SampleType, QCLevel, CalibrationLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -13,8 +13,8 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", SelectivitySpec.__name__)
-def eval_selectivity(ctx: LBAContext, spec: SelectivitySpec) -> dict:
+@register("acceptance", ValidationSelectivitySpec.__name__)
+def eval_selectivity(ctx: LBAContext, spec: ValidationSelectivitySpec) -> dict:
     df = ctx.data.copy()
 
     missing = check_required_well_patterns(df, spec.required_well_patterns)
@@ -61,7 +61,7 @@ def evaluate_source_group(
     df: pd.DataFrame,
     matrix_type: str,
     lloq_signal: float,
-    spec: SelectivitySpec,
+    spec: ValidationSelectivitySpec,
     back_calc_fn: Callable,
 ) -> dict:
     """Evaluate selectivity metrics for a single matrix_source_id group."""

@@ -7,10 +7,10 @@ from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.core.typing import Percent
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
-class SpecificitySpec(BaseModel):
+class ValidationSpecificitySpec(BaseModel):
     """
     Acceptance criteria to ensure binding reagent binds to target analyte and
     doesn't cross-react with structurally related, interferent molecules.

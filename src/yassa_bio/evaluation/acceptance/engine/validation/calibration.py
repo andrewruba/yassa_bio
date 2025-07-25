@@ -2,7 +2,7 @@ import pandas as pd
 
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.calibration import CalibrationSpec
+from yassa_bio.schema.acceptance.validation.calibration import ValidationCalibrationSpec
 from yassa_bio.schema.layout.enum import CalibrationLevel
 from yassa_bio.evaluation.acceptance.engine.utils import (
     check_required_well_patterns,
@@ -11,8 +11,10 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 )
 
 
-@register("acceptance", CalibrationSpec.__name__)
-def eval_calibration_validation(ctx: LBAContext, spec: CalibrationSpec) -> dict:
+@register("acceptance", ValidationCalibrationSpec.__name__)
+def eval_calibration_validation(
+    ctx: LBAContext, spec: ValidationCalibrationSpec
+) -> dict:
     df = ctx.calib_df.copy()
 
     if df.empty:

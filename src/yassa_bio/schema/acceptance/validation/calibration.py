@@ -7,10 +7,10 @@ from typing import List
 
 from yassa_bio.core.typing import Percent, Fraction01
 from yassa_bio.schema.layout.enum import SampleType
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
-class CalibrationSpec(BaseModel):
+class ValidationCalibrationSpec(BaseModel):
     """
     Acceptance criteria that demonstrates the relationship between the
     nominal analyte concentration and the response of the

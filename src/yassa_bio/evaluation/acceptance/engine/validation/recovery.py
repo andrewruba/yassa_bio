@@ -1,12 +1,12 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.validation.recovery import RecoverySpec
+from yassa_bio.schema.acceptance.validation.recovery import ValidationRecoverySpec
 from yassa_bio.schema.layout.enum import RecoveryStage, SampleType
 import pandas as pd
 
 
-@register("acceptance", RecoverySpec.__name__)
-def eval_recovery(ctx: LBAContext, spec: RecoverySpec) -> dict:
+@register("acceptance", ValidationRecoverySpec.__name__)
+def eval_recovery(ctx: LBAContext, spec: ValidationRecoverySpec) -> dict:
     df = ctx.data.copy()
 
     # Validate required well patterns

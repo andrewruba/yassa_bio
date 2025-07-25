@@ -1,14 +1,16 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.validation.dilution import (
+    ValidationDilutionLinearitySpec,
+)
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
-class TestDilutionLinearitySpec:
+class TestValidationDilutionLinearitySpec:
     def test_default_instantiation(self):
-        spec = DilutionLinearitySpec()
+        spec = ValidationDilutionLinearitySpec()
         assert spec.min_dilutions >= 0
         assert spec.min_replicates >= 1
         assert 0 < spec.acc_tol_pct <= 100
@@ -21,7 +23,7 @@ class TestDilutionLinearitySpec:
         assert p.qc_level == QCLevel.ABOVE_ULOQ
 
     def test_custom_instantiation(self):
-        spec = DilutionLinearitySpec(
+        spec = ValidationDilutionLinearitySpec(
             min_dilutions=5,
             min_replicates=4,
             acc_tol_pct=15,
@@ -41,25 +43,25 @@ class TestDilutionLinearitySpec:
 
     def test_reject_acc_tol_pct_above_100(self):
         with pytest.raises(ValidationError) as e:
-            DilutionLinearitySpec(acc_tol_pct=150)
+            ValidationDilutionLinearitySpec(acc_tol_pct=150)
         assert "acc_tol_pct" in str(e.value)
 
     def test_reject_cv_tol_pct_above_100(self):
         with pytest.raises(ValidationError) as e:
-            DilutionLinearitySpec(cv_tol_pct=101)
+            ValidationDilutionLinearitySpec(cv_tol_pct=101)
         assert "cv_tol_pct" in str(e.value)
 
     def test_reject_undiluted_recovery_above_100(self):
         with pytest.raises(ValidationError) as e:
-            DilutionLinearitySpec(undiluted_recovery_min_pct=101)
+            ValidationDilutionLinearitySpec(undiluted_recovery_min_pct=101)
         assert "undiluted_recovery_min_pct" in str(e.value)
 
     def test_reject_min_replicates_below_1(self):
         with pytest.raises(ValidationError) as e:
-            DilutionLinearitySpec(min_replicates=0)
+            ValidationDilutionLinearitySpec(min_replicates=0)
         assert "min_replicates" in str(e.value)
 
     def test_reject_min_dilutions_below_0(self):
         with pytest.raises(ValidationError) as e:
-            DilutionLinearitySpec(min_dilutions=-1)
+            ValidationDilutionLinearitySpec(min_dilutions=-1)
         assert "min_dilutions" in str(e.value)

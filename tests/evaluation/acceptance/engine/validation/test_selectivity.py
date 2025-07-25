@@ -1,6 +1,6 @@
 import pandas as pd
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
-from yassa_bio.schema.acceptance.validation.selectivity import SelectivitySpec
+from yassa_bio.schema.acceptance.validation.selectivity import ValidationSelectivitySpec
 from yassa_bio.evaluation.acceptance.engine.validation.selectivity import (
     eval_selectivity,
     evaluate_source_group,
@@ -34,7 +34,7 @@ class TestEvalSelectivity:
             }
         )
         calib_df = pd.DataFrame({"concentration": [1], "signal": [20]})
-        spec = SelectivitySpec(min_sources=1)
+        spec = ValidationSelectivitySpec(min_sources=1)
         ctx = self.make_ctx(df, calib_df)
 
         result = eval_selectivity(ctx, spec)
@@ -55,7 +55,7 @@ class TestEvalSelectivity:
             }
         )
         calib_df = pd.DataFrame({"concentration": [1], "signal": [20]})
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
         ctx = self.make_ctx(df, calib_df)
 
         result = eval_selectivity(ctx, spec)
@@ -81,7 +81,7 @@ class TestEvalSelectivity:
             }
         )
         calib_df = pd.DataFrame(columns=["concentration", "signal"])
-        spec = SelectivitySpec(min_sources=1)
+        spec = ValidationSelectivitySpec(min_sources=1)
         ctx = self.make_ctx(df, calib_df)
 
         result = eval_selectivity(ctx, spec)
@@ -113,7 +113,7 @@ class TestEvalSelectivity:
             ],
         )
         calib_df = pd.DataFrame({"concentration": [1], "signal": [20]})
-        spec = SelectivitySpec(min_sources=2, pass_fraction=0.5)
+        spec = ValidationSelectivitySpec(min_sources=2, pass_fraction=0.5)
         ctx = self.make_ctx(df, calib_df)
 
         result = eval_selectivity(ctx, spec)
@@ -140,7 +140,7 @@ class TestEvaluateSourceGroup:
             }
         )
         lloq_signal = 20
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
 
         result = evaluate_source_group(
             df,
@@ -167,7 +167,7 @@ class TestEvaluateSourceGroup:
             }
         )
         lloq_signal = 20
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
         result = evaluate_source_group(
             df,
             matrix_type="rat",
@@ -190,7 +190,7 @@ class TestEvaluateSourceGroup:
                 "signal": [80, 180],
             }
         )
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
         result = evaluate_source_group(
             df, matrix_type="rat", lloq_signal=20, spec=spec, back_calc_fn=lambda y: y
         )
@@ -210,7 +210,7 @@ class TestEvaluateSourceGroup:
                 "signal": [2],
             }
         )
-        spec = SelectivitySpec()
+        spec = ValidationSelectivitySpec()
         result = evaluate_source_group(
             df, matrix_type="rat", lloq_signal=20, spec=spec, back_calc_fn=lambda y: y
         )

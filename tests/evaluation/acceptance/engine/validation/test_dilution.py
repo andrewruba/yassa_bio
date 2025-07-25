@@ -6,7 +6,9 @@ import tempfile
 from yassa_bio.evaluation.acceptance.engine.validation.dilution import (
     eval_dilution_linearity,
 )
-from yassa_bio.schema.acceptance.validation.dilution import DilutionLinearitySpec
+from yassa_bio.schema.acceptance.validation.dilution import (
+    ValidationDilutionLinearitySpec,
+)
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -80,7 +82,7 @@ class TestEvalDilutionLinearity:
                 },
             ]
         )
-        spec = DilutionLinearitySpec()
+        spec = ValidationDilutionLinearitySpec()
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame(
             {"concentration": [1, 10, 50], "signal": [1, 10, 50]}
@@ -102,7 +104,7 @@ class TestEvalDilutionLinearity:
                 "y": [10, 10, 10],
             }
         )
-        spec = DilutionLinearitySpec()
+        spec = ValidationDilutionLinearitySpec()
         ctx = make_ctx(df)
 
         result = eval_dilution_linearity(ctx, spec)
@@ -131,7 +133,7 @@ class TestEvalDilutionLinearity:
                 },
             ]
         )
-        spec = DilutionLinearitySpec(min_replicates=3)
+        spec = ValidationDilutionLinearitySpec(min_replicates=3)
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [50], "signal": [50]})
 
@@ -161,7 +163,7 @@ class TestEvalDilutionLinearity:
                 },
             ]
         )
-        spec = DilutionLinearitySpec(acc_tol_pct=10)
+        spec = ValidationDilutionLinearitySpec(acc_tol_pct=10)
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [50], "signal": [50]})
 
@@ -191,7 +193,7 @@ class TestEvalDilutionLinearity:
                 },
             ]
         )
-        spec = DilutionLinearitySpec(cv_tol_pct=5)
+        spec = ValidationDilutionLinearitySpec(cv_tol_pct=5)
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [50], "signal": [50]})
 
@@ -221,7 +223,7 @@ class TestEvalDilutionLinearity:
                 },
             ]
         )
-        spec = DilutionLinearitySpec(min_dilutions=3)
+        spec = ValidationDilutionLinearitySpec(min_dilutions=3)
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [50], "signal": [50]})
 
@@ -240,7 +242,7 @@ class TestEvalDilutionLinearity:
                 "well": ["W1", "W2", "W3", "W4"],
             }
         )
-        spec = DilutionLinearitySpec(undiluted_recovery_min_pct=90)
+        spec = ValidationDilutionLinearitySpec(undiluted_recovery_min_pct=90)
         ctx = make_ctx(df)
         ctx.calib_df = pd.DataFrame({"concentration": [100], "signal": [100]})
         ctx.curve_back = staticmethod(lambda y: y)

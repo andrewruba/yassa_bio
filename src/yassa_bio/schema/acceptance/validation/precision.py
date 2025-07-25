@@ -6,11 +6,11 @@ from pydantic import (
 from typing import List
 
 from yassa_bio.core.typing import Percent
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
-class PrecisionSpec(BaseModel):
+class ValidationPrecisionSpec(BaseModel):
     """
     Acceptance criteria to determine the scatter in repeat measurements.
     """

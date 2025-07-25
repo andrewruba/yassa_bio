@@ -4,7 +4,7 @@ from datetime import datetime
 import tempfile
 
 from yassa_bio.evaluation.acceptance.engine.validation.stability import eval_stability
-from yassa_bio.schema.acceptance.validation.stability import StabilitySpec
+from yassa_bio.schema.acceptance.validation.stability import ValidationStabilitySpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -81,7 +81,7 @@ class TestEvalStability:
                 ]
             ]
         )
-        spec = StabilitySpec(min_conditions=2)
+        spec = ValidationStabilitySpec(min_conditions=2)
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -99,7 +99,7 @@ class TestEvalStability:
                 "y": [10] * 6,
             }
         )
-        spec = StabilitySpec()
+        spec = ValidationStabilitySpec()
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -118,7 +118,7 @@ class TestEvalStability:
                 }
             ]
         )
-        spec = StabilitySpec()
+        spec = ValidationStabilitySpec()
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -138,7 +138,7 @@ class TestEvalStability:
                 for qc_level in [QCLevel.LOW, QCLevel.HIGH]
             ]
         )
-        spec = StabilitySpec()
+        spec = ValidationStabilitySpec()
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -182,7 +182,7 @@ class TestEvalStability:
             ],
             ignore_index=True,
         )
-        spec = StabilitySpec()
+        spec = ValidationStabilitySpec()
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -204,7 +204,7 @@ class TestEvalStability:
                 + [StabilityConditionTime.AFTER] * 3
             ]
         )
-        spec = StabilitySpec(acc_tol_pct=20)
+        spec = ValidationStabilitySpec(acc_tol_pct=20)
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)
@@ -230,7 +230,7 @@ class TestEvalStability:
                 * 3
             ]
         )
-        spec = StabilitySpec(min_conditions=2)
+        spec = ValidationStabilitySpec(min_conditions=2)
         ctx = make_ctx(df)
 
         result = eval_stability(ctx, spec)

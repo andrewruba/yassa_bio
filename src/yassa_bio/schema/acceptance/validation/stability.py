@@ -7,10 +7,10 @@ from typing import List
 
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.core.typing import Percent
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
-class StabilitySpec(BaseModel):
+class ValidationStabilitySpec(BaseModel):
     """
     Acceptance criteria to determine that every step taken during
     sample preparation, processing and analysis as well as the

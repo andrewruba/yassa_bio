@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import QCLevel, CalibrationLevel
 
 

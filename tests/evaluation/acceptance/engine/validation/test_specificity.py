@@ -5,7 +5,7 @@ from yassa_bio.evaluation.acceptance.engine.validation.specificity import (
     eval_specificity,
     compute_interferent_accuracy,
 )
-from yassa_bio.schema.acceptance.validation.specificity import SpecificitySpec
+from yassa_bio.schema.acceptance.validation.specificity import ValidationSpecificitySpec
 from yassa_bio.schema.layout.enum import CalibrationLevel
 
 
@@ -73,7 +73,7 @@ class TestEvalSpecificity:
                 "signal": [20, 20, 50, 52, 100],
             }
         )
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
         ctx = self.make_ctx(df, calib_df)
 
         result = eval_specificity(ctx, spec)
@@ -98,7 +98,7 @@ class TestEvalSpecificity:
             }
         )
         ctx = self.make_ctx(df, calib_df)
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
 
         result = eval_specificity(ctx, spec)
         assert result["pass"] is False
@@ -135,7 +135,7 @@ class TestEvalSpecificity:
         )
 
         ctx = self.make_ctx(df, calib_df)
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
 
         result = eval_specificity(ctx, spec)
 
@@ -158,7 +158,7 @@ class TestEvalSpecificity:
             }
         )
         ctx = self.make_ctx(df, calib_df)
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
 
         result = eval_specificity(ctx, spec)
 
@@ -182,7 +182,7 @@ class TestEvalSpecificity:
             }
         )
         ctx = self.make_ctx(df, calib_df)
-        spec = SpecificitySpec()
+        spec = ValidationSpecificitySpec()
 
         mocker.patch(
             (
