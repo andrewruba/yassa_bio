@@ -2,9 +2,9 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
-from yassa_bio.schema.acceptance.analytical.qc import QCSpec
-from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
-from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
+from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
@@ -14,13 +14,13 @@ class TestLBAAnalyticalAcceptanceValidation:
         criteria = LBAAnalyticalAcceptanceCriteria()
 
         cal = criteria.calibration
-        assert isinstance(cal, CalibrationSpec)
+        assert isinstance(cal, AnalyticalCalibrationSpec)
         assert cal.min_levels == 6
         assert 0.0 < cal.pass_fraction <= 1.0
         assert cal.min_retained_levels >= 3
 
         qc = criteria.qc
-        assert isinstance(qc, QCSpec)
+        assert isinstance(qc, AnalyticalQCSpec)
         assert len(qc.required_well_patterns) == 3
         for pattern in qc.required_well_patterns:
             assert isinstance(pattern, RequiredWellPattern)
@@ -31,7 +31,7 @@ class TestLBAAnalyticalAcceptanceValidation:
         assert 0 < qc.pass_fraction_each_level <= 1.0
 
         par = criteria.parallelism
-        assert isinstance(par, ParallelismSpec)
+        assert isinstance(par, AnalyticalParallelismSpec)
         assert len(par.required_well_patterns) == 1
         pat = par.required_well_patterns[0]
         assert pat.sample_type == SampleType.SAMPLE
@@ -40,14 +40,14 @@ class TestLBAAnalyticalAcceptanceValidation:
         assert 0 < par.cv_tol_pct <= 100
 
     def test_override_values(self):
-        new_cal = CalibrationSpec(
+        new_cal = AnalyticalCalibrationSpec(
             min_levels=8,
             pass_fraction=0.9,
             acc_tol_pct_mid=15,
             acc_tol_pct_edge=20,
             min_retained_levels=5,
         )
-        new_qc = QCSpec(
+        new_qc = AnalyticalQCSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.MID
@@ -57,7 +57,7 @@ class TestLBAAnalyticalAcceptanceValidation:
             pass_fraction_total=0.9,
             pass_fraction_each_level=0.8,
         )
-        new_par = ParallelismSpec(
+        new_par = AnalyticalParallelismSpec(
             required_well_patterns=[
                 RequiredWellPattern(
                     sample_type=SampleType.SAMPLE,
@@ -81,7 +81,7 @@ class TestLBAAnalyticalAcceptanceValidation:
 
     def test_reject_invalid_percent(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(
+            AnalyticalCalibrationSpec(
                 min_levels=6,
                 pass_fraction=1.5,
                 acc_tol_pct_mid=20,
@@ -92,7 +92,7 @@ class TestLBAAnalyticalAcceptanceValidation:
 
     def test_reject_negative_tol(self):
         with pytest.raises(ValidationError) as e:
-            QCSpec(
+            AnalyticalQCSpec(
                 required_well_patterns=[
                     RequiredWellPattern(
                         sample_type=SampleType.QUALITY_CONTROL, qc_level=QCLevel.LOW
@@ -106,7 +106,7 @@ class TestLBAAnalyticalAcceptanceValidation:
 
     def test_reject_invalid_parallelism_cv(self):
         with pytest.raises(ValidationError) as e:
-            ParallelismSpec(
+            AnalyticalParallelismSpec(
                 required_well_patterns=[
                     RequiredWellPattern(
                         sample_type=SampleType.SAMPLE, needs_sample_id=True

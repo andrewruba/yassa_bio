@@ -6,7 +6,7 @@ from yassa_bio.schema.layout.enum import SampleType, QCLevel
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
-class QCSpec(BaseModel):
+class AnalyticalQCSpec(BaseModel):
     """
     Acceptance criteria for accuracy/precision on QC samples in an analytical run.
     """

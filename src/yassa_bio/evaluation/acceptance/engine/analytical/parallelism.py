@@ -1,11 +1,11 @@
 from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 from yassa_bio.schema.layout.enum import SampleType
 
 
-@register("acceptance", ParallelismSpec.__name__)
-def eval_parallelism(ctx: LBAContext, spec: ParallelismSpec) -> dict:
+@register("acceptance", AnalyticalParallelismSpec.__name__)
+def eval_parallelism(ctx: LBAContext, spec: AnalyticalParallelismSpec) -> dict:
     df = ctx.data.copy()
 
     required_cols = {"sample_id", "dilution_factor", "back_calc"}

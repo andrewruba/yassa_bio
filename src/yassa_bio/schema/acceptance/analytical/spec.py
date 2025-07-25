@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
-from yassa_bio.schema.acceptance.analytical.qc import QCSpec
-from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 
 
 class LBAAnalyticalAcceptanceCriteria(BaseModel):
@@ -10,6 +10,6 @@ class LBAAnalyticalAcceptanceCriteria(BaseModel):
     Acceptance criteria for routine ligand binding assay (LBA) study-sample runs.
     """
 
-    calibration: CalibrationSpec = CalibrationSpec()
-    qc: QCSpec = QCSpec()
-    parallelism: ParallelismSpec = ParallelismSpec()
+    calibration: AnalyticalCalibrationSpec = AnalyticalCalibrationSpec()
+    qc: AnalyticalQCSpec = AnalyticalQCSpec()
+    parallelism: AnalyticalParallelismSpec = AnalyticalParallelismSpec()

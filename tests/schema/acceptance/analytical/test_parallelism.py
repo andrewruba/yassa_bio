@@ -1,14 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 from yassa_bio.schema.layout.enum import SampleType
 
 
-class TestParallelismSpec:
+class TestAnalyticalParallelismSpec:
     def test_valid_instantiation(self):
-        spec = ParallelismSpec()
+        spec = AnalyticalParallelismSpec()
         assert spec.min_dilutions >= 1
         assert spec.min_replicates >= 1
         assert 0 < spec.cv_tol_pct <= 100
@@ -16,7 +16,7 @@ class TestParallelismSpec:
         assert spec.required_well_patterns[0].sample_type == SampleType.SAMPLE
 
     def test_custom_values(self):
-        spec = ParallelismSpec(
+        spec = AnalyticalParallelismSpec(
             min_dilutions=5,
             min_replicates=2,
             cv_tol_pct=15,
@@ -31,10 +31,10 @@ class TestParallelismSpec:
 
     def test_reject_cv_over_100(self):
         with pytest.raises(ValidationError) as e:
-            ParallelismSpec(cv_tol_pct=101)
+            AnalyticalParallelismSpec(cv_tol_pct=101)
         assert "cv_tol_pct" in str(e.value)
 
     def test_reject_min_dilutions_below_0(self):
         with pytest.raises(ValidationError) as e:
-            ParallelismSpec(min_dilutions=-1)
+            AnalyticalParallelismSpec(min_dilutions=-1)
         assert "min_dilutions" in str(e.value)

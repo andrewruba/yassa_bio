@@ -10,7 +10,7 @@ from yassa_bio.core.typing import Percent
 from yassa_bio.schema.acceptance.validation.pattern import RequiredWellPattern
 
 
-class ParallelismSpec(BaseModel):
+class AnalyticalParallelismSpec(BaseModel):
     """
     Acceptance criteria for detecting non–parallel behaviour between
     the calibration curve and serially-diluted study samples.

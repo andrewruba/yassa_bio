@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, PositiveFloat
 from yassa_bio.core.typing import Percent, Fraction01
 
 
-class CalibrationSpec(BaseModel):
+class AnalyticalCalibrationSpec(BaseModel):
     """
     Acceptance criteria for back-calculated concentrations of calibration standards
     in an analytical run.

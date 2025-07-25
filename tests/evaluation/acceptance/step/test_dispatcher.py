@@ -8,9 +8,9 @@ from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 from yassa_bio.schema.analysis.enum import Transformation, CurveModel, Weighting
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
-from yassa_bio.schema.acceptance.analytical.qc import QCSpec
-from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
-from yassa_bio.schema.acceptance.analytical.parallelism import ParallelismSpec
+from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
+from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -20,15 +20,15 @@ from yassa_bio.schema.layout.well import WellTemplate
 import yassa_bio.core.registry as _reg
 
 
-class MockCalSpec(CalibrationSpec):
+class MockCalSpec(AnalyticalCalibrationSpec):
     pass
 
 
-class MockQCSpec(QCSpec):
+class MockAnalyticalQCSpec(AnalyticalQCSpec):
     pass
 
 
-class MockParallelismSpec(ParallelismSpec):
+class MockAnalyticalParallelismSpec(AnalyticalParallelismSpec):
     pass
 
 
@@ -82,8 +82,8 @@ def make_mock_ctx() -> LBAContext:
         ),
         acceptance_criteria=LBAAnalyticalAcceptanceCriteria(
             calibration=MockCalSpec(),
-            qc=MockQCSpec(),
-            parallelism=MockParallelismSpec(),
+            qc=MockAnalyticalQCSpec(),
+            parallelism=MockAnalyticalParallelismSpec(),
         ),
     )
 
@@ -105,11 +105,11 @@ class TestEvaluateSpecs:
         def fake_cal_fn(ctx: LBAContext, spec: object) -> dict:
             return {"pass": True, "mock_result": "cal_pass"}
 
-        @_reg.register("acceptance", MockQCSpec.__name__)
+        @_reg.register("acceptance", MockAnalyticalQCSpec.__name__)
         def fake_qc_fn(ctx: LBAContext, spec: object) -> dict:
             return {"pass": True, "mock_result": "qc_pass"}
 
-        @_reg.register("acceptance", MockParallelismSpec.__name__)
+        @_reg.register("acceptance", MockAnalyticalParallelismSpec.__name__)
         def fake_par_fn(ctx: LBAContext, spec: object) -> dict:
             return {"pass": True, "mock_result": "par_pass"}
 

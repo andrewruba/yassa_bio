@@ -1,12 +1,12 @@
 import pytest
 from pydantic import ValidationError
 
-from yassa_bio.schema.acceptance.analytical.calibration import CalibrationSpec
+from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
 
 
-class TestCalibrationSpec:
+class TestAnalyticalCalibrationSpec:
     def test_valid_instantiation_defaults(self):
-        spec = CalibrationSpec()
+        spec = AnalyticalCalibrationSpec()
         assert spec.min_levels == 6
         assert spec.pass_fraction == 0.75
         assert spec.acc_tol_pct_mid == 20
@@ -14,7 +14,7 @@ class TestCalibrationSpec:
         assert spec.min_retained_levels == 6
 
     def test_valid_override_values(self):
-        spec = CalibrationSpec(
+        spec = AnalyticalCalibrationSpec(
             min_levels=6,
             pass_fraction=0.9,
             acc_tol_pct_mid=15,
@@ -28,25 +28,25 @@ class TestCalibrationSpec:
 
     def test_invalid_min_levels_below_6(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(min_levels=5)
+            AnalyticalCalibrationSpec(min_levels=5)
         assert "min_levels" in str(e.value)
 
     def test_invalid_negative_percent(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(acc_tol_pct_mid=-10)
+            AnalyticalCalibrationSpec(acc_tol_pct_mid=-10)
         assert "acc_tol_pct_mid" in str(e.value)
 
     def test_invalid_percent_above_100(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(acc_tol_pct_edge=120)
+            AnalyticalCalibrationSpec(acc_tol_pct_edge=120)
         assert "acc_tol_pct_edge" in str(e.value)
 
     def test_invalid_fraction_above_one(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(pass_fraction=1.5)
+            AnalyticalCalibrationSpec(pass_fraction=1.5)
         assert "pass_fraction" in str(e.value)
 
     def test_invalid_min_retained_levels_below_3(self):
         with pytest.raises(ValidationError) as e:
-            CalibrationSpec(min_retained_levels=2)
+            AnalyticalCalibrationSpec(min_retained_levels=2)
         assert "min_retained_levels" in str(e.value)
