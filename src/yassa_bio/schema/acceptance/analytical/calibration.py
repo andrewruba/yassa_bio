@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field, PositiveFloat
+from typing import List
 
 from yassa_bio.core.typing import Percent, Fraction01
+from yassa_bio.schema.layout.enum import SampleType
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
 class AnalyticalCalibrationSpec(BaseModel):
@@ -8,6 +11,15 @@ class AnalyticalCalibrationSpec(BaseModel):
     Acceptance criteria for back-calculated concentrations of calibration standards
     in an analytical run.
     """
+
+    required_well_patterns: List[RequiredWellPattern] = Field(
+        [
+            RequiredWellPattern(
+                sample_type=SampleType.CALIBRATION_STANDARD,
+            ),
+        ],
+        description="Minimal list of well patterns that must be present.",
+    )
 
     min_levels: int = Field(
         6,

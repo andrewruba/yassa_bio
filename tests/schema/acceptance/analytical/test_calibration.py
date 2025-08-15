@@ -2,6 +2,8 @@ import pytest
 from pydantic import ValidationError
 
 from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
+from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
+from yassa_bio.schema.layout.enum import SampleType
 
 
 class TestAnalyticalCalibrationSpec:
@@ -12,6 +14,16 @@ class TestAnalyticalCalibrationSpec:
         assert spec.acc_tol_pct_mid == 20
         assert spec.acc_tol_pct_edge == 25
         assert spec.min_retained_levels == 6
+
+    def test_default_required_well_patterns_present_and_valid(self):
+        spec = AnalyticalCalibrationSpec()
+        patterns = spec.required_well_patterns
+        assert isinstance(patterns, list)
+        assert len(patterns) == 1
+
+        pattern = patterns[0]
+        assert isinstance(pattern, RequiredWellPattern)
+        assert pattern.sample_type == SampleType.CALIBRATION_STANDARD
 
     def test_valid_override_values(self):
         spec = AnalyticalCalibrationSpec(

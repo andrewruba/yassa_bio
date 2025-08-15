@@ -3,6 +3,8 @@ from yassa_bio.core.registry import register
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
 from yassa_bio.evaluation.acceptance.engine.utils import (
+    check_required_well_patterns,
+    pattern_error_dict,
     compute_relative_pct_vectorized,
 )
 
@@ -10,6 +12,15 @@ from yassa_bio.evaluation.acceptance.engine.utils import (
 @register("acceptance", AnalyticalCalibrationSpec.__name__)
 def eval_calibration(ctx: LBAContext, spec: AnalyticalCalibrationSpec) -> dict:
     cal = ctx.calib_df.copy()
+
+    # Ensure required well patterns are present
+    missing = check_required_well_patterns(cal, spec.required_well_patterns)
+    if missing:
+        return pattern_error_dict(
+            missing, "Missing {n} required calibration pattern(s)"
+        )
+
+    # Back-calculate concentrations
     cal["back_calc"] = ctx.curve_back(cal["y"].to_numpy(float))
 
     # Group by level and calculate bias

@@ -152,3 +152,18 @@ class TestEvalCalibration:
         out = eval_calibration(ctx, spec)
         assert out["num_levels"] == 5
         assert out["pass"] is False
+
+    def test_fails_missing_required_patterns(self):
+        ctx = make_ctx(
+            concs=[1, 2, 3, 4, 5, 6],
+            signals=[1, 2, 3, 4, 5, 6],
+            sample_type=SampleType.SAMPLE,
+            level_idx=None,
+            back_calc_fn=lambda y: y,
+        )
+        spec = AnalyticalCalibrationSpec()
+
+        out = eval_calibration(ctx, spec)
+        assert out["pass"] is False
+        assert "missing_patterns" in out
+        assert "calibration pattern" in out["error"]
