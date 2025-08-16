@@ -1,6 +1,6 @@
 # yassa_bio
 
-**yassa_bio** is an open-source, validation-ready Python toolkit for bioanalytical assay data—starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
+**yassa_bio** is an open-source, validation-ready Python toolkit for bioanalytical assay data, starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
 
 It is built for **scientific rigor**, **automation**, and **regulatory alignment**—targeting labs that need reliable, explainable, and auditable pipelines, from academic cores to pharma and CROs.
 
