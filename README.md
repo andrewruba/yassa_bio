@@ -1,11 +1,10 @@
-[![CI](https://github.com/andrewruba/yassa_bio/actions/workflows/ci.yml/badge.svg)](https://github.com/andrewruba/yassa_bio/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/andrewruba/yassa_bio/branch/main/graph/badge.svg)](https://codecov.io/gh/andrewruba/yassa_bio)
-![Python](https://img.shields.io/pypi/pyversions/yassa_bio)
-![License](https://img.shields.io/github/license/andrewruba/yassa_bio)
-[![pre-commit](https://results.pre-commit.ci/badge/github/andrewruba/yassa_bio/main.svg)](https://results.pre-commit.ci/latest/github/andrewruba/yassa_bio/main)
-![Validation-ready](https://img.shields.io/badge/status-validation--ready-green)
-
 # yassa_bio
+
+![CI](https://github.com/andrewruba/yassa_bio/actions/workflows/ci.yaml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen)
+![Status](https://img.shields.io/badge/status-validation--ready-brightgreen)
 
 **yassa_bio** is an open-source, validation-ready Python toolkit for bioanalytical assay data, starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
 
