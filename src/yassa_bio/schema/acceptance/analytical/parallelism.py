@@ -14,6 +14,10 @@ class AnalyticalParallelismSpec(BaseModel):
     """
     Acceptance criteria for detecting non–parallel behaviour between
     the calibration curve and serially-diluted study samples.
+
+    NOTE:
+        This schema is under active development and may change in future versions.
+        The evaluation criteria, field names, and structure are not yet finalized.
     """
 
     # sample_id not a field anymore in well

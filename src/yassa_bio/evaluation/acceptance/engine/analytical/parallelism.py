@@ -6,6 +6,11 @@ from yassa_bio.schema.layout.enum import SampleType
 
 @register("acceptance", AnalyticalParallelismSpec.__name__)
 def eval_parallelism(ctx: LBAContext, spec: AnalyticalParallelismSpec) -> dict:
+    """
+    NOTE:
+        This evaluator is still under development and its logic may change.
+        It has not been fully validated against all expected use cases.
+    """
     df = ctx.data.copy()
 
     required_cols = {"sample_id", "dilution_factor", "back_calc"}

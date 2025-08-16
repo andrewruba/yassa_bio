@@ -7,6 +7,11 @@ import pandas as pd
 
 @register("acceptance", ValidationRecoverySpec.__name__)
 def eval_recovery(ctx: LBAContext, spec: ValidationRecoverySpec) -> dict:
+    """
+    NOTE:
+        This evaluator is still under development and its logic may change.
+        It has not been fully validated against all expected use cases.
+    """
     df = ctx.data.copy()
 
     # Validate required well patterns

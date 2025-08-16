@@ -12,6 +12,10 @@ from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 class ValidationRecoverySpec(BaseModel):
     """
     Acceptance criteria for extraction recovery (efficiency and consistency).
+
+    NOTE:
+        This schema is under active development and may change in future versions.
+        The evaluation criteria, field names, and structure are not yet finalized.
     """
 
     required_well_patterns: list[RequiredWellPattern] = Field(
