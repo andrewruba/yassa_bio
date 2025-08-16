@@ -1,6 +1,6 @@
 [project]
 name = "yassa-bio"
-version = "0.1.0"
+version = "0.0.1"
 description = "Open-source engine for ELISA & other ligand-binding assay analysis, validation and QC."
 authors = [
     {name = "Andrew Ruba",email = "ruba.andrew@gmail.com"}
