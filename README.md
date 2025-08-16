@@ -28,13 +28,15 @@ It is built for **scientific rigor**, **automation**, and **regulatory alignment
 
 **This repo is in early alpha. Expect breaking changes.**
 
-Some modules are incomplete or experimental:
+While most modules are **unit-tested for correctness**, the **full pipeline has *not yet been validated against real-world or external datasets***. Users should treat results as provisional and subject to change.
 
-- ❌ `parallelism` and `recovery` evaluators and schemas are implemented, but not finalized or externally validated
+In addition:
+
+- ⚠️ `parallelism` and `recovery` evaluators are implemented but still evolving
 - ❌ No graphical reports or CLI UX yet—data must be loaded programmatically
-- ❌ No built-in loader UI: You must manually specify `PlateLayout` and `WellTemplate` objects to describe the assay design
-- ❌ Only handles **one sample matrix per run**; support for multi-matrix batches and plate stitching is planned
-- ❌ No real multi-sample evaluation yet (e.g. for parallelism or incurred samples)
+- ❌ No built-in loader UI: You must manually define `PlateLayout` and `WellTemplate` objects
+- ❌ Only handles **one sample matrix per run** (multi-plate batch support is planned)
+- ❌ No evaluation of incurred samples or multi-sample trends (e.g., parallelism, inter-subject variability)
 
 ---
 
