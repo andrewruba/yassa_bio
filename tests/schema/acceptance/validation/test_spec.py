@@ -12,7 +12,6 @@ from yassa_bio.schema.acceptance.validation.dilution import (
     ValidationDilutionLinearitySpec,
 )
 from yassa_bio.schema.acceptance.validation.stability import ValidationStabilitySpec
-from yassa_bio.schema.acceptance.validation.recovery import ValidationRecoverySpec
 from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
 
 
@@ -27,7 +26,6 @@ class TestLBAValidationAcceptanceCriteria:
         assert isinstance(criteria.carryover, ValidationCarryoverSpec)
         assert isinstance(criteria.dilution_linearity, ValidationDilutionLinearitySpec)
         assert isinstance(criteria.stability, ValidationStabilitySpec)
-        assert isinstance(criteria.recovery, ValidationRecoverySpec)
 
     def test_override_some_specs(self):
         custom = LBAValidationAcceptanceCriteria(
@@ -78,8 +76,6 @@ class TestLBAValidationAcceptanceCriteria:
                 pass_fraction=0.9, undiluted_recovery_min_pct=85
             ),
             stability=ValidationStabilitySpec(min_conditions=1, acc_tol_pct=30),
-            recovery=ValidationRecoverySpec(max_cv_pct_within_level=10),
         )
         assert full.precision.cv_tol_pct_mid == 15
-        assert full.recovery.max_cv_pct_within_level == 10
         assert full.stability.acc_tol_pct == 30

@@ -10,7 +10,6 @@ from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
 from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
-from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -25,10 +24,6 @@ class MockCalSpec(AnalyticalCalibrationSpec):
 
 
 class MockAnalyticalQCSpec(AnalyticalQCSpec):
-    pass
-
-
-class MockAnalyticalParallelismSpec(AnalyticalParallelismSpec):
     pass
 
 
@@ -83,7 +78,6 @@ def make_mock_ctx() -> LBAContext:
         acceptance_criteria=LBAAnalyticalAcceptanceCriteria(
             calibration=MockCalSpec(),
             qc=MockAnalyticalQCSpec(),
-            parallelism=MockAnalyticalParallelismSpec(),
         ),
     )
 
@@ -109,10 +103,6 @@ class TestEvaluateSpecs:
         def fake_qc_fn(ctx: LBAContext, spec: object) -> dict:
             return {"pass": True, "mock_result": "qc_pass"}
 
-        @_reg.register("acceptance", MockAnalyticalParallelismSpec.__name__)
-        def fake_par_fn(ctx: LBAContext, spec: object) -> dict:
-            return {"pass": True, "mock_result": "par_pass"}
-
     def test_dispatch_and_stores_results(self):
         self._register_mock()
         ctx = make_mock_ctx()
@@ -121,10 +111,8 @@ class TestEvaluateSpecs:
 
         assert "calibration" in ctx.acceptance_results
         assert "qc" in ctx.acceptance_results
-        assert "parallelism" in ctx.acceptance_results
         assert ctx.acceptance_results["calibration"]["mock_result"] == "cal_pass"
         assert ctx.acceptance_results["qc"]["mock_result"] == "qc_pass"
-        assert ctx.acceptance_results["parallelism"]["mock_result"] == "par_pass"
         assert ctx.acceptance_pass is True
         assert len(ctx.acceptance_history) == 2
         assert ctx.acceptance_history[-1] == ctx.acceptance_results

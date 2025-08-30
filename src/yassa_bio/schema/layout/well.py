@@ -7,7 +7,6 @@ from yassa_bio.schema.layout.enum import (
     SampleType,
     QCLevel,
     StabilityConditionTime,
-    RecoveryStage,
 )
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
@@ -86,14 +85,6 @@ class WellTemplate(SchemaModel):
             "Indicates if the well is before or after condition has been applied."
         ),
         examples=enum_examples(StabilityConditionTime),
-    )
-    recovery_stage: Optional[RecoveryStage] = Field(
-        None,
-        description=(
-            "Marks wells used in extraction recovery experiments. "
-            "Leave as None if well does not participate in recovery test."
-        ),
-        examples=enum_examples(RecoveryStage),
     )
 
     replicate: Optional[int] = Field(
@@ -182,15 +173,6 @@ class WellTemplate(SchemaModel):
             raise ValueError(
                 "stability_condition and stability_condition_time must be set together"
             )
-        return self
-
-    @model_validator(mode="after")
-    def _recovery_requires_qc_and_level(self):
-        if self.recovery_stage:
-            if self.sample_type is not SampleType.QUALITY_CONTROL:
-                raise ValueError("recovery_stage allowed only on QUALITY_CONTROL wells")
-            if self.qc_level is None:
-                raise ValueError("recovery_stage requires qc_level to be set")
         return self
 
     @model_validator(mode="after")

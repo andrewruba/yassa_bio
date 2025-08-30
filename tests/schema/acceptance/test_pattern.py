@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 from yassa_bio.schema.acceptance.pattern import RequiredWellPattern
-from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
 class TestRequiredWellPattern:
@@ -16,7 +16,6 @@ class TestRequiredWellPattern:
                 "carryover": [False, True, False],
                 "stability_condition": [None, None, "long-term"],
                 "stability_condition_time": [None, None, "after"],
-                "recovery_stage": ["before", None, "after"],
                 "matrix_type": [None, None, "lipemic"],
                 "matrix_source_id": [None, None, "donor_3"],
             }
@@ -49,14 +48,6 @@ class TestRequiredWellPattern:
         mask = pat.mask(base_df)
         assert mask.sum() == 1
         assert mask.iloc[2]
-
-    def test_mask_with_recovery_stage(self, base_df):
-        pat = RequiredWellPattern(
-            sample_type=SampleType.QUALITY_CONTROL, recovery_stage=RecoveryStage.BEFORE
-        )
-        mask = pat.mask(base_df)
-        assert mask.sum() == 1
-        assert mask.iloc[0]
 
     def test_mask_with_matrix_type_and_source(self, base_df):
         pat = RequiredWellPattern(

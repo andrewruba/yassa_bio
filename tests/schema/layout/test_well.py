@@ -168,37 +168,6 @@ class TestWellTemplate:
                 )
             )
 
-    @pytest.mark.parametrize(
-        "sample_type,qc_level,should_raise",
-        [
-            ("quality_control", "mid", False),
-            ("sample", None, True),
-            ("quality_control", None, True),
-        ],
-    )
-    def test_recovery_stage_rules(
-        self,
-        sample_type,
-        qc_level,
-        should_raise,
-    ):
-        kwargs = dict(
-            well="C1",
-            file_col=2,
-            sample_type=sample_type,
-            recovery_stage="before",
-        )
-        if qc_level:
-            kwargs["qc_level"] = qc_level
-
-        if should_raise:
-            with pytest.raises(ValidationError):
-                WellTemplate(**self._base_kwargs(**kwargs))
-        else:
-            w = WellTemplate(**self._base_kwargs(**kwargs))
-            assert w.recovery_stage.value == "before"
-            assert w.sample_type.value == "quality_control"
-
     def test_std_without_level_or_conc_raises(self):
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="calibration_standard"))

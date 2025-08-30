@@ -50,8 +50,3 @@ class CalibrationLevel(DescribedStrEnum):
 class StabilityConditionTime(DescribedStrEnum):
     BEFORE = ("before", "Time point before stability condition is applied")
     AFTER = ("after", "Time point after stability condition is applied")
-
-
-class RecoveryStage(DescribedStrEnum):
-    BEFORE = ("before", "spike → extraction  (pre-extraction spike)")
-    AFTER = ("after", "extraction → spike  (post-extraction spike)")

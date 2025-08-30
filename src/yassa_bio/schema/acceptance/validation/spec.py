@@ -10,7 +10,6 @@ from yassa_bio.schema.acceptance.validation.dilution import (
     ValidationDilutionLinearitySpec,
 )
 from yassa_bio.schema.acceptance.validation.stability import ValidationStabilitySpec
-from yassa_bio.schema.acceptance.validation.recovery import ValidationRecoverySpec
 
 
 class LBAValidationAcceptanceCriteria(BaseModel):
@@ -28,4 +27,3 @@ class LBAValidationAcceptanceCriteria(BaseModel):
         ValidationDilutionLinearitySpec()
     )
     stability: ValidationStabilitySpec = ValidationStabilitySpec()
-    recovery: ValidationRecoverySpec = ValidationRecoverySpec()

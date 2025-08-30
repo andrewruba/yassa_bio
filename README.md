@@ -4,6 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen)
+[![codecov](https://codecov.io/gh/andrewruba/yassa_bio/branch/main/graph/badge.svg)](https://codecov.io/gh/andrewruba/yassa_bio)
 
 **yassa_bio** is an open-source, validation-ready Python toolkit for bioanalytical assay data, starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
 
@@ -37,11 +38,8 @@ While most modules are **unit-tested for correctness**, the **full pipeline has 
 
 In addition:
 
-- ⚠️ `parallelism` and `recovery` evaluators are implemented but still evolving
 - ❌ No graphical reports or CLI UX yet—data must be loaded programmatically
 - ❌ No built-in loader UI: You must manually define `PlateLayout` and `WellTemplate` objects
-- ❌ Only handles **one sample matrix per run** (multi-plate batch support is planned)
-- ❌ No evaluation of incurred samples or multi-sample trends (e.g., parallelism, inter-subject variability)
 
 ---
 

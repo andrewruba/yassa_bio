@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 from yassa_bio.schema.acceptance.analytical.calibration import AnalyticalCalibrationSpec
 from yassa_bio.schema.acceptance.analytical.qc import AnalyticalQCSpec
-from yassa_bio.schema.acceptance.analytical.parallelism import AnalyticalParallelismSpec
 
 
 class LBAAnalyticalAcceptanceCriteria(BaseModel):
@@ -12,4 +11,3 @@ class LBAAnalyticalAcceptanceCriteria(BaseModel):
 
     calibration: AnalyticalCalibrationSpec = AnalyticalCalibrationSpec()
     qc: AnalyticalQCSpec = AnalyticalQCSpec()
-    parallelism: AnalyticalParallelismSpec = AnalyticalParallelismSpec()

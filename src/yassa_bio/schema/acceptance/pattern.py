@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 import pandas as pd
 
-from yassa_bio.schema.layout.enum import SampleType, QCLevel, RecoveryStage
+from yassa_bio.schema.layout.enum import SampleType, QCLevel
 
 
 class RequiredWellPattern(BaseModel):
@@ -12,7 +12,6 @@ class RequiredWellPattern(BaseModel):
     needs_matrix_type: bool = False
     carryover: bool = False
     needs_stability_condition: bool = False
-    recovery_stage: Optional[RecoveryStage] = None
 
     def mask(self, df: pd.DataFrame) -> pd.Series:
         m = df["sample_type"] == self.sample_type.value
@@ -33,9 +32,6 @@ class RequiredWellPattern(BaseModel):
         if self.needs_stability_condition:
             m &= df["stability_condition"].notna()
             m &= df["stability_condition_time"].notna()
-
-        if self.recovery_stage is not None:
-            m &= df["recovery_stage"] == self.recovery_stage.value
 
         return m
 
