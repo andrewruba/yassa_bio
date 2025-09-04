@@ -6,6 +6,7 @@ from yassa_bio.pipeline.composite import CompositeStep
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.analysis.enum import CurveModel
+from yassa_bio.schema.layout.enum import SampleType
 
 
 class ApplyTransforms(Step):
@@ -55,7 +56,7 @@ class SelectCalibrationData(Step):
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df = ctx.data
-        cal_df = df[df["sample_type"] == "calibration_standard"].copy()
+        cal_df = df[df["sample_type"] == SampleType.CALIBRATION_STANDARD.value].copy()
         if cal_df.empty:
             raise ValueError("No calibration-standard wells found in ctx.data")
         ctx.calib_df = cal_df

@@ -44,7 +44,8 @@ def fit_4pl(x: np.ndarray, y: np.ndarray, weights: np.ndarray = None):
         y,
         p0=[min(y), 1.0, np.median(x), max(y)],
         bounds=(lower, upper),
-        sigma=weights,
+        sigma=1 / np.sqrt(weights),
+        absolute_sigma=True,
     )
     return lambda x: _4pl(x, *popt), popt
 
@@ -59,14 +60,15 @@ def fit_5pl(x: np.ndarray, y: np.ndarray, weights: np.ndarray = None):
         y,
         p0=[min(y), 1.0, np.median(x), max(y), 1.0],
         bounds=(lower, upper),
-        sigma=weights,
+        sigma=1 / np.sqrt(weights),
+        absolute_sigma=True,
     )
     return lambda x: _5pl(x, *popt), popt
 
 
 @register("curve_model", CurveModel.LINEAR)
 def fit_linear(x: np.ndarray, y: np.ndarray, weights: np.ndarray = None):
-    w = weights if weights is not None else np.ones_like(x)
+    w = np.sqrt(weights) if weights is not None else np.ones_like(x)
     A = np.vstack([x, np.ones_like(x)]).T
     coef, _, _, _ = np.linalg.lstsq(A * w[:, None], y * w, rcond=None)
     return lambda x: _linear(x, *coef), coef
