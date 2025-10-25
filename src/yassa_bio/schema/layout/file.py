@@ -8,7 +8,21 @@ from yassa_bio.core.model import SchemaModel
 from yassa_bio.io.utils import as_path
 
 
-class PlateReaderFile(SchemaModel):
+class FileRef(SchemaModel):
+    path: Path = Field(
+        ...,
+        description="Full path to the file on disk or cloud storage.",
+    )
+
+    @field_validator("path", mode="before")
+    @classmethod
+    def _norm_path(cls, v):
+        if v is None:
+            raise ValueError("path cannot be None")
+        return as_path(v)
+
+
+class PlateReaderFile(FileRef):
     """
     One export file coming off a plate reader.
 
@@ -17,10 +31,6 @@ class PlateReaderFile(SchemaModel):
     assay-specific – it’s purely where the raw numbers live.
     """
 
-    path: Path = Field(
-        ...,
-        description="Full path to the file on disk or cloud storage.",
-    )
     run_date: Optional[datetime] = Field(
         None,
         description="Acquisition date/time if known.",
@@ -33,10 +43,3 @@ class PlateReaderFile(SchemaModel):
         None,
         description="Initials or user ID of analyst.",
     )
-
-    @field_validator("path", mode="before")
-    @classmethod
-    def _norm_path(cls, v):
-        if v is None:
-            raise ValueError("path cannot be None")
-        return as_path(v)
