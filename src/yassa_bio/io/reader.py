@@ -16,15 +16,18 @@ def _infer_format(path: Path) -> str:
 
 @register("reader", "csv")
 def read_csv(path: Path, **kwargs) -> pd.DataFrame:
-    return pd.read_csv(path, header=None, dtype=str, engine="python")
+    header = kwargs.get("header", None)
+    dtype = kwargs.get("dtype", str)
+    engine = kwargs.get("engine", "python")
+    return pd.read_csv(path, header=header, dtype=dtype, engine=engine)
 
 
 @register("reader", "excel")
-def read_excel(path: Path, sheet_index: int = 0, **kwargs) -> pd.DataFrame:
+def read_excel(path: Path, **kwargs) -> pd.DataFrame:
+    header = kwargs.get("header", None)
+    dtype = kwargs.get("dtype", str)
+    engine = kwargs.get("engine", "openpyxl")
+    sheet_index = kwargs.get("sheet_index", 0)
     return pd.read_excel(
-        path,
-        sheet_name=sheet_index,
-        header=None,
-        dtype=str,
-        engine="openpyxl",
+        path, sheet_name=sheet_index, header=header, dtype=dtype, engine=engine
     )
