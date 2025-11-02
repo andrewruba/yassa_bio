@@ -58,7 +58,7 @@ class SelectCalibrationData(Step):
         df = ctx.data
         cal_df = df[df["sample_type"] == SampleType.CALIBRATION_STANDARD.value].copy()
         if cal_df.empty:
-            raise ValueError("No calibration-standard wells found in ctx.data")
+            raise ValueError("No calibration-standard wells found for curve fitting.")
         ctx.calib_df = cal_df
         return ctx
 
