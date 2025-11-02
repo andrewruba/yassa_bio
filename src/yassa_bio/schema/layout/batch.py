@@ -13,8 +13,6 @@ class BatchData(SchemaModel):
 
     Typical uses
     ────────────
-    • **Validation batch** – one plate (or a set of plates read together) that
-      targets a single validation exercise: carry-over, stability, etc.
     • **Routine run** – multiple plates from the same study day that share
       a calibration curve / QC bracket.
     """

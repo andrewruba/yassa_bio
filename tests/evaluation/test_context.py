@@ -9,7 +9,6 @@ from yassa_bio.schema.layout.plate import PlateLayout
 from yassa_bio.schema.layout.enum import PlateFormat, SampleType
 from yassa_bio.schema.layout.well import WellTemplate
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 
 
@@ -34,17 +33,6 @@ def dummy_analysis():
 
 
 class TestLBAContext:
-    def test_valid_lba_context_with_validation(self, dummy_batch, dummy_analysis):
-        criteria = LBAValidationAcceptanceCriteria()
-        ctx = LBAContext(
-            batch_data=dummy_batch,
-            analysis_config=dummy_analysis,
-            acceptance_criteria=criteria,
-        )
-        assert ctx.batch_data == dummy_batch
-        assert ctx.analysis_config == dummy_analysis
-        assert ctx.acceptance_criteria == criteria
-
     def test_valid_lba_context_with_analytical(self, dummy_batch, dummy_analysis):
         criteria = LBAAnalyticalAcceptanceCriteria()
         ctx = LBAContext(
@@ -59,5 +47,5 @@ class TestLBAContext:
             LBAContext(
                 batch_data="not a batch or plate",
                 analysis_config=LBAAnalysisConfig(),
-                acceptance_criteria=LBAValidationAcceptanceCriteria(),
+                acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
             )

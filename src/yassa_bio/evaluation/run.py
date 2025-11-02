@@ -6,11 +6,9 @@ from yassa_bio.evaluation.analysis.step.preprocess import Preprocess
 from yassa_bio.evaluation.analysis.step.fit import CurveFit
 from yassa_bio.evaluation.acceptance.step.router import Acceptance
 from yassa_bio.evaluation.acceptance.step.analytical import Analytical
-from yassa_bio.evaluation.acceptance.step.validation import Validation
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
 from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 
 
@@ -20,7 +18,6 @@ pipe = Pipeline(
         CurveFit(),
         Acceptance(
             criteria={
-                LBAValidationAcceptanceCriteria: Validation(),
                 LBAAnalyticalAcceptanceCriteria: Analytical(),
             }
         ),
@@ -31,9 +28,7 @@ pipe = Pipeline(
 def run(
     batch_data: BatchData | PlateData,
     analysis_config: LBAAnalysisConfig,
-    acceptance_criteria: (
-        LBAValidationAcceptanceCriteria | LBAAnalyticalAcceptanceCriteria
-    ),
+    acceptance_criteria: LBAAnalyticalAcceptanceCriteria,
 ) -> LBAContext:
     """
     Run the full LBA analysis and acceptance pipeline.
@@ -48,9 +43,8 @@ def run(
         Configuration specifying preprocessing, curve fitting, and modeling rules.
 
     acceptance_criteria :
-        LBAValidationAcceptanceCriteria or LBAAnalyticalAcceptanceCriteria
+        LBAAnalyticalAcceptanceCriteria
         Which type of acceptance criteria to use:
-        - Use `LBAValidationAcceptanceCriteria` for validation batches
         - Use `LBAAnalyticalAcceptanceCriteria` for routine analytical runs
 
     Returns

@@ -4,9 +4,6 @@ from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.analytical.spec import (
     LBAAnalyticalAcceptanceCriteria,
 )
-from yassa_bio.schema.acceptance.validation.spec import (
-    LBAValidationAcceptanceCriteria,
-)
 
 
 class EvaluateSpecs(Step):
@@ -14,9 +11,7 @@ class EvaluateSpecs(Step):
     fingerprint_keys = None
 
     def logic(self, ctx: LBAContext) -> LBAContext:
-        crit: LBAAnalyticalAcceptanceCriteria | LBAValidationAcceptanceCriteria = (
-            ctx.acceptance_criteria
-        )
+        crit: LBAAnalyticalAcceptanceCriteria = ctx.acceptance_criteria
         results: dict[str, dict] = {}
         overall = True
 

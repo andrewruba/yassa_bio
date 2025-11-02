@@ -22,7 +22,7 @@ from datetime import datetime
 from pathlib import Path
 from yassa_bio.schema.analysis.enum import BlankRule, NormRule, OutlierRule
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 
 
 def make_plate(
@@ -78,7 +78,7 @@ def make_ctx(
     return LBAContext(
         batch_data=batch,
         analysis_config=cfg,
-        acceptance_criteria=LBAValidationAcceptanceCriteria(),
+        acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
     )
 
 
