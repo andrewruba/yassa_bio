@@ -6,7 +6,6 @@ from pydantic import Field, model_validator, field_validator
 from yassa_bio.schema.layout.enum import (
     SampleType,
     QCLevel,
-    StabilityConditionTime,
 )
 from yassa_bio.core.model import SchemaModel
 from yassa_bio.core.enum import enum_examples
@@ -43,48 +42,6 @@ class WellTemplate(SchemaModel):
             "Leave blank when the assay has only one global tolerance band."
         ),
         examples=enum_examples(QCLevel),
-    )
-
-    interferent: Optional[str] = Field(
-        None,
-        description=(
-            "Name / ID of related, interfering molecule spiked into this well."
-        ),
-        examples=["glucose", "cholesterol", "bovine serum albumin"],
-    )
-    matrix_type: Optional[str] = Field(
-        None,
-        description="Characterizes the matrix source for selectivity testing.",
-        examples=["normal", "lipemic", "hemolyzed"],
-    )
-    matrix_source_id: Optional[str] = Field(
-        None,
-        description=(
-            "ID of the biological matrix source this well belongs to, used for "
-            "selectivity evaluation."
-        ),
-        examples=["donor_001", "subject_A", "matrix_lot_123"],
-    )
-    carryover: bool = Field(
-        False,
-        description=(
-            "Set True when this blank is intended for the post-ULOQ carry-over check."
-        ),
-    )
-    stability_condition: Optional[str] = Field(
-        None,
-        description=(
-            "Label of the stability experiment this QC aliquot belongs to. "
-            "Leave as none if well does not participate in stability test."
-        ),
-        examples=["freeze-thaw", "long-term", "autosampler"],
-    )
-    stability_condition_time: Optional[StabilityConditionTime] = Field(
-        None,
-        description=(
-            "Indicates if the well is before or after condition has been applied."
-        ),
-        examples=enum_examples(StabilityConditionTime),
     )
 
     replicate: Optional[int] = Field(
@@ -156,32 +113,6 @@ class WellTemplate(SchemaModel):
     def _qc_level_allowed_for_type(self):
         if self.sample_type is not SampleType.QUALITY_CONTROL and self.qc_level:
             raise ValueError("qc_level only valid on QUALITY_CONTROL wells")
-        return self
-
-    @model_validator(mode="after")
-    def _carryover_only_on_blank(self):
-        if self.carryover and self.sample_type is not SampleType.BLANK:
-            raise ValueError("carryover flag is only valid on BLANK wells")
-        return self
-
-    @model_validator(mode="after")
-    def _time_requires_condition(self):
-        has_cond = self.stability_condition is not None
-        has_timept = self.stability_condition_time is not None
-
-        if has_cond ^ has_timept:
-            raise ValueError(
-                "stability_condition and stability_condition_time must be set together"
-            )
-        return self
-
-    @model_validator(mode="after")
-    def _matrix_fields_must_be_paired(self):
-        has_source = self.matrix_source_id is not None
-        has_type = self.matrix_type is not None
-
-        if has_source ^ has_type:
-            raise ValueError("matrix_source_id and matrix_type must be set together")
         return self
 
     @model_validator(mode="after")

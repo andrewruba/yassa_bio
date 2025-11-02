@@ -29,34 +29,6 @@ class TestRequiredWellPattern:
         assert mask.sum() == 1
         assert mask.iloc[0]
 
-    def test_mask_with_interferent(self, base_df):
-        pat = RequiredWellPattern(sample_type=SampleType.BLANK, needs_interferent=True)
-        mask = pat.mask(base_df)
-        assert mask.sum() == 1
-        assert mask.iloc[1]
-
-    def test_mask_with_carryover(self, base_df):
-        pat = RequiredWellPattern(sample_type=SampleType.BLANK, carryover=True)
-        mask = pat.mask(base_df)
-        assert mask.sum() == 1
-        assert mask.iloc[1]
-
-    def test_mask_with_stability_condition(self, base_df):
-        pat = RequiredWellPattern(
-            sample_type=SampleType.QUALITY_CONTROL, needs_stability_condition=True
-        )
-        mask = pat.mask(base_df)
-        assert mask.sum() == 1
-        assert mask.iloc[2]
-
-    def test_mask_with_matrix_type_and_source(self, base_df):
-        pat = RequiredWellPattern(
-            sample_type=SampleType.QUALITY_CONTROL, needs_matrix_type=True
-        )
-        mask = pat.mask(base_df)
-        assert mask.sum() == 1
-        assert mask.iloc[2]
-
     def test_present_true(self, base_df):
         pat = RequiredWellPattern(sample_type=SampleType.BLANK, carryover=True)
         assert pat.present(base_df)

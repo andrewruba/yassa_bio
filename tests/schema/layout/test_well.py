@@ -100,74 +100,6 @@ class TestWellTemplate:
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="invalid"))
 
-    def test_default_interferent_none(self):
-        w = WellTemplate(**self._base_kwargs())
-        assert w.interferent is None
-
-    def test_interferent_string_allowed(self):
-        w = WellTemplate(**self._base_kwargs(interferent="c_peptide"))
-        assert w.interferent == "c_peptide"
-
-    @pytest.mark.parametrize("bad_val", [123, ["foo"], {"id": "bar"}])
-    def test_non_string_interferent_raises(self, bad_val):
-        with pytest.raises(ValidationError):
-            WellTemplate(**self._base_kwargs(interferent=bad_val))
-
-    def test_carryover_allowed_on_blank(self):
-        w = WellTemplate(
-            **self._base_kwargs(
-                well="B1",
-                file_col=1,
-                sample_type="blank",
-                carryover=True,
-            )
-        )
-        assert w.carryover is True
-        assert w.sample_type.value == "blank"
-
-    def test_carryover_on_non_blank_raises(self):
-        with pytest.raises(ValidationError):
-            WellTemplate(
-                **self._base_kwargs(
-                    well="B2",
-                    file_col=1,
-                    sample_type="sample",
-                    carryover=True,
-                )
-            )
-
-    def test_stability_condition_pair_ok(self):
-        w = WellTemplate(
-            **self._base_kwargs(
-                sample_type="quality_control",
-                qc_level="low",
-                stability_condition="freeze-thaw",
-                stability_condition_time="before",
-            )
-        )
-        assert w.stability_condition == "freeze-thaw"
-        assert w.stability_condition_time.value == "before"
-
-    def test_stability_condition_without_time_raises(self):
-        with pytest.raises(ValidationError):
-            WellTemplate(
-                **self._base_kwargs(
-                    sample_type="quality_control",
-                    qc_level="low",
-                    stability_condition="freeze-thaw",
-                )
-            )
-
-    def test_time_without_condition_raises(self):
-        with pytest.raises(ValidationError):
-            WellTemplate(
-                **self._base_kwargs(
-                    sample_type="quality_control",
-                    qc_level="low",
-                    stability_condition_time="after",
-                )
-            )
-
     def test_std_without_level_or_conc_raises(self):
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="calibration_standard"))
@@ -175,32 +107,6 @@ class TestWellTemplate:
     def test_nonstandard_with_level_idx_raises(self):
         with pytest.raises(ValidationError):
             WellTemplate(**self._base_kwargs(sample_type="sample", level_idx=1))
-
-    def test_matrix_source_and_type_pair_ok(self):
-        w = WellTemplate(
-            **self._base_kwargs(
-                matrix_source_id="donor42",
-                matrix_type="hemolyzed",
-            )
-        )
-        assert w.matrix_source_id == "donor42"
-        assert w.matrix_type == "hemolyzed"
-
-    def test_matrix_source_without_type_raises(self):
-        with pytest.raises(ValidationError):
-            WellTemplate(
-                **self._base_kwargs(
-                    matrix_source_id="donor42",
-                )
-            )
-
-    def test_matrix_type_without_source_raises(self):
-        with pytest.raises(ValidationError):
-            WellTemplate(
-                **self._base_kwargs(
-                    matrix_type="lipemic",
-                )
-            )
 
     def test_record_property_matches_dump(self):
         w = WellTemplate(
