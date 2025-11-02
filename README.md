@@ -6,7 +6,7 @@
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen)
 [![codecov](https://codecov.io/gh/andrewruba/yassa_bio/branch/main/graph/badge.svg)](https://codecov.io/gh/andrewruba/yassa_bio)
 
-**yassa_bio** is an open-source, validation-ready Python toolkit for bioanalytical assay data, starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
+**yassa_bio** is an open-source Python toolkit for bioanalytical assay data, starting with ELISA and other ligand-binding assays (LBA), with a roadmap toward universal support for plate-based and chromatographic assays.
 
 It is built for **scientific rigor**, **automation**, and **regulatory alignment**—targeting labs that need reliable, explainable, and auditable pipelines, from academic cores to pharma and CROs.
 
@@ -19,27 +19,10 @@ It is built for **scientific rigor**, **automation**, and **regulatory alignment
 - ✅ **Automated evaluation of**:
   - Calibration fit
   - QC accuracy/precision
-  - Carryover
-  - Selectivity, specificity
-  - Dilution linearity
-  - Stability
-- ✅ **Flexible schema** for validation and analytical runs using `pydantic` models
+- ✅ **Flexible schema** for analytical runs using `pydantic` models
 - ✅ **Extensible plug-in registry**: Add new evaluators or transform logic via decorators
 - ✅ **Rerun-aware pipeline engine**: Smart re-evaluation when calibration levels fail and are dropped
-- ✅ **Readable outputs**: Results returned as dicts for use in HTML/PDF reports (planned)
-
----
-
-## Current Limitations
-
-**This repo is in early alpha. Expect breaking changes.**
-
-While most modules are **unit-tested for correctness**, the **full pipeline has *not yet been validated against real-world or external datasets***. Users should treat results as provisional and subject to change.
-
-In addition:
-
-- ❌ No graphical reports or CLI UX yet—data must be loaded programmatically
-- ❌ No built-in loader UI: You must manually define `PlateLayout` and `WellTemplate` objects
+- ✅ **Readable outputs**: Results returned as dicts
 
 ---
 
@@ -50,7 +33,7 @@ This library is:
 - **Schema-first**: All input/output structures are formalized via `pydantic`, enabling structured config, validation, and API wrapping
 - **Composable**: Pipelines consist of atomic steps with a typed shared `Context`, rerunnable after refitting
 - **Domain-aligned**: Acceptance steps follow bioanalytical validation standards like ICH M10, FDA BMV 2018, and USP ⟨1225⟩
-- **Deployable**: Future enterprise modules (auth, signoff workflows, dashboards) will wrap this open core
+- **Deployable**: Enterprise modules (auth, signoff workflows, dashboards) could wrap this open core
 
 ---
 
@@ -60,12 +43,12 @@ This library is:
 from yassa_bio.run import run
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.validation.spec import LBAAnalyticalAcceptanceCriteria
 
 ctx = run(
     batch_data=BatchData(...),
     analysis_config=LBAAnalysisConfig(),
-    acceptance_criteria=LBAValidationAcceptanceCriteria(),
+    acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
 )
 
 print(ctx.acceptance_results)
@@ -105,7 +88,7 @@ yassa_bio/
 
 ## Contributing
 
-This is an early-stage open science tool. If you're in pharma, biotech, or academia and would like to collaborate, file an issue or email the maintainer. You can also:
+This is an open science tool. If you're in pharma, biotech, or academia and would like to collaborate, file an issue or email the maintainer. You can also:
 
 * Fork the repo and open a PR
 * Request features or improvements
