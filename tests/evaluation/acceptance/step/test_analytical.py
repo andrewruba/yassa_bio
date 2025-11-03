@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime
 from pathlib import Path
 import tempfile
+from lilpipe.enums import PipelineSignal
 
 from yassa_bio.evaluation.acceptance.step.analytical import CheckRerun, Analytical
 from yassa_bio.evaluation.context import LBAContext
@@ -69,8 +70,7 @@ class TestCheckRerun:
         out = CheckRerun().run(ctx)
 
         assert out.data.equals(df)
-        assert not getattr(out, "needs_rerun")
-        assert not getattr(out, "abort_pass")
+        assert out.signal == PipelineSignal.CONTINUE
 
     def test_skips_if_no_failing_levels(self):
         df = pd.DataFrame(
@@ -80,8 +80,7 @@ class TestCheckRerun:
         out = CheckRerun().run(ctx)
 
         assert out.data.equals(df)
-        assert not getattr(out, "needs_rerun")
-        assert not getattr(out, "abort_pass")
+        assert out.signal == PipelineSignal.CONTINUE
 
     def test_discards_failing_levels_and_flags_rerun(self):
         df = pd.DataFrame(
@@ -97,8 +96,7 @@ class TestCheckRerun:
         ctx = make_ctx(df, {"pass": False, "can_refit": True, "failing_levels": [1]})
         out = CheckRerun().run(ctx)
 
-        assert out.needs_rerun is True
-        assert out.abort_pass is True
+        assert out.signal == PipelineSignal.ABORT_PASS
         assert out.calib_df is None
         assert isinstance(out.dropped_cal_wells, pd.DataFrame)
         assert out.dropped_cal_wells["concentration"].tolist() == [1]
@@ -112,8 +110,7 @@ class TestCheckRerun:
         ctx = make_ctx(df, {"pass": False, "can_refit": True, "failing_levels": [1]})
         out = CheckRerun().run(ctx)
 
-        assert out.needs_rerun is True
-        assert out.abort_pass is True
+        assert out.signal == PipelineSignal.ABORT_PASS
         assert out.calib_df is None
         assert out.dropped_cal_wells.empty
         assert out.data.equals(df)
@@ -139,9 +136,7 @@ class TestAnalytical:
         )
 
         out = Analytical().run(ctx)
-
-        assert out.needs_rerun is False
-        assert out.abort_pass is False
+        assert out.signal == PipelineSignal.CONTINUE
         assert "evaluate_specs" in out.step_meta
         assert "check_rerun" in out.step_meta
         assert out.step_meta["check_rerun"]["status"] == "ok"
@@ -172,8 +167,7 @@ class TestAnalytical:
 
         out = Analytical().run(ctx)
 
-        assert out.needs_rerun is True
-        assert out.abort_pass is True
+        assert out.signal == PipelineSignal.ABORT_PASS
         assert "check_rerun" in out.step_meta
         assert out.dropped_cal_wells["concentration"].tolist() == [4]
         assert out.data["concentration"].tolist() == [1, 2, 3]

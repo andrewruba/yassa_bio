@@ -1,22 +1,19 @@
-from yassa_bio.pipeline.base import Step
+from lilpipe.step import Step
 from yassa_bio.core.registry import get
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.acceptance.analytical.spec import (
     LBAAnalyticalAcceptanceCriteria,
 )
-from yassa_bio.schema.acceptance.validation.spec import (
-    LBAValidationAcceptanceCriteria,
-)
 
 
 class EvaluateSpecs(Step):
     name = "evaluate_specs"
-    fingerprint_keys = None
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
-        crit: LBAAnalyticalAcceptanceCriteria | LBAValidationAcceptanceCriteria = (
-            ctx.acceptance_criteria
-        )
+        crit: LBAAnalyticalAcceptanceCriteria = ctx.acceptance_criteria
         results: dict[str, dict] = {}
         overall = True
 

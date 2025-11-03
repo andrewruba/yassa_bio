@@ -2,8 +2,7 @@ from __future__ import annotations
 import pandas as pd
 import logging
 
-from yassa_bio.pipeline.base import Step
-from yassa_bio.pipeline.composite import CompositeStep
+from lilpipe.step import Step
 from yassa_bio.evaluation.acceptance.step.dispatcher import EvaluateSpecs
 from yassa_bio.evaluation.context import LBAContext
 
@@ -17,7 +16,9 @@ class CheckRerun(Step):
     """
 
     name = "check_rerun"
-    fingerprint_keys = None
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         cal_res = ctx.acceptance_results.get("calibration", {})
@@ -44,16 +45,17 @@ class CheckRerun(Step):
             ctx.data = df.loc[~mask_fail].reset_index(drop=True)
             ctx.calib_df = None
 
-            ctx.needs_rerun = True
-            ctx.abort_pass = True
+            ctx.abort_pass()
 
         return ctx
 
 
-class Analytical(CompositeStep):
+class Analytical(Step):
+    name = "analytical"
+
     def __init__(self) -> None:
         super().__init__(
-            name="analytical",
+            name=self.name,
             children=[
                 EvaluateSpecs(),
                 CheckRerun(),

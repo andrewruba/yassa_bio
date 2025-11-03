@@ -2,34 +2,31 @@ import pandas as pd
 from typing import Iterable
 
 from yassa_bio.core.registry import get
-from yassa_bio.pipeline.base import Step
+from lilpipe.step import Step
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.pipeline.composite import CompositeStep
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 
 
 class LoadData(Step):
     name = "load_data"
-    fingerprint_keys = ("batch_data",)
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         obj = ctx.batch_data
-        if hasattr(obj, "df"):
-            ctx.data = obj.df
-        else:
-            raise TypeError("ctx.batch_data must have a .df property")
+        ctx.data = obj.df  # validated in LBAContext
         return ctx
 
 
 class CheckData(Step):
     name = "check_data"
-    fingerprint_keys = ("data",)
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
-        df: pd.DataFrame = ctx.data
-
-        if not isinstance(df, pd.DataFrame):
-            raise TypeError("ctx.data must be a pandas DataFrame")
+        df: pd.DataFrame = ctx.data  # validated in LBAContext
 
         required = {"signal", "concentration", "sample_type", "exclude"}
         missing = required - set(df.columns)
@@ -47,7 +44,9 @@ class CheckData(Step):
 
 class ExcludeData(Step):
     name = "exclude_data"
-    fingerprint_keys = ("data",)
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -61,10 +60,9 @@ class ExcludeData(Step):
 
 class SubtractBlank(Step):
     name = "subtract_blank"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -86,10 +84,9 @@ class SubtractBlank(Step):
 
 class NormalizeSignal(Step):
     name = "normalize_signal"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -107,10 +104,9 @@ class NormalizeSignal(Step):
 
 class MaskOutliers(Step):
     name = "mask_outliers"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -147,10 +143,12 @@ class MaskOutliers(Step):
                 yield "qc", g
 
 
-class Preprocess(CompositeStep):
+class Preprocess(Step):
+    name = "preprocess"
+
     def __init__(self) -> None:
         super().__init__(
-            name="preprocess",
+            name=self.name,
             children=[
                 LoadData(),
                 CheckData(),

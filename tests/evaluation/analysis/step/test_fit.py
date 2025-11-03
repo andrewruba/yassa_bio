@@ -15,7 +15,7 @@ from yassa_bio.evaluation.analysis.step.fit import (
 from yassa_bio.evaluation.analysis.step.preprocess import LoadData
 from yassa_bio.schema.analysis.enum import Transformation, Weighting, CurveModel
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData, PlateLayout
@@ -71,7 +71,7 @@ def make_ctx(
     return LBAContext(
         batch_data=batch,
         analysis_config=cfg,
-        acceptance_criteria=LBAValidationAcceptanceCriteria(),
+        acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
     )
 
 

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import tempfile
+from pydantic import ValidationError
 
 from yassa_bio.evaluation.analysis.step.preprocess import (
     LoadData,
@@ -22,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from yassa_bio.schema.analysis.enum import BlankRule, NormRule, OutlierRule
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAValidationAcceptanceCriteria
+from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 
 
 def make_plate(
@@ -78,7 +79,7 @@ def make_ctx(
     return LBAContext(
         batch_data=batch,
         analysis_config=cfg,
-        acceptance_criteria=LBAValidationAcceptanceCriteria(),
+        acceptance_criteria=LBAAnalyticalAcceptanceCriteria(),
     )
 
 
@@ -97,11 +98,9 @@ class TestLoadData:
     def test_load_data_missing_df_attr(self):
         df = pd.DataFrame({"signal": [1], "concentration": [1]})
         ctx = make_ctx(df)
-        # hot-swap batch_data with invalid object
-        ctx.batch_data = Dummy()
-
-        with pytest.raises(TypeError, match=r"\.df property"):
-            LoadData().run(ctx)
+        with pytest.raises(ValidationError, match="2 validation errors for LBAContext"):
+            # hot-swap batch_data with invalid object
+            ctx.batch_data = Dummy()
 
 
 class TestCheckData:
@@ -149,10 +148,8 @@ class TestCheckData:
 
     def test_check_data_non_dataframe(self):
         ctx = make_ctx(df=pd.DataFrame())
-        ctx.data = ["not", "a", "frame"]
-
-        with pytest.raises(TypeError, match="must be a pandas DataFrame"):
-            CheckData().run(ctx)
+        with pytest.raises(ValidationError, match="1 validation error for LBAContext"):
+            ctx.data = ["not", "a", "frame"]
 
 
 class TestExcludeData:
