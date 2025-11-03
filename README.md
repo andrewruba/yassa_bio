@@ -40,10 +40,10 @@ This library is:
 ## Example Usage
 
 ```python
-from yassa_bio.run import run
+from yassa_bio.evaluation.run import run
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
-from yassa_bio.schema.acceptance.validation.spec import LBAAnalyticalAcceptanceCriteria
+from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceCriteria
 
 ctx = run(
     batch_data=BatchData(...),
