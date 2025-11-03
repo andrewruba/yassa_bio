@@ -1,12 +1,14 @@
 from pydantic import BaseModel
 
-from yassa_bio.pipeline.base import Step, PipelineContext
+from lilpipe.step import Step
+from lilpipe.models import PipelineContext
 
 
 class Acceptance(Step):
     name = "acceptance_criteria"
 
     def __init__(self, criteria: dict[BaseModel, Step]):
+        super().__init__(name=self.name)
         self.criteria = criteria
 
     def logic(self, ctx: PipelineContext) -> PipelineContext:

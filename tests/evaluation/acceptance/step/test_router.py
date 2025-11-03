@@ -1,6 +1,7 @@
 import pytest
 from pydantic import BaseModel
-from yassa_bio.pipeline.base import Step, PipelineContext
+from lilpipe.step import Step
+from lilpipe.models import PipelineContext
 from yassa_bio.evaluation.acceptance.step.router import Acceptance
 
 
@@ -14,6 +15,9 @@ class ConfigB(BaseModel):
 
 class DummyStep(Step):
     name = "dummy"
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: PipelineContext) -> PipelineContext:
         ctx.executed = True

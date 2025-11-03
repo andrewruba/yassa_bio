@@ -246,6 +246,21 @@ files = [
 ]
 
 [[package]]
+name = "lilpipe"
+version = "0.1.6"
+description = "A tiny, typed, sequential pipeline engine for Python"
+optional = false
+python-versions = ">=3.11"
+groups = ["main"]
+files = [
+    {file = "lilpipe-0.1.6-py3-none-any.whl", hash = "sha256:853645b2238181b81c9f689b8f26cdc74ae729d940b4a8feb252cebebfc5a87b"},
+    {file = "lilpipe-0.1.6.tar.gz", hash = "sha256:eb7dac7af800a09baa557c0bc00c29c575d11823a1b7e1876188ccb5be8e92d5"},
+]
+
+[package.dependencies]
+pydantic = ">=2.11.7,<3.0.0"
+
+[[package]]
 name = "mypy"
 version = "1.16.1"
 description = "Optional static typing for Python"
@@ -1031,4 +1046,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "9964eb565e6338158be793cc3eb481350f2ccec3fc3bf6c4b05f4bbc53b8b182"
+content-hash = "b7e1ec34a254cdc1c9c6d61f00a5280bbe4ad518e93a65783f59805d87054cb3"

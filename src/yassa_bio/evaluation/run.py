@@ -1,6 +1,6 @@
 import logging
 
-from yassa_bio.pipeline.engine import Pipeline
+from lilpipe.engine import Pipeline
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.evaluation.analysis.step.preprocess import Preprocess
 from yassa_bio.evaluation.analysis.step.fit import CurveFit

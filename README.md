@@ -76,7 +76,6 @@ poetry run pytest           # run tests
 
 ```
 yassa_bio/
-├── pipeline/         ← Core engine: step, pipeline, rerun, dispatch
 ├── schema/           ← Pydantic models: layout, acceptance, config
 ├── evaluation/       ← Step logic for acceptance criteria
 ├── core/             ← Curve fitting, transforms, QC utilities

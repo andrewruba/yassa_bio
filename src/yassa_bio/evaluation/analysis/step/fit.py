@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from yassa_bio.core.registry import get
-from yassa_bio.pipeline.base import Step
-from yassa_bio.pipeline.composite import CompositeStep
+from lilpipe.step import Step
 from yassa_bio.evaluation.context import LBAContext
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 from yassa_bio.schema.analysis.enum import CurveModel
@@ -15,6 +14,9 @@ class ApplyTransforms(Step):
         "data",
         "analysis_config",
     )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         cfg: LBAAnalysisConfig = ctx.analysis_config
@@ -36,6 +38,9 @@ class ComputeWeights(Step):
         "analysis_config",
     )
 
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
+
     def logic(self, ctx: LBAContext) -> LBAContext:
         cfg: LBAAnalysisConfig = ctx.analysis_config
         wt_fn = get("weighting", cfg.curve_fit.weighting)
@@ -54,6 +59,9 @@ class SelectCalibrationData(Step):
     name = "select_calibration"
     fingerprint_keys = ("data",)
 
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
+
     def logic(self, ctx: LBAContext) -> LBAContext:
         df = ctx.data
         cal_df = df[df["sample_type"] == SampleType.CALIBRATION_STANDARD.value].copy()
@@ -69,6 +77,9 @@ class FitCalibrationData(Step):
         "calib_df",
         "analysis_config",
     )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         cfg: LBAAnalysisConfig = ctx.analysis_config
@@ -89,10 +100,12 @@ class FitCalibrationData(Step):
         return ctx
 
 
-class CurveFit(CompositeStep):
+class CurveFit(Step):
+    name = "curve_fit"
+
     def __init__(self) -> None:
         super().__init__(
-            name="curve_fit",
+            name=self.name,
             children=[
                 ApplyTransforms(),
                 ComputeWeights(),

@@ -1,4 +1,4 @@
-from yassa_bio.pipeline.base import PipelineContext
+from lilpipe.models import PipelineContext
 from yassa_bio.schema.layout.batch import BatchData
 from yassa_bio.schema.layout.plate import PlateData
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig

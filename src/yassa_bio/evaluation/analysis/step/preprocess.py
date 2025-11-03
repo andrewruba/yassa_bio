@@ -2,15 +2,17 @@ import pandas as pd
 from typing import Iterable
 
 from yassa_bio.core.registry import get
-from yassa_bio.pipeline.base import Step
+from lilpipe.step import Step
 from yassa_bio.evaluation.context import LBAContext
-from yassa_bio.pipeline.composite import CompositeStep
 from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 
 
 class LoadData(Step):
     name = "load_data"
     fingerprint_keys = ("batch_data",)
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         obj = ctx.batch_data
@@ -24,6 +26,9 @@ class LoadData(Step):
 class CheckData(Step):
     name = "check_data"
     fingerprint_keys = ("data",)
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -49,6 +54,9 @@ class ExcludeData(Step):
     name = "exclude_data"
     fingerprint_keys = ("data",)
 
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
+
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
 
@@ -65,6 +73,9 @@ class SubtractBlank(Step):
         "data",
         "analysis_config",
     )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -91,6 +102,9 @@ class NormalizeSignal(Step):
         "analysis_config",
     )
 
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
+
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
         cfg: LBAAnalysisConfig = ctx.analysis_config
@@ -111,6 +125,9 @@ class MaskOutliers(Step):
         "data",
         "analysis_config",
     )
+
+    def __init__(self) -> None:
+        super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         df: pd.DataFrame = ctx.data
@@ -147,10 +164,12 @@ class MaskOutliers(Step):
                 yield "qc", g
 
 
-class Preprocess(CompositeStep):
+class Preprocess(Step):
+    name = "preprocess"
+
     def __init__(self) -> None:
         super().__init__(
-            name="preprocess",
+            name=self.name,
             children=[
                 LoadData(),
                 CheckData(),
