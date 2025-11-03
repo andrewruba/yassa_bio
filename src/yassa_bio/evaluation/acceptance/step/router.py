@@ -12,7 +12,7 @@ class Acceptance(Step):
         self.criteria = criteria
 
     def logic(self, ctx: PipelineContext) -> PipelineContext:
-        config_type = type(ctx.acceptance_config)
+        config_type = type(ctx.acceptance_criteria)
         step = self.criteria.get(config_type)
         if not step:
             raise ValueError(
