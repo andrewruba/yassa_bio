@@ -10,10 +10,6 @@ from yassa_bio.schema.layout.enum import SampleType
 
 class ApplyTransforms(Step):
     name = "apply_transforms"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -33,10 +29,6 @@ class ApplyTransforms(Step):
 
 class ComputeWeights(Step):
     name = "compute_weights"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -57,7 +49,6 @@ class ComputeWeights(Step):
 
 class SelectCalibrationData(Step):
     name = "select_calibration"
-    fingerprint_keys = ("data",)
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -73,10 +64,6 @@ class SelectCalibrationData(Step):
 
 class FitCalibrationData(Step):
     name = "fit_calibration_data"
-    fingerprint_keys = (
-        "calib_df",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)

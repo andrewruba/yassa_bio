@@ -16,7 +16,6 @@ class CheckRerun(Step):
     """
 
     name = "check_rerun"
-    fingerprint_keys = None
 
     def __init__(self) -> None:
         super().__init__(name=self.name)

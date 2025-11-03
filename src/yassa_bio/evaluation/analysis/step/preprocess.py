@@ -9,7 +9,6 @@ from yassa_bio.schema.analysis.config import LBAAnalysisConfig
 
 class LoadData(Step):
     name = "load_data"
-    fingerprint_keys = ("batch_data",)
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -25,7 +24,6 @@ class LoadData(Step):
 
 class CheckData(Step):
     name = "check_data"
-    fingerprint_keys = ("data",)
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -52,7 +50,6 @@ class CheckData(Step):
 
 class ExcludeData(Step):
     name = "exclude_data"
-    fingerprint_keys = ("data",)
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -69,10 +66,6 @@ class ExcludeData(Step):
 
 class SubtractBlank(Step):
     name = "subtract_blank"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -97,10 +90,6 @@ class SubtractBlank(Step):
 
 class NormalizeSignal(Step):
     name = "normalize_signal"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
@@ -121,10 +110,6 @@ class NormalizeSignal(Step):
 
 class MaskOutliers(Step):
     name = "mask_outliers"
-    fingerprint_keys = (
-        "data",
-        "analysis_config",
-    )
 
     def __init__(self) -> None:
         super().__init__(name=self.name)

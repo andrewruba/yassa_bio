@@ -8,7 +8,6 @@ from yassa_bio.schema.acceptance.analytical.spec import (
 
 class EvaluateSpecs(Step):
     name = "evaluate_specs"
-    fingerprint_keys = None
 
     def __init__(self) -> None:
         super().__init__(name=self.name)
