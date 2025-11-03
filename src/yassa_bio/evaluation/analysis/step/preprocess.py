@@ -15,10 +15,7 @@ class LoadData(Step):
 
     def logic(self, ctx: LBAContext) -> LBAContext:
         obj = ctx.batch_data
-        if hasattr(obj, "df"):
-            ctx.data = obj.df
-        else:
-            raise TypeError("ctx.batch_data must have a .df property")
+        ctx.data = obj.df  # validated in LBAContext
         return ctx
 
 
@@ -29,10 +26,7 @@ class CheckData(Step):
         super().__init__(name=self.name)
 
     def logic(self, ctx: LBAContext) -> LBAContext:
-        df: pd.DataFrame = ctx.data
-
-        if not isinstance(df, pd.DataFrame):
-            raise TypeError("ctx.data must be a pandas DataFrame")
+        df: pd.DataFrame = ctx.data  # validated in LBAContext
 
         required = {"signal", "concentration", "sample_type", "exclude"}
         missing = required - set(df.columns)
