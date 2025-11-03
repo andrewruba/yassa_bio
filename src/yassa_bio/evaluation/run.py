@@ -13,7 +13,8 @@ from yassa_bio.schema.acceptance.analytical.spec import LBAAnalyticalAcceptanceC
 
 
 pipe = Pipeline(
-    [
+    name="LBA Analysis Pipeline",
+    steps=[
         Preprocess(),
         CurveFit(),
         Acceptance(
@@ -21,7 +22,8 @@ pipe = Pipeline(
                 LBAAnalyticalAcceptanceCriteria: Analytical(),
             }
         ),
-    ]
+    ],
+    max_passes=3,
 )
 
 
