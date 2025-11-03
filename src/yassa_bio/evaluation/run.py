@@ -62,7 +62,6 @@ def run(
     - Logging is enabled at INFO level by default.
     - The pipeline will automatically dispatch to the appropriate acceptance steps
       depending on the type of criteria passed in.
-    - Some steps and features are under active development, and the API may change.
 
     Example
     -------
